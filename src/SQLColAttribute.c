@@ -18,7 +18,7 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColAttribute.c,v 1.9 2004/11/17 03:02:59 dbox Exp $
+ * $Id: SQLColAttribute.c,v 1.10 2004/11/23 23:03:22 dbox Exp $
  *
 
  *
@@ -93,9 +93,9 @@ if(ENABLE_TRACE){
     ood_mutex_lock_stmt(stmt);
 
     ar=&stmt->current_ar->recs.ar[ColumnNumber];
-    assert(IS_VALID(ar));
+    /*assert(IS_VALID(ar));*/
     ir=&stmt->current_ir->recs.ir[ColumnNumber];
-    assert(IS_VALID(ir));
+    /*assert(IS_VALID(ir));*/
    switch(FieldIdentifier)
     {
         case SQL_DESC_AUTO_UNIQUE_VALUE:
