@@ -18,9 +18,29 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetConnectAttr.c,v 1.4 2002/11/14 22:28:36 dbox Exp $
+ * $Id: SQLGetConnectAttr.c,v 1.5 2003/12/16 01:22:06 dbox Exp $
  *
  * $Log: SQLGetConnectAttr.c,v $
+ * Revision 1.5  2003/12/16 01:22:06  dbox
+ * changes contributed by Steven Reynolds sreynolds@bradmark.com
+ * SQLFreeHandle.c: Change order of frees in _SQLFreeHandle(). Free oci_stmt
+ * handle first before other oci handles. Oracle OCI code was touching freed memory.
+ *
+ * SQLGetConnectAttr.c: SQLGetConnectAttr() was setting the commit mode.
+ *
+ * SQLGetDiagRec.c:  Remove call to ood_clear_diag in SQLGetDiagRec().
+ * Otherwise client code was unable to get log messges.
+ *
+ * diagnostics.c: ood_post_diag() is allocates new error nodes, but code didn't set all
+ * fields. Change malloc to calloc.
+ *
+ * oracle_functions.c: ood_driver_prepare() allocated a new oci statement with out
+ * freeing the existing one.
+ *
+ * oracle_functions.c: ocivnu_sqlslong() passed to OCI code sizeof(long), but buflen
+ * was 4. This failed on Tru64 where sizeof(long) is 8. Change to pass min of these
+ * two values. Same in ocivnu_sqlulong().
+ *
  * Revision 1.4  2002/11/14 22:28:36  dbox
  * %$@*&%$??!
  *
@@ -72,7 +92,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetConnectAttr.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLGetConnectAttr.c,v $ $Revision: 1.5 $";
 SQLRETURN SQL_API SQLGetConnectAttr(
     SQLHDBC                ConnectionHandle,
     SQLINTEGER            Attribute,
@@ -125,7 +145,7 @@ if(ENABLE_TRACE){
 		case SQL_ATTR_AUTOCOMMIT:
         THREAD_MUTEX_LOCK(dbc);
         *((SQLUINTEGER*)ValuePtr)=
-			dbc->autocommit=OCI_DEFAULT?SQL_AUTOCOMMIT_OFF:SQL_AUTOCOMMIT_ON;
+			(dbc->autocommit==OCI_DEFAULT)?SQL_AUTOCOMMIT_OFF:SQL_AUTOCOMMIT_ON;
         THREAD_MUTEX_UNLOCK(dbc);
         break;
 

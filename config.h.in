@@ -32,11 +32,28 @@
  *
  *******************************************************************************
  *
- * $Id: config.h.in,v 1.11 2003/10/20 23:37:13 dbox Exp $
+ * $Id: config.h.in,v 1.12 2003/12/16 01:22:05 dbox Exp $
  *
  * $Log: config.h.in,v $
- * Revision 1.11  2003/10/20 23:37:13  dbox
- * various changes to handle blob i/o
+ * Revision 1.12  2003/12/16 01:22:05  dbox
+ * changes contributed by Steven Reynolds sreynolds@bradmark.com
+ * SQLFreeHandle.c: Change order of frees in _SQLFreeHandle(). Free oci_stmt
+ * handle first before other oci handles. Oracle OCI code was touching freed memory.
+ *
+ * SQLGetConnectAttr.c: SQLGetConnectAttr() was setting the commit mode.
+ *
+ * SQLGetDiagRec.c:  Remove call to ood_clear_diag in SQLGetDiagRec().
+ * Otherwise client code was unable to get log messges.
+ *
+ * diagnostics.c: ood_post_diag() is allocates new error nodes, but code didn't set all
+ * fields. Change malloc to calloc.
+ *
+ * oracle_functions.c: ood_driver_prepare() allocated a new oci statement with out
+ * freeing the existing one.
+ *
+ * oracle_functions.c: ocivnu_sqlslong() passed to OCI code sizeof(long), but buflen
+ * was 4. This failed on Tru64 where sizeof(long) is 8. Change to pass min of these
+ * two values. Same in ocivnu_sqlulong().
  *
  * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
  * second try, importing code into directories

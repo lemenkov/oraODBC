@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.25 2003/10/20 23:37:13 dbox Exp $
+ * $Id: oracle_functions.c,v 1.26 2003/12/16 01:22:06 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.25 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.26 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -41,6 +41,8 @@ static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.25 $";
 #ifdef EXPORT_SLPMPRODSTAB
 int slpmprodstab;
 #endif
+
+long local_min(long a, long b){if(a<b)return a; return b;}
 
 int epc_exit_handler()
 {
@@ -452,6 +454,10 @@ SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
    * Allocate the Oracle statement handle 
    */
   
+  if (stmt->oci_stmt) {
+      OCIHandleFree_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,ret);
+      stmt->oci_stmt = (OCIStmt *)0;
+  }
   ret=OCIHandleAlloc_log_stat(stmt->dbc->oci_env,(dvoid**)&stmt->oci_stmt,
 			      OCI_HTYPE_STMT,0,0,ret);
   if(ret)
@@ -1806,7 +1812,7 @@ SQLRETURN ocivnu_sqlslong(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
   src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
   ret=OCINumberToInt(ir->desc->dbc->oci_err,
-		     (OCINumber*)src,sizeof(long),OCI_NUMBER_SIGNED,
+		     (OCINumber*)src,local_min(buflen,sizeof(long)),OCI_NUMBER_SIGNED,
 		     target);
   if(ret)
     {
@@ -1814,7 +1820,7 @@ SQLRETURN ocivnu_sqlslong(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
       return SQL_ERROR;
     }
   if(indi)
-    *indi=sizeof(long);
+    *indi=local_min(buflen,sizeof(long));
   return SQL_SUCCESS;
 }
 /*
@@ -1828,7 +1834,7 @@ SQLRETURN ocivnu_sqlulong(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
   src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
   ret=OCINumberToInt(ir->desc->dbc->oci_err,
-		     (OCINumber*)src,sizeof(long),OCI_NUMBER_UNSIGNED,
+		     (OCINumber*)src,local_min(buflen,sizeof(long)),OCI_NUMBER_UNSIGNED,
 		     target);
   if(ret)
     {
@@ -1836,7 +1842,7 @@ SQLRETURN ocivnu_sqlulong(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
       return SQL_ERROR;
     }
   if(indi)
-    *indi=sizeof(long);
+    *indi=local_min(sizeof(long),buflen);
   return SQL_SUCCESS;
 }
 /*

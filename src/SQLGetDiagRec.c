@@ -18,9 +18,29 @@
  *
  ******************************************************************************
  *
- * $Id: SQLGetDiagRec.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLGetDiagRec.c,v 1.4 2003/12/16 01:22:06 dbox Exp $
  *
  * $Log: SQLGetDiagRec.c,v $
+ * Revision 1.4  2003/12/16 01:22:06  dbox
+ * changes contributed by Steven Reynolds sreynolds@bradmark.com
+ * SQLFreeHandle.c: Change order of frees in _SQLFreeHandle(). Free oci_stmt
+ * handle first before other oci handles. Oracle OCI code was touching freed memory.
+ *
+ * SQLGetConnectAttr.c: SQLGetConnectAttr() was setting the commit mode.
+ *
+ * SQLGetDiagRec.c:  Remove call to ood_clear_diag in SQLGetDiagRec().
+ * Otherwise client code was unable to get log messges.
+ *
+ * diagnostics.c: ood_post_diag() is allocates new error nodes, but code didn't set all
+ * fields. Change malloc to calloc.
+ *
+ * oracle_functions.c: ood_driver_prepare() allocated a new oci statement with out
+ * freeing the existing one.
+ *
+ * oracle_functions.c: ocivnu_sqlslong() passed to OCI code sizeof(long), but buflen
+ * was 4. This failed on Tru64 where sizeof(long) is 8. Change to pass min of these
+ * two values. Same in ocivnu_sqlulong().
+ *
  * Revision 1.3  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -59,7 +79,7 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: SQLGetDiagRec.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLGetDiagRec.c,v $ $Revision: 1.4 $";
 
 #include "common.h"
 
@@ -106,6 +126,7 @@ if(ENABLE_TRACE){
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
 }
-	ood_clear_diag((hgeneric*)Handle);
+	/* keep the error for repeated viewing
+       ood_clear_diag((hgeneric*)Handle); */
     return status;
 }
