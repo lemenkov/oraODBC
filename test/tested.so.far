@@ -9,6 +9,7 @@ SQLConnect
 SQLDescribeCol
 SQLDisconnect
 SQLDriverConnect
+SQLEndTran
 SQLExecDirect
 SQLExecute
 SQLFetch
