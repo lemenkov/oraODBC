@@ -18,11 +18,11 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColumns.c,v 1.7 2004/08/27 19:39:33 dbox Exp $
+ * $Id: SQLColumns.c,v 1.8 2005/03/17 01:57:06 dbox Exp $
  *
- * $Log: SQLColumns.c,v $
- * Revision 1.7  2004/08/27 19:39:33  dbox
- * correct some bad behavior in ar/ir handles wrt number of records in re-used handles
+ * $Log: SQLColumns.c,v 
+ * Revision 1.7  2004/08/27 19:39:33  dbo
+ * correct some bad behavior in ar/ir handles wrt number of records in re-used handle
  *
  * Revision 1.6  2004/06/11 20:10:43  dbox
  * fix to SQLColumns and friends
@@ -106,7 +106,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.7 $";
+static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.8 $";
 
 /*
  * Due to the fact that Oracle returns the data type as a varchar and

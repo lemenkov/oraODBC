@@ -18,11 +18,11 @@
  *
  *******************************************************************************
  *
- * $Id: diagnostics.c,v 1.4 2004/08/27 19:51:29 dbox Exp $
+ * $Id: diagnostics.c,v 1.5 2005/03/17 01:57:06 dbox Exp $
  *
- * $Log: diagnostics.c,v $
- * Revision 1.4  2004/08/27 19:51:29  dbox
- * added a new error condition
+ * $Log: diagnostics.c,v 
+ * Revision 1.4  2004/08/27 19:51:29  dbo
+ * added a new error conditio
  *
  * Revision 1.3  2003/12/16 01:22:06  dbox
  * changes contributed by Steven Reynolds sreynolds@bradmark.com
