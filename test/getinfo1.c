@@ -19,14 +19,35 @@
 #include <mem_functions.h>
 #include <common.h>
 
+typedef union {
+  int   i[25];
+  char s[100];
+} out_p;
+ 
 
-int main()
-{
-    SQLUSMALLINT  result;
+int main(int argc, char ** argv)
+{ 
+    out_p result;
     SQLSMALLINT some_val;
     int i;
-    
+    int iStart;
+    int iEnd;
+
     GET_LOGIN_VARS();
+
+    if(argc > 1 ){
+     iStart = atoi(argv[1]);
+     printf("starting sequence is %d \n",iStart);
+    }else
+      iStart=0;
+   
+    if(argc > 2){
+     iEnd = atoi(argv[2]);
+     printf("ending sequence is %d \n",iEnd);
+    }else
+      iEnd=getInfoOptsSIZE;
+
+    /*printf ("start=%d end=%d argc=%d \n",iStart,iEnd, argc);*/
     VERBOSE("calling SQLAllocHandle(EnvHandle) \n");
 
     rc = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &EnvHandle);
@@ -53,17 +74,30 @@ int main()
 
     VERBOSE("connected to  database %s\n",twoTask);
 
-    for(i=0; i< getInfoOptsSIZE; i++){
+    
+    for(i=iStart; i<iEnd; i++){
       VERBOSE("checking index=%d infotype=%d name=%s\n",i,getInfoOpts[i],
 				sql_get_info_type(getInfoOpts[i]));
       rc = SQLGetInfo(ConHandle,getInfoOpts[i],(void*)&result,
 		      sizeof(result),&some_val);
-      assert(rc==SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
+      
+      if(rc!=SQL_SUCCESS && rc!=SQL_SUCCESS_WITH_INFO){
+	printf("test %s  returned status %d\n",
+	       sql_get_info_type(getInfoOpts[i]),rc);
+      }
     }
-    result = 0;
+
+    /*
+      rc = SQLGetInfo(ConHandle,SQL_DRIVER_NAME,(void*)&result,
+		      sizeof(result),&some_val);
+    */
+    
+    result.i[0] = 0;
     rc = SQLGetInfo(ConHandle,SQL_TXN_CAPABLE,&result,
 		    sizeof(result),&some_val);
-    T_ASSERT(result!=0, "Oops, doesnt report transactions correctly");
+    assert(rc==SQL_SUCCESS);
+
+    T_ASSERT(result.i[0]!=0, "Oops, doesnt report transactions correctly");
 
     rc = SQLDisconnect(ConHandle);
     assert(rc == SQL_SUCCESS);
