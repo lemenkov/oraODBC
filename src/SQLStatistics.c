@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLStatistics.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLStatistics.c,v 1.3 2004/08/27 19:48:14 dbox Exp $
  *
  * $Log: SQLStatistics.c,v $
+ * Revision 1.3  2004/08/27 19:48:14  dbox
+ * correct some bad behavior in ar/ir handles wrt number of records in re-used handles
+ *
  * Revision 1.2  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -81,7 +84,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLStatistics.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLStatistics.c,v $ $Revision: 1.3 $";
 
 /*
  * NOTE, this completely ignores the Reserved param ATM
@@ -213,7 +216,14 @@ if(ENABLE_TRACE){
         return status;
     }
 
-	/*
+    /* Clear old data out of stmt->current_ir so it can be rebound.
+       The data in stmt->current_ar must not be touched, since it
+       may contain already bound ODBC columns. */
+
+    ood_ir_array_reset (stmt->current_ir->recs.ir, stmt->current_ir->num_recs,
+			stmt->current_ir);
+	
+    /*
      * Now we have to set up the columns for retrieval
      */
     if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,13,stmt->current_ir,
@@ -229,9 +239,11 @@ if(ENABLE_TRACE){
 
     ir=stmt->current_ir->recs.ir;
     ar=stmt->current_ar->recs.ar;
-    stmt->current_ir->num_recs=13;
 
-	
+    /* stmt->current_ir->num_recs is equal to the allocated size of the
+       ir and ar arrays. Shouldn't expect it to record the number of
+       bound parameters.  
+       stmt->current_ir->num_recs=13; */
 
     /*
      * Col 0 is bookmark, not implemented yet at all

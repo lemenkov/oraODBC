@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColumns.c,v 1.6 2004/06/11 20:10:43 dbox Exp $
+ * $Id: SQLColumns.c,v 1.7 2004/08/27 19:39:33 dbox Exp $
  *
  * $Log: SQLColumns.c,v $
+ * Revision 1.7  2004/08/27 19:39:33  dbox
+ * correct some bad behavior in ar/ir handles wrt number of records in re-used handles
+ *
  * Revision 1.6  2004/06/11 20:10:43  dbox
  * fix to SQLColumns and friends
  *
@@ -103,7 +106,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.6 $";
+static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.7 $";
 
 /*
  * Due to the fact that Oracle returns the data type as a varchar and
@@ -368,6 +371,13 @@ if(ENABLE_TRACE){
 	 */
 	stmt->alt_fetch=ood_fetch_sqlcolumns;
 
+    /* Clear old data out of stmt->current_ir so it can be rebound.
+       The data in stmt->current_ar must not be touched, since it
+       may contain already bound ODBC columns. */
+
+    ood_ir_array_reset (stmt->current_ir->recs.ir, stmt->current_ir->num_recs,
+			stmt->current_ir);
+	
     /*
      * Now we have to set up the columns for retrieval
      */
@@ -384,7 +394,10 @@ if(ENABLE_TRACE){
 
     ir=stmt->current_ir->recs.ir;
     ar=stmt->current_ar->recs.ar;
-    stmt->current_ir->num_recs=18;
+    /* stmt->current_ir->num_recs is equal to the allocated size of the
+       ir and ar arrays. Shouldn't expect it to record the number of
+       bound parameters.  
+       stmt->current_ir->num_recs=18; */
 
     /*
      * Col 0 is bookmark, not implemented yet

@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLTables.c,v 1.3 2003/01/27 21:06:50 dbox Exp $
+ * $Id: SQLTables.c,v 1.4 2004/08/27 19:49:34 dbox Exp $
  *
  * $Log: SQLTables.c,v $
+ * Revision 1.4  2004/08/27 19:49:34  dbox
+ * correct some bad behavior in ar/ir handles wrt number of records in re-used handles
+ *
  * Revision 1.3  2003/01/27 21:06:50  dbox
  * WTF is COPYING doing in here, its already EPL it cant be GPL too!
  *
@@ -87,7 +90,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLTables.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLTables.c,v $ $Revision: 1.4 $";
 
 static void ood_sqltables_construct_sql(hStmt_T* stmt,char* sql, char* schema, 
 		char *table, char *type, char* sql_end, int has_where_clause)
@@ -260,7 +263,13 @@ if(ENABLE_TRACE){
     status=ood_driver_prepare(stmt,(unsigned char*)sql);
     status|=ood_driver_execute(stmt);
 
+    /* Clear old data out of stmt->current_ir so it can be rebound.
+       The data in stmt->current_ar must not be touched, since it
+       may contain already bound ODBC columns. */
 
+    ood_ir_array_reset (stmt->current_ir->recs.ir, stmt->current_ir->num_recs,
+			stmt->current_ir);
+	
     /*
      * Now we have to set up the columns for retrieval
      */
@@ -277,7 +286,11 @@ if(ENABLE_TRACE){
 
     ir=stmt->current_ir->recs.ir;
     ar=stmt->current_ar->recs.ar;
-    stmt->current_ir->num_recs=5;
+
+    /* stmt->current_ir->num_recs is equal to the allocated size of the
+       ir and ar arrays. Shouldn't expect it to record the number of
+       bound parameters.  
+       stmt->current_ir->num_recs=5; */
 
     /*
      * Col 0 is bookmark, not implemented yet at all

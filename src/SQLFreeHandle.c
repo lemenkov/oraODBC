@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLFreeHandle.c,v 1.6 2003/12/16 01:22:06 dbox Exp $
+ * $Id: SQLFreeHandle.c,v 1.7 2004/08/27 19:42:40 dbox Exp $
  *
  * $Log: SQLFreeHandle.c,v $
+ * Revision 1.7  2004/08/27 19:42:40  dbox
+ * correct some bad behavior in ar/ir handles wrt number of records in re-used handles
+ *
  * Revision 1.6  2003/12/16 01:22:06  dbox
  * changes contributed by Steven Reynolds sreynolds@bradmark.com
  * SQLFreeHandle.c: Change order of frees in _SQLFreeHandle(). Free oci_stmt
@@ -122,7 +125,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.6 $";
+static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.7 $";
 
 void ood_ap_free(ap_T *ap)
 {
@@ -170,33 +173,15 @@ void ood_ip_free(ip_T *ip, int num_recs)
 
 void ood_ir_free(ir_T *ir, int num_recs)
 {
-    int i;
-    sword ret;
-    if(ir)
+  int i;
+
+  if (ir)
     {
-        for(i=0;i<=num_recs;i++)
+      for(i=0;i<=num_recs;i++)
         {
-            if(ir[i].data_ptr)
-            {
-                ORAFREE(ir[i].data_ptr);
-				if(ir[i].locator)
-				{
-					unsigned j;
-					for(j=0;j<ir->desc->stmt->row_array_size;j++)
-					{
-					    OCIDescriptorFree_log(ir[i].locator[j],OCI_DTYPE_LOB);
-					}
-                    ORAFREE(ir[i].locator);
-				}
-            }
-			if(ir[i].ind_arr)
-			    ORAFREE(ir[i].ind_arr);
-			if(ir[i].length_arr)
-			    ORAFREE(ir[i].length_arr);
-			if(ir[i].rcode_arr)
-			    ORAFREE(ir[i].rcode_arr);
+	  ood_ir_free_contents (ir + i);
         }
-        ORAFREE(ir);
+      ORAFREE(ir);
     }
 }
 

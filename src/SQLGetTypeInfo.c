@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetTypeInfo.c,v 1.3 2004/08/06 20:43:23 dbox Exp $
+ * $Id: SQLGetTypeInfo.c,v 1.4 2004/08/27 19:45:40 dbox Exp $
  *
  * $Log: SQLGetTypeInfo.c,v $
+ * Revision 1.4  2004/08/27 19:45:40  dbox
+ * correct some bad behavior in ar/ir handles wrt number of records in re-used handles
+ *
  * Revision 1.3  2004/08/06 20:43:23  dbox
  * comment out line stmt->current_ir->num_recs=0;
  *
@@ -81,7 +84,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetTypeInfo.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLGetTypeInfo.c,v $ $Revision: 1.4 $";
 
 /*
  * The information required for this isn't stored in Oracle, so
@@ -378,8 +381,9 @@ SQLRETURN SQL_API SQLGetTypeInfo(
 {
     SQLRETURN status=SQL_SUCCESS;
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
-	ir_T* ir;
-	ar_T* ar;
+    ir_T* ir;
+    ar_T* ar;
+	
 if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"ii",
@@ -388,12 +392,16 @@ if(ENABLE_TRACE){
 }
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
-    /*ghouston@intellecthr.com removed this line, I will leave it
-      commented out while I look at more code but check in change
-    stmt->current_ir->num_recs=0;
-    */
-	if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,19,stmt->current_ir,
-				stmt->current_ar))
+
+    /* Clear old data out of stmt->current_ir so it can be rebound.
+       The data in stmt->current_ar must not be touched, since it
+       may contain already bound ODBC columns. */
+
+    ood_ir_array_reset (stmt->current_ir->recs.ir, stmt->current_ir->num_recs,
+			stmt->current_ir);
+
+    if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,19,stmt->current_ir,
+				       stmt->current_ar))
     {
 if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
@@ -570,7 +578,11 @@ if(ENABLE_TRACE){
 
     ir=stmt->current_ir->recs.ir;
     ar=stmt->current_ar->recs.ar;
-    stmt->current_ir->num_recs=19;
+
+    /* stmt->current_ir->num_recs is equal to the allocated size of the
+       ir and ar arrays. Shouldn't expect it to record the number of
+       bound parameters.  
+       stmt->current_ir->num_recs=19; */
 
 	/*
      * Col 0 is bookmark, not implemented yet

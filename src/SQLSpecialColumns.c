@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSpecialColumns.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLSpecialColumns.c,v 1.3 2004/08/27 19:46:54 dbox Exp $
  *
  * $Log: SQLSpecialColumns.c,v $
+ * Revision 1.3  2004/08/27 19:46:54  dbox
+ * correct some bad behavior in ar/ir handles wrt number of records in re-used handles
+ *
  * Revision 1.2  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -63,7 +66,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSpecialColumns.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLSpecialColumns.c,v $ $Revision: 1.3 $";
 
 sword ood_fetch_sqlspecialcolumns(struct hStmt_TAG* stmt)
 {
@@ -136,9 +139,15 @@ if(ENABLE_TRACE){
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
 
-	stmt->current_ir->num_recs=0;
-	if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,8,stmt->current_ir,
-				stmt->current_ar))
+    /* Clear old data out of stmt->current_ir so it can be rebound.
+       The data in stmt->current_ar must not be touched, since it
+       may contain already bound ODBC columns. */
+
+    ood_ir_array_reset (stmt->current_ir->recs.ir, stmt->current_ir->num_recs,
+			stmt->current_ir);
+	
+    if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,8,stmt->current_ir,
+				       stmt->current_ar))
     {
 if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
@@ -148,10 +157,13 @@ if(ENABLE_TRACE){
         return SQL_ERROR;
     }
 
-	ir=stmt->current_ir->recs.ir;
+    ir=stmt->current_ir->recs.ir;
     ar=stmt->current_ar->recs.ar;
-    stmt->current_ir->num_recs=8;
 
+    /* stmt->current_ir->num_recs is equal to the allocated size of the
+       ir and ar arrays. Shouldn't expect it to record the number of
+       bound parameters.  
+       stmt->current_ir->num_recs=8; */
 	
 
 	/*
