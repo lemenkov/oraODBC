@@ -26,7 +26,7 @@ SQLRETURN SendLongData(void)
     // Start The Data-At-Execution Sequence By Calling 
     // SQLParamData()
     rc = SQLParamData(StmtHandle, (SQLPOINTER *) &Value);
-    printf("returned a value of  %s, goddammit\n",(const char*)Value);
+    printf("returned a value of  %s\n",(const char*)Value);
     // Examine The Contents Of Value (Returned By SQLParamData())
     // To Determine Which Data-At-Execution Parameter Currently
     // Needs Data

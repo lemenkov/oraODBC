@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLParamData.c,v 1.4 2003/10/20 23:37:13 dbox Exp $
+ * $Id: SQLParamData.c,v 1.5 2004/06/10 16:28:40 dbox Exp $
  *
  * $Log: SQLParamData.c,v $
+ * Revision 1.5  2004/06/10 16:28:40  dbox
+ * fixed some annoying behavior in SQLConnect and SQLDriverConnect where it didnt always find the server name
+ *
  * Revision 1.4  2003/10/20 23:37:13  dbox
  * various changes to handle blob i/o
  *
@@ -67,7 +70,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLParamData.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLParamData.c,v $ $Revision: 1.5 $";
 
 SQLRETURN SQL_API SQLParamData( 
     SQLHSTMT        StatementHandle,
@@ -94,7 +97,7 @@ fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
     if(ValuePtrPtr && (char)*ValuePtrPtr!='S'){
       *ValuePtrPtr = ORAMALLOC(strlen("Special Instructions")+1);
       strcpy((const char*)*ValuePtrPtr,"Special Instructions");
-      printf("set ValuePtrPtr to %s, goddammit\n",(const char*)*ValuePtrPtr);
+      //printf("set ValuePtrPtr to %s, goddammit\n",(const char*)*ValuePtrPtr);
       return SQL_NEED_DATA;
     }else{
       return SQL_SUCCESS;

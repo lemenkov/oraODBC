@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLDriverConnect.c,v 1.5 2003/08/05 19:40:43 dbox Exp $
+ * $Id: SQLDriverConnect.c,v 1.6 2004/06/10 16:28:40 dbox Exp $
  *
  * $Log: SQLDriverConnect.c,v $
+ * Revision 1.6  2004/06/10 16:28:40  dbox
+ * fixed some annoying behavior in SQLConnect and SQLDriverConnect where it didnt always find the server name
+ *
  * Revision 1.5  2003/08/05 19:40:43  dbox
  * changed tests to make less oracle specific
  *
@@ -85,7 +88,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDriverConnect.c,v $ $Revision: 1.5 $";
+static char const rcsid[]= "$RCSfile: SQLDriverConnect.c,v $ $Revision: 1.6 $";
 
 SQLRETURN ood_SQLDriverConnect(
     SQLHDBC                ConnectionHandle,
@@ -103,6 +106,7 @@ SQLRETURN ood_SQLDriverConnect(
          *next_pair;         /* the next AAA=BBB to deal with */
     int len_constr;          /* real length of connection string */
     SQLRETURN status=SQL_SUCCESS;
+    SQLSMALLINT ret;
     SQLCHAR trace_opt[4];
     assert(IS_VALID(dbc));
 
@@ -165,18 +169,34 @@ SQLRETURN ood_SQLDriverConnect(
     }while(this_pair);
     ORAFREE(local_str);
 
-    if(!*dbc->DB)
-        SQLGetPrivateProfileString(dbc->DSN,"DB",
+    if(!*dbc->DB){
+        ret=SQLGetPrivateProfileString(dbc->DSN,"DB",
+                "",dbc->DB,128,"ODBC.INI");
+	if(!ret)
+	  ret=SQLGetPrivateProfileString(dbc->DSN,"Database",
                 "",dbc->DB,128,"ODBC.INI");
 
-    if(!*dbc->UID)
-        SQLGetPrivateProfileString(dbc->DSN,"USER",
+    }
+    if(!*dbc->UID){
+        ret=SQLGetPrivateProfileString(dbc->DSN,"USER",
                 "",dbc->UID,32,"ODBC.INI");
-
-    if(!*dbc->PWD)
-        SQLGetPrivateProfileString(dbc->DSN,"PASSWORD",
+	if(!ret)
+	  ret=SQLGetPrivateProfileString(dbc->DSN,"USERNAME",
+                "",dbc->UID,32,"ODBC.INI");
+	if(!ret)
+	  ret=SQLGetPrivateProfileString(dbc->DSN,"UID",
+                "",dbc->UID,32,"ODBC.INI");
+    }
+    if(!*dbc->PWD){
+        ret=SQLGetPrivateProfileString(dbc->DSN,"PASSWORD",
                 "",dbc->PWD,64,"ODBC.INI");
-
+	if(!ret)
+	  ret=SQLGetPrivateProfileString(dbc->DSN,"PWD",
+                "",dbc->PWD,64,"ODBC.INI");
+	if(!ret)
+	  ret=SQLGetPrivateProfileString(dbc->DSN,"PASSWD",
+                "",dbc->PWD,64,"ODBC.INI");
+    }
     if(OutConnectionString&&BufferLength)
     {
         char OutTmp[512+FILENAME_MAX]; /* should be long enough */ 

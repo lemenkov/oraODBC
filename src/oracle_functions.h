@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.h,v 1.3 2002/06/19 22:21:37 dbox Exp $
+ * $Id: oracle_functions.h,v 1.4 2004/06/10 16:28:40 dbox Exp $
  *
  * $Log: oracle_functions.h,v $
+ * Revision 1.4  2004/06/10 16:28:40  dbox
+ * fixed some annoying behavior in SQLConnect and SQLDriverConnect where it didnt always find the server name
+ *
  * Revision 1.3  2002/06/19 22:21:37  dbox
  * more tweaks to OCI calls to report what happens when DEBUG level is set
  *
@@ -160,6 +163,7 @@ SQLRETURN ocinul_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 
 #endif
 
+SQLRETURN ood_xlate_status(sword stat);
 sword ood_driver_bind_param(hStmt_T*,int);
 char * oci_hdtype_name(ub4 hdtype);
 char * oci_stmt_type_name(int stmt_type);
