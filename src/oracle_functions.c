@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.16 2002/12/11 22:25:30 dbox Exp $
+ * $Id: oracle_functions.c,v 1.17 2003/01/06 20:03:13 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.16 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.17 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -444,7 +444,7 @@ SQLRETURN ood_driver_disconnect(hDbc_T *dbc)
 SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
 {
   sword ret;
-  
+  int len;
   /*
    * Allocate the Oracle statement handle 
    */
@@ -468,6 +468,13 @@ SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
 		  (SQLHANDLE)stmt->dbc,0,"s",
 		  "ood_driver_prepare",sql_in);
 #endif
+  /*filter out trailing blanks and ;'s */
+  len=strlen(sql_in);
+  while(len>=1 && sql_in[len-1]==';' || sql_in[len-1]==' ')
+    {
+      sql_in[len-1]=(char)0;
+      len--;
+    }
   ret=OCIStmtPrepare_log_stat(stmt->oci_stmt,stmt->dbc->oci_err,sql_in,
 			      strlen((const char*)sql_in),OCI_NTV_SYNTAX,OCI_DEFAULT,ret);
   if(ret)
@@ -891,6 +898,7 @@ SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
   app->num_recs=rows;
   while(floor<=rows)
     {
+      memset(&(imp->recs.ip[floor]),0,sizeof(struct ip_TAG));
       imp->recs.ip[floor].data_type=0;
       imp->recs.ip[floor].orig_type=0;
       imp->recs.ip[floor].data_size=0;
@@ -901,12 +909,13 @@ SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
       imp->recs.ip[floor].to_oracle=NULL;
       imp->recs.ip[floor].desc=imp;
       imp->recs.ip[floor].valid_flag=VALID_FLAG_DEFAULT;
-
       imp->recs.ir[floor].ind_arr=NULL;
       imp->recs.ir[floor].length_arr=NULL;
       imp->recs.ir[floor].rcode_arr=NULL;
       imp->recs.ir[floor].valid_flag=VALID_FLAG_DEFAULT;
 
+
+      memset(&(app->recs.ap[floor]),0,sizeof(struct ap_TAG));
       app->recs.ap[floor].auto_unique=0;
       app->recs.ap[floor].base_column_name=NULL;
       app->recs.ap[floor].base_table_name=NULL;

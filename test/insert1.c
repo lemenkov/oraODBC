@@ -1,6 +1,6 @@
 /*test function: SQLExecDirect  to insert a row into table 'some_types'
  * author: Dennis Box, dbox@fnal.gov
- * $Id: insert1.c,v 1.5 2002/06/26 21:02:23 dbox Exp $
+ * $Id: insert1.c,v 1.6 2003/01/06 20:03:13 dbox Exp $
  */
 
 
@@ -54,7 +54,7 @@ int main()
 
  
     sprintf(SQLStmt,"insert into some_types values( ");
-    strcat(SQLStmt," 1,1.95,'a random STRING') ");
+    strcat(SQLStmt," 1,1.95,'a random STRING'); ");
     
     rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
     VERBOSE("executing statement: %s \n", SQLStmt);
