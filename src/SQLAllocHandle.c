@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLAllocHandle.c,v 1.5 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLAllocHandle.c,v 1.6 2004/08/27 19:35:46 dbox Exp $
  *
  * $Log: SQLAllocHandle.c,v $
+ * Revision 1.6  2004/08/27 19:35:46  dbox
+ * change autocommit behavior to conform w standards
+ *
  * Revision 1.5  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -99,7 +102,7 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.5 $";
+static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.6 $";
 
 #include "common.h"
 
@@ -209,8 +212,11 @@ SQLRETURN _SQLAllocHandle(
             dbc->oci_svc=NULL;
             dbc->oci_ses=NULL;
             dbc->oci_env=NULL;
-	    /* and autocommit */
-	    dbc->autocommit=OCI_DEFAULT;
+
+	    /* autocommit ON is the normal default for ODBC. It can be
+	       changed through SQLSetConnectAttr.  */
+	    dbc->autocommit=OCI_COMMIT_ON_SUCCESS;
+
 	    dbc->metadata_id=0;
 
             /*
