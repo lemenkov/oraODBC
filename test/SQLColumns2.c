@@ -31,9 +31,9 @@ static SQLHDBC ConHandle = NULL;
 void LogODBCError (SQLRETURN nResult, SQLSMALLINT fHandleType,
 		   SQLHANDLE handle);
 int db_connect ();
-char *Get_DSNName ();
-char *Get_UserName ();
-char *Get_Password ();
+char *Get_DSNName() {return (char*) dsn;}
+char *Get_UserName() {return (char*) userName;}
+char *Get_Password() {return (char*) pswd ; }
 int print_columns (char *TableName);
 
 /* code begins */
@@ -52,7 +52,7 @@ main (int argc, char **argv)
 
   RETCODE retcode = -1;
   int rc;
-
+  GET_LOGIN_VARS()
   retcode = SQLAllocHandle (SQL_HANDLE_ENV, SQL_NULL_HENV, &EnvHandle);
 
   if (retcode != SQL_SUCCESS) {
