@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLConnect.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLConnect.c,v 1.4 2004/08/02 21:21:16 dbox Exp $
  *
  * $Log: SQLConnect.c,v $
+ * Revision 1.4  2004/08/02 21:21:16  dbox
+ * tinkered w reading odbc.ini procedure
+ *
  * Revision 1.3  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -79,7 +82,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLConnect.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLConnect.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLConnect(
     SQLHDBC         ConnectionHandle,
@@ -93,6 +96,7 @@ SQLRETURN SQL_API SQLConnect(
     hDbc_T *dbc=(hDbc_T*)ConnectionHandle;
     SQLRETURN status=SQL_SUCCESS;
     SQLCHAR trace_opt[4];
+    SQLSMALLINT ret;
     assert(IS_VALID(dbc));
 
     
@@ -110,7 +114,7 @@ SQLRETURN SQL_API SQLConnect(
                 __LINE__,0,"",ERROR_STATE_HY000,
                 __FILE__,__LINE__);
     }
-
+    
     THREAD_MUTEX_LOCK(dbc);
     if(NameLength1>0)
     {
@@ -125,9 +129,11 @@ SQLRETURN SQL_API SQLConnect(
     /*
      * Now see if we can get the DB
      */
-    SQLGetPrivateProfileString(dbc->DSN,"DB",
+    ret=SQLGetPrivateProfileString(dbc->DSN,"DB",
             "",dbc->DB,128,"ODBC.INI");
-
+    if(!ret)
+	    ret=SQLGetPrivateProfileString(dbc->DSN,"Database",
+            "",dbc->DB,128,"ODBC.INI"); 
 
     /*
      * For UID and PWD the defaults in the odbc.ini are overridden 
@@ -144,8 +150,15 @@ SQLRETURN SQL_API SQLConnect(
     }
     else
     {
-        SQLGetPrivateProfileString(dbc->DSN,"USER",
+        ret=SQLGetPrivateProfileString(dbc->DSN,"USER",
                 "",dbc->UID,32,"ODBC.INI");
+	if(!ret)
+	  ret=SQLGetPrivateProfileString(dbc->DSN,"USERNAME",
+		      "",dbc->UID,32,"ODBC.INI");
+	if(!ret)
+	  ret=SQLGetPrivateProfileString(dbc->DSN,"UID",
+	               "",dbc->UID,32,"ODBC.INI");
+
     }
     
     if(NameLength3>0)
@@ -159,8 +172,14 @@ SQLRETURN SQL_API SQLConnect(
     }
     else
     {
-        SQLGetPrivateProfileString(dbc->DSN,"PASSWORD",
+        ret=SQLGetPrivateProfileString(dbc->DSN,"PASSWORD",
                 "",dbc->PWD,64,"ODBC.INI");
+	if(!ret)
+	  ret=SQLGetPrivateProfileString(dbc->DSN,"PWD",
+                  "",dbc->PWD,64,"ODBC.INI");
+	if(!ret)
+	  ret=SQLGetPrivateProfileString(dbc->DSN,"PASSWD",
+                  "",dbc->PWD,64,"ODBC.INI");
     }
 
 if(ENABLE_TRACE){
