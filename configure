@@ -799,7 +799,7 @@ else
 fi
 
 
-PACKAGE=oracle
+PACKAGE=oraodbc
 
 VERSION=0.5.0
 
