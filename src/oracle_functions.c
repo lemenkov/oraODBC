@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.18 2003/01/17 23:27:15 dbox Exp $
+ * $Id: oracle_functions.c,v 1.19 2003/01/30 19:16:01 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.18 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.19 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -693,7 +693,7 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
       ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
 		      &scale,
 		      0,OCI_ATTR_SCALE,stmt->dbc->oci_err);
-      if(scale!=-127)
+      /*if(scale!=-127)*/
 	stmt->current_ar->recs.ar[i].scale=(SQLSMALLINT)scale;
       
       /* AR nullable */
@@ -745,9 +745,12 @@ SQLRETURN ood_driver_prefetch(hStmt_T* stmt)
 SQLRETURN ood_ocitype_to_sqltype_imp(hStmt_T* stmt, int colNum)
 {
   
-  SQLRETURN ret = ood_ocitype_to_sqltype(
-					 stmt->current_ir->recs.ir[colNum].orig_type);
+
+  SQLRETURN ret = stmt->current_ar->recs.ar[colNum].concise_type;
+
+  if(!ret) ret = ood_ocitype_to_sqltype( stmt->current_ir->recs.ir[colNum].orig_type);
   
+
   if (stmt->current_ar->recs.ar[colNum].data_type == SQL_C_FLOAT)
     ret = SQL_C_FLOAT;
   if (stmt->current_ar->recs.ar[colNum].data_type == SQL_C_DOUBLE)
@@ -768,7 +771,7 @@ SQLRETURN ood_ocitype_to_sqltype_imp(hStmt_T* stmt, int colNum)
  */
 SQLRETURN ood_ocitype_to_sqltype(ub2 data_type)
 {
-  
+
   switch(data_type)
     {
       /*varchar*/
@@ -776,18 +779,20 @@ SQLRETURN ood_ocitype_to_sqltype(ub2 data_type)
     case SQLT_RID:
     case SQLT_STR:
     case SQLT_VST:
-      return SQL_C_CHAR;
+    case SQLT_VCS:
+    case SQLT_AVC:
+
+      return SQL_VARCHAR;
 
       /* fixed char */
     case SQLT_CHR:
     case SQLT_AFC:
-    case SQLT_VCS:
-    case SQLT_AVC:
-      return SQL_C_CHAR;
+
+      return SQL_CHAR;
 
       /* numbers*/
     case SQLT_INT:
-      return SQL_C_SLONG;
+      return SQL_INTEGER;
         
     case SQLT_FLT:
       return SQL_C_DOUBLE;
@@ -824,7 +829,7 @@ SQLRETURN ood_ocitype_to_sqltype(ub2 data_type)
       return SQL_C_BINARY;
 
     }
-  return SQL_C_CHAR;
+  return SQL_UNKNOWN_TYPE;
 }
 
 /*
@@ -1625,15 +1630,18 @@ SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar)
     {
       ar->data_type=ood_ocitype_to_sqltype(ir->data_type);
       /*hack alert!! */
-      if(ar->precision==38 && ar->scale==0){
-	ar->data_type=SQL_C_SLONG;
+
+      if(ar->precision!=0 && ar->scale==0){
+	ar->data_type=SQL_INTEGER;
       }
-      if(ar->precision==126 && ar->scale==0){
-	ar->data_type=SQL_C_DOUBLE;
+
+      if(ar->scale==-127){
+	if(ar->precision==126)
+	  ar->data_type=SQL_DOUBLE;
+	else
+	ar->data_type=SQL_FLOAT;
       }
-      if(ar->precision==63 && ar->scale==0){
-	ar->data_type=SQL_C_FLOAT;
-      }
+      
       ar->concise_type=ar->data_type;
       ar->display_size=sqltype_display_size(ar->data_type,ir->data_size);
     }

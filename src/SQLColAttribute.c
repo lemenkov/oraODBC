@@ -18,82 +18,42 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColAttribute.c,v 1.5 2003/01/27 21:06:50 dbox Exp $
+ * $Id: SQLColAttribute.c,v 1.6 2003/01/30 19:16:01 dbox Exp $
  *
- * $Log: SQLColAttribute.c,v $
- * Revision 1.5  2003/01/27 21:06:50  dbox
- * WTF is COPYING doing in here, its already EPL it cant be GPL too!
- *
- * Revision 1.4  2002/06/26 21:02:23  dbox
- * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
- * setenv DEBUG 3 traces through OCIxxx functions
- *
- *
- * VS: ----------------------------------------------------------------------
- *
- * Revision 1.3  2002/03/08 22:07:19  dbox
- * added commit/rollback, more tests for SQLColAttribute
- *
- * Revision 1.2  2002/02/23 00:23:12  dbox
- * added some missing cases to the switch statement
- *
- * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
- * second try, importing code into directories
- *
- * Revision 1.15  2000/07/10 08:24:35  tom
- * tweaks for less tolerant compilers
- *
- * Revision 1.14  2000/07/07 07:58:56  tom
- * lots more debugging
- * null pointer checks
- * SQL_DESC_TYPE_NAME and SQL_DESC_LOCAL_TYPE_NAME
- *
- * Revision 1.13  2000/06/05 15:58:27  tom
- * A few more attributes added
- *
- * Revision 1.12  2000/05/17 15:17:45  tom
- * Debugging and Tracing improved
- *
- * Revision 1.11  2000/05/15 08:58:37  tom
- * Release 0.0.2
- *
- * Revision 1.10  2000/05/10 12:42:44  tom
- * Various updates
- *
- * Revision 1.9  2000/05/04 14:56:31  tom
- * diagnostics now cleared down (almost) properly
- * local functions renamed to make clashes less likely
- *
- * Revision 1.8  2000/05/03 16:00:02  tom
- * initial tracing implementation
- *
- * Revision 1.7  2000/05/02 14:29:01  tom
- * initial thread safety measures
- *
- * Revision 1.6  2000/04/28 08:39:45  tom
- * Tidy up
- *
- * Revision 1.5  2000/04/26 15:27:26  tom
- * general tidy up
- *
- * Revision 1.4  2000/04/26 10:13:44  tom
- * #include order tweaked
- *
- * Revision 1.3  2000/04/20 10:50:31  nick
- * Add to CVS and tidy up
- *
- * Revision 1.2  2000/04/19 15:24:06  tom
- * First functional checkin
- *
- * Revision 1.1  2000/04/13 11:44:22  tom
- * Added files
+
  *
  ******************************************************************************/
 
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: SQLColAttribute.c,v $ $Revision: 1.5 $";
+static char const rcsid[]= "$RCSfile: SQLColAttribute.c,v $";
+
+
+const char * _sql_desc_type_name( struct ar_TAG * ar)
+{ 
+ 
+  if(ar->scale==-127){
+    return "FLOAT";
+  }
+
+  if(ar->precision!=0){
+    if(ar->scale==0)
+      return "INTEGER";
+    return "NUMBER";
+  }
+
+  if(ar->concise_type==SQL_VARCHAR)
+    return "VARCHAR";
+
+  if(ar->concise_type==SQL_CHAR)
+    return "CHAR";
+
+
+  return "UNKNOWN TYPE";
+}
+
+
 
 SQLRETURN SQL_API SQLColAttribute(
     SQLHSTMT            StatementHandle,
@@ -106,7 +66,9 @@ SQLRETURN SQL_API SQLColAttribute(
 {
     hStmt_T *stmt=(hStmt_T*)StatementHandle;
     struct ar_TAG *ar;
+    struct ir_TAG *ir;
     SQLRETURN status=SQL_SUCCESS;
+    assert(IS_VALID(stmt));
 
     if(!stmt||HANDLE_TYPE(stmt)!=SQL_HANDLE_STMT)
         return SQL_INVALID_HANDLE;
@@ -121,8 +83,10 @@ if(ENABLE_TRACE){
     ood_mutex_lock_stmt(stmt);
 
     ar=&stmt->current_ar->recs.ar[ColumnNumber];
-
-    switch(FieldIdentifier)
+    assert(IS_VALID(ar));
+    ir=&stmt->current_ir->recs.ir[ColumnNumber];
+    assert(IS_VALID(ir));
+   switch(FieldIdentifier)
     {
         case SQL_DESC_AUTO_UNIQUE_VALUE:
             *((SQLINTEGER*)NumericAttributePtr)=ar->auto_unique;
@@ -337,6 +301,28 @@ fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAtt
       break;
       
     case SQL_DESC_TYPE_NAME:
+
+
+      if(getenv("DEBUG") && atoi(getenv("DEBUG"))>3){
+	fprintf(stderr,"SQL_DESC_TYPE_NAME %s %d\n",__FILE__,__LINE__);
+	/*dump_ar_T(ar);
+	dump_ir_T(ir); */
+ 	fprintf(stderr,"======================= %s %d\n",__FILE__,__LINE__);
+      }
+      if(!ar->type_name){
+	const char *nm = _sql_desc_type_name(ar);
+	int len = strlen(nm);
+	char *type_name = (char*) ORAMALLOC(len);
+	assert(len <= 31); /*max identifier length in oracle*/
+	ood_bounded_strcpy(type_name, nm,31);
+	ar->type_name=type_name;
+	
+	ood_bounded_strcpy(CharacterAttributePtr,
+			   (char*)ar->type_name,BufferLength);
+	if(StringLengthPtr)
+	  *StringLengthPtr=strlen((const char*)ar->type_name);
+      }
+
 #ifdef UNIX_DEBUG
       fprintf(stderr,"SQL_DESC_TYPE_NAME %s %d\n",__FILE__,__LINE__);
 #endif
@@ -353,6 +339,7 @@ fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAtt
 	  if(StringLengthPtr)
 	    *StringLengthPtr=0;
 	}
+
       break;
       
     case SQL_DESC_UNNAMED:

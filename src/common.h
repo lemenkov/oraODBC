@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.6 2003/01/17 23:27:15 dbox Exp $
+ * $Id: common.h,v 1.7 2003/01/30 19:16:01 dbox Exp $
  *
  * $Log: common.h,v $
+ * Revision 1.7  2003/01/30 19:16:01  dbox
+ * more tweaking of SQLColAttribute.c and friends
+ *
  * Revision 1.6  2003/01/17 23:27:15  dbox
  * more solaris tidy-ups
  *
@@ -203,7 +206,7 @@ typedef uint64_t u_int64_t;
 struct hgeneric_TAG;
 static  int g_Debug_Oracle_ODBC;
 
-#define IS_VALID(x) (x->valid_flag==VALID_FLAG_DEFAULT)
+#define IS_VALID(x) (x !=NULL && x->valid_flag==VALID_FLAG_DEFAULT)
 #include "diagnostics.h"
 #include "mem_functions.h"
 
@@ -508,6 +511,9 @@ typedef struct ir_TAG ir_T;
 
 ar_T * make_ar_T();
 ir_T * make_ir_T();
+void dump_ar_T(ar_T * t);
+void dump_ir_T(ir_T * t);
+
 hEnv_T * make_hEnv_T();
 hDbc_T * make_hDbc_T();
 hDesc_T * make_hDesc_T();

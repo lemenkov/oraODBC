@@ -18,31 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: sqllex.l,v 1.2 2003/01/27 21:06:50 dbox Exp $
+ * $Id: sqllex.l,v 1.3 2003/01/30 19:16:01 dbox Exp $
  *
- * $Log: sqllex.l,v $
- * Revision 1.2  2003/01/27 21:06:50  dbox
- * WTF is COPYING doing in here, its already EPL it cant be GPL too!
- *
- * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
- * second try, importing code into directories
- *
- * Revision 1.4  2000/07/10 08:24:35  tom
- * tweaks for less tolerant compilers
- *
- * Revision 1.3  2000/07/07 08:08:24  tom
- * typo
- *
- * Revision 1.2  2000/06/07 09:36:58  tom
- * added yywrap to avoid uneccessary -lf link
- *
- * Revision 1.1  2000/06/05 16:08:55  tom
- * First implementation
- *
+ 
  *
  ******************************************************************************/
 %{
-static char const rcsid[]= "$RCSfile: sqllex.l,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: sqllex.l,v $ $Revision: 1.3 $";
 #undef YY_DECL
 #define YY_DECL static int ood_yylex(char *sql,char *buf, char *sql_end,int* num_params)
 #ifndef YY_USE_PROTOS 

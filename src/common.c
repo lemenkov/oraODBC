@@ -1,5 +1,5 @@
 #include "common.h"
-/* $Id: common.c,v 1.4 2003/01/17 23:27:15 dbox Exp $*/
+/* $Id: common.c,v 1.5 2003/01/30 19:16:01 dbox Exp $*/
 #define IS_VALID(x) (x->valid_flag==VALID_FLAG_DEFAULT)
 SQLRETURN not_implemented()
 {
@@ -57,6 +57,47 @@ ar_T * make_ar_T()
 };
 
 
+void dump_ar_T(ar_T * t)
+
+{
+
+  printf("this is function dump_ar_T(%x)\n",t);
+  printf("auto_unique=%d ",t->auto_unique);
+  printf("base_column_name='%s'\n",t->base_column_name);
+  printf("base_table_name='%s' ",t->base_table_name);
+  printf("case_sensitive=%d\n",t->case_sensitive);
+  printf("catalog_name='%s' ",t->catalog_name);
+  printf("concise_type=%d\n",t->concise_type);
+  printf("data_ptr=%x ",t->data_ptr);
+  printf("display_size=%d\n",t->display_size);
+  printf("fixed_prec_scale=%d ",t->fixed_prec_scale);
+  printf("bind_indicator=%d\n",t->bind_indicator);
+  printf("column_label='%s' ",t->column_label);
+  printf("length=%d\n",t->length);
+  printf("literal_prefix='%s' ",t->literal_prefix);
+  printf("literal_suffix='%s'\n",t->literal_suffix);
+  printf("local_type_name=%d ",t->local_type_name);
+  printf("column_name='%s'\n",t->column_name);
+  printf("nullable=%d ",t->nullable);
+  printf("num_prec_radix=%d\n",t->num_prec_radix);
+  printf("octet_length=%d ",t->octet_length);
+  printf("precision=%d\n",t->precision);
+  printf("scale=%d ",t->scale);
+  printf("schema_name='%s'\n",t->schema_name);
+  printf("searchable=%d ",t->searchable);
+  printf("table_name='%s'\n",t->table_name);
+  printf("data_type=%d ",t->data_type);
+  printf("type_name='%s'\n",t->type_name);
+  printf("un_signed=%d ",t->un_signed);
+  printf("updateable=%d\n",t->updateable);
+  printf("buffer_length=%d ",t->buffer_length);
+  printf("bind_target_type=%d\n",t->bind_target_type);
+  printf("valid_flag=%d\n",t->valid_flag);
+
+};
+
+
+
 ir_T * make_ir_T()
 {  
   ir_T * t = ORAMALLOC(sizeof(ir_T));
@@ -78,6 +119,29 @@ ir_T * make_ir_T()
   t->lobsiz = ub4_DEFAULT;
   t->valid_flag = VALID_FLAG_DEFAULT;
   return t;
+}
+void dump_ir_T(ir_T * t)
+
+{
+
+  printf("this is function dump_ir_T(%x)\n",t);
+  printf("t->data_type =%d ",t->data_type );
+  printf("t->orig_type =%d\n",t->orig_type );
+  printf("t->data_size =%d ",t->data_size );
+  printf("t->col_num = %d\n",t->col_num );
+  printf("t->default_copy =%d ",t->default_copy  );
+  printf("t->to_string = %x\n", t->to_string  );
+  printf("t->to_oracle = %x ",t->to_oracle );
+  printf("t->desc = %d\n",t->desc );
+  printf("t->data_ptr =  %x ",t->data_ptr );
+  printf("t->ind_arr = %d\n",t->ind_arr );
+  printf("t->length_arr = %d ",t->length_arr );
+  printf("t->rcode_arr =%d\n", t->rcode_arr );
+  printf("t->locator = %x ",t->locator );
+  printf("t->posn = %d\n",t->posn );
+  printf("t->lobsiz = %d ",t->lobsiz );
+  printf("t->valid_flag =%d\n ", t->valid_flag );
+
 }
 
 
