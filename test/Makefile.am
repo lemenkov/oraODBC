@@ -1,5 +1,5 @@
 
-# $Id: Makefile.am,v 1.15 2002/09/27 19:12:01 dbox Exp $
+# $Id: Makefile.am,v 1.16 2003/02/03 22:44:33 dbox Exp $
 check_PROGRAMS=\
 connect1 \
 connect2 \
@@ -20,7 +20,8 @@ getinfo1 \
 insert5 \
 insert6 \
 insert7 \
-read4
+read4 \
+SQLColumns1
 
 
 INCLUDES = -I${ODBCIDIR} -I../src \

@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.20 2003/01/30 21:01:37 dbox Exp $
+ * $Id: oracle_functions.c,v 1.21 2003/02/03 22:44:33 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.20 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.21 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -2605,12 +2605,17 @@ SQLRETURN ocidty_sqlint(int row,ir_T* ir ,SQLPOINTER target,
 
   if(!strncmp((char*)str,"VARCHAR2",8))
     {
-      *((int*)target)=SQL_C_CHAR;
+      *((int*)target)=SQL_VARCHAR;
+      return SQL_SUCCESS;
+    }
+  if(!strncmp((char*)str,"FLOAT",5))
+    {
+      *((int*)target)=SQL_REAL;
       return SQL_SUCCESS;
     }
   if(!strncmp((char*)str,"CHAR",4))
     {
-      *((int*)target)=SQL_C_CHAR;
+      *((int*)target)=SQL_CHAR;
       return SQL_SUCCESS;
     }
   if(!strncmp((char*)str,"CLOB",4)||!strncmp((char*)str,"LONG ",5))
@@ -2620,7 +2625,7 @@ SQLRETURN ocidty_sqlint(int row,ir_T* ir ,SQLPOINTER target,
     }
   if(!strncmp((char*)str,"NUMBER",6))
     {
-      *((int*)target)=SQL_C_NUMERIC;
+      *((int*)target)=SQL_NUMERIC;
       return SQL_SUCCESS;
     }
   if(!strncmp((char*)str,"DATE",4))
