@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetInfo.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: SQLGetInfo.c,v 1.2 2002/04/03 01:21:44 dbox Exp $
  *
  * $Log: SQLGetInfo.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/04/03 01:21:44  dbox
+ * reports that it supports transactions
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.10  2000/07/21 10:10:51  tom
  * Forward only cursor attributes added
@@ -61,7 +64,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetInfo.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLGetInfo.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLGetInfo(
     SQLHDBC                ConnectionHandle,
@@ -1065,11 +1068,17 @@ SQLRETURN SQL_API SQLGetInfo(
         strcpy(inftxt,"SQL_TIMEDATE_FUNCTIONS");
 		break;
 #endif
-        case SQL_TXN_CAPABLE:
+
+
+        case SQL_TXN_CAPABLE: 
+	  *(SQLUSMALLINT*)InfoValuePtr=SQL_TXN_CAPABLE;
 #ifdef UNIX_DEBUG
         strcpy(inftxt,"SQL_TXN_CAPABLE");
-		break;
-#endif
+#endif	
+	break;
+
+
+
         case SQL_TXN_ISOLATION_OPTION:
 #ifdef UNIX_DEBUG
         strcpy(inftxt,"SQL_TXN_ISOLATION_OPTION");
