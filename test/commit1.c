@@ -13,24 +13,9 @@
 
 int main()
 {
-    // Declare The Local Memory Variables
-    #define MAX_LEN 100
-    SQLRETURN   rc = SQL_SUCCESS;
-    SQLCHAR     twoTask[MAX_LEN];
-    SQLCHAR     *userName = "scott";
-    SQLCHAR     *pswd = "tiger";
-    SQLHANDLE    EnvHandle;
-    SQLHANDLE    ConHandle;
-    HSTMT    StmtHandle;
-    SQLCHAR  SQLStmt[255];
     
-    if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_LEN)
-      sprintf(twoTask,"%s",getenv("TWO_TASK"));
-    else{
-      fprintf(stderr,"Error: TWO_TASK env variable must be set\n");
-      exit(-1);
-    }
-      
+    GET_LOGIN_VARS();
+
     VERBOSE("calling SQLAllocHandle(EnvHandle) \n");
 
     rc = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &EnvHandle);

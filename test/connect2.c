@@ -19,25 +19,10 @@
 
 int main()
 {
-    // Declare The Local Memory Variables
-    #define MAX_LEN 100
-    SQLRETURN   rc = SQL_SUCCESS;
-    SQLCHAR     twoTask[MAX_LEN];
-    SQLCHAR     *userName = "scott";
-    SQLCHAR     *pswd = "tiger";
-    SQLCHAR     driverStr[MAX_LEN];
-    SQLHANDLE    EnvHandle;
-    SQLHANDLE    ConHandle;
    
 
    
-    
-    if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_LEN)
-      sprintf(twoTask,"%s",getenv("TWO_TASK"));
-    else{
-      fprintf(stderr,"Error: TWO_TASK env variable must be set\n");
-      exit(-1);
-    }
+    GET_LOGIN_VARS();
 
 
 

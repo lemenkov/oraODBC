@@ -15,35 +15,11 @@
  * The Original Code was created by Easysoft Limited and its successors. 
  *
  * Contributor(s): Tom Fosdick (Easysoft) 
+ *                 Dennis Box (Fermi Nat Accelerator Lab)
  *
  *******************************************************************************
  *
- * $Id: common_functions.h,v 1.2 2002/05/16 19:27:26 dbox Exp $
- *
- * $Log: common_functions.h,v $
- * Revision 1.2  2002/05/16 19:27:26  dbox
- * new test to beat the crap out of SQLGetInfo.c
- *
- * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
- * second try, importing code into directories
- *
- * Revision 1.5  2000/05/11 13:17:32  tom
- * *** empty log message ***
- *
- * Revision 1.4  2000/05/04 14:56:32  tom
- * diagnostics now cleared down (almost) properly
- * local functions renamed to make clashes less likely
- *
- * Revision 1.3  2000/05/02 14:29:01  tom
- * initial thread safety measures
- *
- * Revision 1.2  2000/04/27 13:43:47  tom
- * Added #define to stop double inclusion
- *
- * Revision 1.1  2000/04/26 14:30:43  tom
- *
- * New generic functions
- *
+ * $Id: common_functions.h,v 1.3 2002/05/22 22:05:31 dbox Exp $
  ******************************************************************************/
 #ifndef _ORACOMMON_FUNCTIONS_H
 #define _ORACOMMON_FUNCTIONS_H
@@ -57,8 +33,8 @@ void* ora_malloc(size_t num);
 void* ora_realloc(void *ptr, size_t size);
 const char * odbc_var_type(SQLSMALLINT sqltype);
 const char * oci_var_type(SQLSMALLINT sqltype);
-
-SQLINTEGER sqltype_display_size(SQLSMALLINT,int);
+const char * sql_get_info_type(SQLSMALLINT sqltype);
+SQLINTEGER sqltype_display_size(SQLSMALLINT a, int b);
 void ood_mutex_lock_stmt(hStmt_T *stmt);
 void ood_mutex_unlock_stmt(hStmt_T *stmt);
 int ood_mutex_init(hgeneric* handle);

@@ -1,0 +1,105 @@
+#!/bin/sh 
+#oracle environment tester
+echo
+echo
+echo This script tests for important environment variables that must be set
+echo in order for the oracle_odbc_driver tests to function correctly.
+echo if this script complains about anything you probably must fix it
+echo in order to test the driver
+echo
+echo
+echo
+
+
+echo -n "checking for ORACLE_HOME... "
+if [ -d $ORACLE_HOME ]  ; then
+    echo OK
+else
+    echo ORACLE_HOME not found! Check your oracle installation
+    exit -1
+fi
+
+echo -n "checking for TNS_ADMIN... "
+if [ -d $TNS_ADMIN ]  ; then
+    echo .OK
+else
+    echo TNS_ADMIN  not found! Check your oracle installation
+    exit -1
+fi
+
+echo -n "checking for tnsnames.ora file... "
+if [ -e $TNS_ADMIN/tnsnames.ora ]  ; then
+    echo OK
+else
+    echo TNS_ADMIN/tnsnames.ora  not found! Check your oracle installation
+    exit -1
+fi
+
+echo -n "checking TWO_TASK environment variable... "
+if [ -n "$TWO_TASK" ]  ; then
+    echo OK
+else
+    echo TWO_TASK  not found! Check your oracle installation
+    exit -1
+fi
+
+cmd="grep -i $TWO_TASK $TNS_ADMIN/tnsnames.ora"
+echo -n  "checking that oracle client knows about $TWO_TASK... "
+rslt=`$cmd`;
+if [ -n "$rslt" ] ; then
+	echo ..OK
+    else
+	echo .....FAILED tnsnames.ora must contain reference to $TWO_TASK !
+	exit -1
+fi
+
+echo -n "checking ORA_USER environment variable... "
+if [ -n "$ORA_USER" ]  ; then
+    echo OK
+else
+    echo ORA_USER  not found! \'make check\' target will fail
+    exit -1
+fi
+
+echo -n "checking ORA_PWD environment variable... "
+if [ -n "$ORA_PWD" ]  ; then
+    echo OK
+else
+    echo ORA_PWD  not found! \'make check\' target will fail
+    exit -1
+fi
+
+echo -n "checking ODBCSYSINI environment variable... "
+if [ -n "$ODBCSYSINI" ]  ; then
+    echo OK
+else
+    echo ODBCSYSINI  not found! check your unixODBC installation
+    exit -1
+fi
+cmd="grep oraodbc $ODBCSYSINI/odbcinst.ini"
+echo -n  "checking that unixODBC knows about oraodbc driver. "
+rslt=`$cmd`;
+if [ -n "$rslt" ] ; then
+	echo ..OK
+    else
+	echo .....FAILED $ODBCSYSINI/odbcinst.ini  must contain reference to oraodbc, the driver we are testing !!!!
+	exit -1
+fi
+
+
+
+echo -n "checking for a local .odbc.ini file... "
+if [ -e $HOME/.odbc.ini ]  ; then
+    echo OK
+else
+    echo $HOME/.odbc.ini  not found! check your unixODBC installation
+    exit -1
+fi
+
+
+echo
+echo ENVIRONMENT LOOKS OK!  you still need to make sure that 
+echo user $ORA_USER has a valid login on $TWO_TASK database 
+echo
+
+exit 0

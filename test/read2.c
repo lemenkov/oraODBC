@@ -15,29 +15,11 @@
 
 
 #include "test_defs.h"
-#include <stdio.h>
-#include <assert.h>
-#ifdef WIN32
-#include <windows.h>
-#endif
-
-#include <sql.h>
-#include <sqlext.h>
 
 
 
 int main()
 {
-    // Declare The Local Memory Variables
-    #define MAX_LEN 255
-    SQLRETURN   rc = SQL_SUCCESS;
-    SQLCHAR     twoTask[MAX_LEN];
-    SQLCHAR     *userName = "scott";
-    SQLCHAR     *pswd = "tiger";
-    SQLHANDLE    EnvHandle;
-    SQLHANDLE    ConHandle;
-    SQLHANDLE   StmtHandle;
-    SQLCHAR  SQLStmt[MAX_LEN];
 
     int an_int;
     SQLUSMALLINT num_cols;
@@ -54,13 +36,7 @@ int main()
 
 
     
-    if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_LEN)
-      sprintf(twoTask,"%s",getenv("TWO_TASK"));
-    else{
-      fprintf(stderr,"Error: TWO_TASK env variable must be set\n");
-      exit(-1);
-    }
-      
+    GET_LOGIN_VARS();
     VERBOSE("calling SQLAllocHandle(EnvHandle) \n");
 
     rc = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &EnvHandle);

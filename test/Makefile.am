@@ -19,12 +19,10 @@ getinfo1
 INCLUDES = -I${ODBCIDIR} -I../src \
  -I${ODBCIDIR} -I${ORAIDIR} -I${ORANDIR} -I${ORAPDIR}
 
-TESTS = $(check_PROGRAMS)
-EXTRA_DIST = runtests
+EXTRA_DIST = check_oracle_environment runtests 
+TESTS = check_oracle_environment $(check_PROGRAMS)
 
-LDFLAGS =       -L${ODBCLDIR} -lodbc ../src/mem_functions.o ../src/common.o
-
-
+LDFLAGS =     -L${ODBCLDIR} -lodbc -loraodbc ../src/mem_functions.o ../src/common.o ../src/common_functions.o
 
 CLEANFILES=*.*~ .deps/*.P
 

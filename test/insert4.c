@@ -21,14 +21,6 @@ int main()
     // Declare The Local Memory Variables
     #define MAX_CHAR_LEN 255
     #define ARRAY_LEN 3
-    SQLRETURN   rc = SQL_SUCCESS;
-    SQLCHAR     twoTask[MAX_CHAR_LEN];
-    SQLCHAR     *userName = "scott";
-    SQLCHAR     *pswd = "tiger";
-    SQLHANDLE    EnvHandle;
-    SQLHANDLE    ConHandle;
-    HSTMT    StmtHandle;
-    SQLCHAR  SQLStmt[MAX_CHAR_LEN];
     SQLINTEGER   anInt,cbInt,cbFloat;
     SQLFLOAT   aFloat;
     SQLCHAR   aCharArray[MAX_CHAR_LEN];
@@ -40,13 +32,8 @@ int main()
     SQLSMALLINT      DecimalDigits;
     SQLSMALLINT      Nullable;
 
-    if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_CHAR_LEN)
-      sprintf(twoTask,"%s",getenv("TWO_TASK"));
-    else{
-      fprintf(stderr,"Error: TWO_TASK env variable must be set\n");
-      exit(-1);
-    }
-      
+
+    GET_LOGIN_VARS();
     VERBOSE("calling SQLAllocHandle(EnvHandle) \n");
 
     rc = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &EnvHandle);

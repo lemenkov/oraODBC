@@ -15,116 +15,11 @@
  * The Original Code was created by Easysoft Limited and its successors. 
  *
  * Contributor(s): Tom Fosdick (Easysoft) 
+		   Dennis Box (Ferm Nat Accelerator Lab)
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.8 2002/05/16 19:27:26 dbox Exp $
- *
- * $Log: oracle_functions.c,v $
- * Revision 1.8  2002/05/16 19:27:26  dbox
- * new test to beat the crap out of SQLGetInfo.c
- *
- * Revision 1.7  2002/05/14 23:01:06  dbox
- * added a bunch of error checking and some 'constructors' for the
- * environment handles
- *
- * Revision 1.6  2002/05/14 12:03:19  dbox
- * fixed some malloc/free syntax
- *
- * Revision 1.5  2002/05/02 15:39:48  dbox
- * fixed unused var warnings found by insure++
- *
- * Revision 1.4  2002/03/08 22:07:19  dbox
- * added commit/rollback, more tests for SQLColAttribute
- *
- * Revision 1.3  2002/03/06 23:00:19  dbox
- * Changed to report float(126) and integer (actually NUMBER(38,0)
- * more correctly.
- *
- * S: ----------------------------------------------------------------------
- *
- * Revision 1.2  2002/03/05 22:55:50  dbox
- * added functionality to oracle_functions.c
- *
- * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
- * second try, importing code into directories
- *
- * Revision 1.26  2000/07/21 10:18:50  tom
- * Initial implementation of LOBs
- * A few casts made explicit for less tolerant compilers
- *
- * Revision 1.25  2000/07/10 08:24:35  tom
- * tweaks for less tolerant compilers
- *
- * Revision 1.24  2000/07/07 07:54:10  tom
- * ocivnu_sqlnts changed to accomodate Oracle 8.0.x
- * Numerous changes for block cursors
- *
- * Revision 1.23  2000/06/05 15:54:35  tom
- * Initial bound params implementation
- * couple of bug fixes
- *
- * Revision 1.22  2000/05/23 16:08:13  tom
- * SQLPrepare now removes whitespace and ; from EOL
- * Implemented autocommit
- * Added some more debugging code
- *
- * Revision 1.21  2000/05/17 15:31:39  tom
- * typo
- *
- * Revision 1.20  2000/05/17 15:21:13  tom
- * OCIEnv moved to dbc, tracing/debugging improved
- *
- * Revision 1.19  2000/05/16 08:59:38  tom
- * More library version tweaks
- *
- * Revision 1.17  2000/05/15 08:58:37  tom
- * Release 0.0.2
- *
- * Revision 1.16  2000/05/12 09:40:16  tom
- * OCI_OBJECT mode initialisation restored
- *
- * Revision 1.15  2000/05/11 13:27:45  tom
- * Bugfixes and tweaks
- *
- * Revision 1.14  2000/05/10 12:42:44  tom
- * Various updates
- *
- * Revision 1.13  2000/05/08 16:21:00  tom
- * General tidyness mods and clean up
- *
- * Revision 1.12  2000/05/04 14:56:32  tom
- * diagnostics now cleared down (almost) properly
- * local functions renamed to make clashes less likely
- *
- * Revision 1.11  2000/05/02 16:24:58  tom
- * resolved deadlock and a few tidy-ups
- *
- * Revision 1.10  2000/05/02 14:29:01  tom
- * initial thread safety measures
- *
- * Revision 1.9  2000/04/28 09:01:27  tom
- * drv_type_to_sql_type added
- *
- * Revision 1.8  2000/04/28 08:39:45  tom
- * Tidy up
- *
- * Revision 1.7  2000/04/26 15:25:57  tom
- * reworked the building up of the IR
- *
- * Revision 1.6  2000/04/26 11:11:32  tom
- * Changes to accomodate new defines structure
- *
- * Revision 1.3  2000/04/20 10:50:31  nick
- * Add to CVS and tidy up
- *
- * Revision 1.2  2000/04/19 15:29:45  tom
- * First Functional Checkin
- *
- * Revision 1.1  2000/04/13 11:44:22  tom
- * Added files
- *
- ******************************************************************************
+ * $Id: oracle_functions.c,v 1.9 2002/05/22 22:05:31 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -133,7 +28,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.8 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.9 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
