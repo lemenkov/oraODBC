@@ -27,8 +27,8 @@ int main()
     SQLCHAR     *pswd = "tiger";
     SQLHANDLE    EnvHandle;
     SQLHANDLE    ConHandle;
-   
-
+    SQLUSMALLINT  result;
+    SQLSMALLINT some_val;
    
     
     if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_LEN)
@@ -64,7 +64,11 @@ int main()
 
     VERBOSE("connected to  database %s\n",twoTask);
 
-   
+    result = 0;
+    rc = SQLGetInfo(ConHandle,SQL_TXN_CAPABLE,&result,
+		    sizeof(result),&some_val);
+    T_ASSERT(result!=0, "Oops, doesnt report transactions correctly");
+
     rc = SQLDisconnect(ConHandle);
     assert(rc == SQL_SUCCESS);
     VERBOSE("disconnected from  database\n");

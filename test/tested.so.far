@@ -15,6 +15,7 @@ SQLExecute
 SQLFetch
 SQLFreeHandle
 SQLGetData
+SQLGetInfo
 SQLNumResultCols
 SQLParamOptions
 SQLPrepare
