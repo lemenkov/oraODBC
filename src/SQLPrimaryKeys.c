@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLPrimaryKeys.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLPrimaryKeys.c,v 1.3 2003/01/18 15:00:24 dbox Exp $
  *
  * $Log: SQLPrimaryKeys.c,v $
+ * Revision 1.3  2003/01/18 15:00:24  dbox
+ * fixed a constraint on a join
+ *
  * Revision 1.2  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -66,7 +69,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLPrimaryKeys.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLPrimaryKeys.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLPrimaryKeys(
     SQLHSTMT            StatementHandle,
@@ -95,9 +98,23 @@ SQLRETURN SQL_API SQLPrimaryKeys(
 	 */
 
 #ifdef ENABLE_USER_CATALOG
-	char sql[512]="SELECT NULL, USER_CONSTRAINTS.OWNER, USER_CONSTRAINTS.TABLE_NAME, COLUMN_NAME, POSITION, USER_CONSTRAINTS.CONSTRAINT_NAME FROM USER_CONSTRAINTS, USER_CONS_COLUMNS WHERE USER_CONSTRAINTS.OWNER = USER_CONS_COLUMNS.OWNER AND USER_CONSTRAINTS.TABLE_NAME = USER_CONS_COLUMNS.TABLE_NAME AND USER_CONSTRAINTS.CONSTRAINT_TYPE='P' AND POSITION!=0";
+	char sql[1024]=
+	  "SELECT NULL, USER_CONSTRAINTS.OWNER, USER_CONSTRAINTS.TABLE_NAME,\
+           COLUMN_NAME, POSITION, USER_CONSTRAINTS.CONSTRAINT_NAME\
+           FROM USER_CONSTRAINTS, USER_CONS_COLUMNS\
+           WHERE USER_CONSTRAINTS.OWNER = USER_CONS_COLUMNS.OWNER\
+           AND USER_CONSTRAINTS.TABLE_NAME = USER_CONS_COLUMNS.TABLE_NAME\
+           AND USER_CONSTRAINTS.CONSTRAINT_NAME = USER_CONS_COLUMNS.CONSTRAINT_NAME\
+           AND USER_CONSTRAINTS.CONSTRAINT_TYPE='P' AND POSITION!=0 ";
 #else
-	char sql[512]="SELECT NULL, ALL_CONSTRAINTS.OWNER, ALL_CONSTRAINTS.TABLE_NAME, COLUMN_NAME, POSITION, ALL_CONSTRAINTS.CONSTRAINT_NAME FROM ALL_CONSTRAINTS, ALL_CONS_COLUMNS WHERE ALL_CONSTRAINTS.OWNER = ALL_CONS_COLUMNS.OWNER AND ALL_CONSTRAINTS.TABLE_NAME = ALL_CONS_COLUMNS.TABLE_NAME AND ALL_CONSTRAINTS.CONSTRAINT_TYPE='P' AND POSITION!=0";
+	char sql[1024]=
+	  "SELECT NULL, ALL_CONSTRAINTS.OWNER, ALL_CONSTRAINTS.TABLE_NAME,\
+           COLUMN_NAME, POSITION, ALL_CONSTRAINTS.CONSTRAINT_NAME\
+           FROM ALL_CONSTRAINTS, ALL_CONS_COLUMNS\
+           WHERE ALL_CONSTRAINTS.OWNER = ALL_CONS_COLUMNS.OWNER\
+           AND ALL_CONSTRAINTS.TABLE_NAME = ALL_CONS_COLUMNS.TABLE_NAME\
+           AND ALL_CONSTRAINTS.CONSTRAINT_NAME = ALL_CONS_COLUMNS.CONSTRAINT_NAME\
+           AND ALL_CONSTRAINTS.CONSTRAINT_TYPE='P' AND POSITION!=0 ";
 #endif
 if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
@@ -164,7 +181,8 @@ fprintf(stderr,"SQLPrimaryKeys schema [%s], table [%s]\n",schema,table);
             sql_end=ood_fast_strcat(sql,table,sql_end);
 
         if(!stmt->dbc->metadata_id)
-            sql_end=ood_fast_strcat(sql," ESCAPE \'\\\'",sql_end);
+		sql_end=ood_fast_strcat(sql,
+		" ORDER BY OWNER, TABLE_NAME, POSITION", sql_end);
     }
 #if defined(ENABLE_TRACE) && defined(UNIX_DEBUG)
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
