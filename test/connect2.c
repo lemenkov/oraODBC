@@ -5,7 +5,7 @@
 /*              SQLFreeHandle()                                    */
 /*              SQLSetEnvAttr()                                    */
  /* author: Dennis Box, dbox@fnal.gov
- * $Id: connect2.c,v 1.5 2002/05/31 19:55:00 dbox Exp $
+ * $Id: connect2.c,v 1.6 2003/01/17 23:10:42 dbox Exp $
  */
 
 #include "test_defs.h"
@@ -57,8 +57,7 @@ int main()
 			  SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
    
 
-    T_ASSERT2(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO,
-	    " failed to login with this string:",driverStr );
+    assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
 
     VERBOSE("Connected to  database %s\n",twoTask);
 

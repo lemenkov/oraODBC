@@ -1,7 +1,7 @@
 /* test reads data from some_numeric_types table inserted by insert3.c
  *
  * author: Dennis Box, dbox@fnal.gov
- * $Id: read3.c,v 1.7 2002/05/31 19:55:00 dbox Exp $
+ * $Id: read3.c,v 1.8 2003/01/17 23:10:42 dbox Exp $
  */
 
 /*      test following functions:                                  */
@@ -34,18 +34,20 @@ int main()
 {
     // Declare The Local Memory Variables
 
-    int anInteger,anInt,aSmallInt;
-    float aDecimal83,aNumeric94,aFloat,aFloat9,aReal;
-    SQLUSMALLINT num_cols, param1, param2;
+    int anInteger_i,anInt_i,aSmallInt_i;
+    float aDecimal83_f,aNumeric94_f,aFloat_f,aFloat9_f,aReal_f;
+    SQLSMALLINT numCols_si, p1_si;
+    SQLINTEGER p2_i;
     SQLCHAR buf1[MAX_LEN];
     SQLCHAR buf2[MAX_LEN];
    
-    SQLUSMALLINT col;
-    SQLSMALLINT col_len;
-    SQLSMALLINT type;
-    SQLUINTEGER sz;
-    SQLSMALLINT scale;
-    SQLSMALLINT can_null;
+    SQLUSMALLINT i_usi;
+    SQLSMALLINT len_si,tp_si;
+    SQLINTEGER type_i;
+    SQLSMALLINT sz_si;
+    SQLUINTEGER sz_ui;
+    SQLSMALLINT scale_si;
+    SQLSMALLINT nullable_si;
 
     
 
@@ -89,63 +91,73 @@ int main()
     rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
     assert(rc == SQL_SUCCESS);
 
-    rc = SQLNumResultCols(StmtHandle,&num_cols);
+    rc = SQLNumResultCols(StmtHandle,&numCols_si);
     assert(rc==SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
-    assert(num_cols==8);
+    assert(numCols_si==8);
 
 
     rc = SQLColAttribute(StmtHandle, 1, SQL_DESC_COUNT,
-			      NULL, NULL, NULL, &param2);
+			      NULL, NULL, NULL, &p2_i);
     assert(rc==SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
 
-    VERBOSE("SQLNumParams says  %d SQLColAttribute says %d\n",param1,param2);
+    VERBOSE("SQLNumResultCols says  %d SQLColAttribute says %d\n",numCols_si,p2_i);
 
-    assert(param2 == 8);
+    assert(p2_i == 8);
 
-    rc = SQLNumParams(StmtHandle,&param1);
+    rc = SQLNumParams(StmtHandle,&p1_si);
     assert(rc==SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
 
-    assert(param1 == 0);
+    assert(p1_si == 0);
 
-    for(col=1; col<=num_cols; col++)
+    for(i_usi=1; i_usi<=numCols_si; i_usi++)
       {
-	rc = SQLDescribeCol(StmtHandle,col,buf1,MAX_LEN,&col_len,
-			    &type,&sz,&scale,&can_null);
+	rc = SQLDescribeCol(StmtHandle, 
+			    i_usi,
+			    buf1,
+			    sizeof(buf1),
+			    &len_si,
+			    &tp_si,
+			    &sz_ui,
+			    &scale_si,
+			    &nullable_si);
 
-	assert(rc==SQL_SUCCESS);
-
-	VERBOSE("col=%d name:%s len=%d type=%d size=%d scale=%d nullable=%d\n"
-		,col,buf1,col_len,type,sz,scale,can_null);
-
-	if(col<3) assert(type==SQL_C_SLONG);
-	if(col==6)assert(type==SQL_C_DOUBLE);
-	if(col==8)assert(type==SQL_C_FLOAT);
-	if(col==4||col==5||col==7)  assert(type==SQL_C_NUMERIC);
+	assert(rc==SQL_SUCCESS); 
+ 
+	VERBOSE("SQLDescribeCol col=%d name:%s len=%d type_i=%d size=%d scale_si=%d nullable=%d\n"
+		,i_usi,buf1,len_si,type_i,sz_ui,scale_si,nullable_si);
+	/*	
+	if(i_usi<3) assert(type_i==SQL_C_SLONG);
+	if(i_usi==6)assert(type_i==SQL_C_DOUBLE);
+	if(i_usi==8)assert(type_i==SQL_C_FLOAT);
+	if(i_usi==4||i_usi==5||i_usi==7)  assert(type_i==SQL_C_NUMERIC);
+	*/
 	
 
-	rc = SQLColAttribute(StmtHandle, col, SQL_DESC_NAME,
-			      buf2, sizeof(buf2), &type, NULL);
+	rc = SQLColAttribute(StmtHandle, i_usi, SQL_DESC_NAME,
+			      buf2, sizeof(buf2), &sz_si, NULL);
 
 	assert(rc==SQL_SUCCESS);
 	assert(strcmp(buf1,buf2)==0);
 
-	type=0;
-	rc = SQLColAttribute(StmtHandle, col, SQL_DESC_TYPE,
-			      NULL, NULL,NULL,(SQLPOINTER)&type);
+	type_i=0;
+	rc = SQLColAttribute(StmtHandle, i_usi, SQL_DESC_TYPE,
+			      NULL, NULL,NULL,(SQLPOINTER)&type_i);
 	assert(rc==SQL_SUCCESS);
-	if(col<3) assert(type==SQL_C_SLONG);
-	if(col==6)assert(type==SQL_C_DOUBLE);
-	if(col==8)assert(type==SQL_C_FLOAT);
-	if(col==4||col==5||col==7)  assert(type==SQL_C_NUMERIC);
+	VERBOSE("SQLColAttribute col %d type %d \n", i_usi, type_i );
+	if(i_usi<3) assert(type_i==SQL_C_SLONG);
+	if(i_usi==6)assert(type_i==SQL_C_DOUBLE);
+	if(i_usi==8)assert(type_i==SQL_C_FLOAT);
+	if(i_usi==4||i_usi==5||i_usi==7)  assert(type_i==SQL_C_NUMERIC);
 
-        type=0;
-        rc = SQLColAttribute(StmtHandle, col, SQL_DESC_CONCISE_TYPE,
-                              NULL, NULL,NULL,(SQLPOINTER)&type);
+        type_i=0;
+        rc = SQLColAttribute(StmtHandle, i_usi, SQL_DESC_CONCISE_TYPE,
+                              NULL, NULL,NULL,(SQLPOINTER)&type_i);
         assert(rc==SQL_SUCCESS);
-        if(col<3) assert(type==SQL_C_NUMERIC);
-        if(col==6)assert(type==SQL_C_DOUBLE);
-        if(col==8)assert(type==SQL_C_FLOAT);
-        if(col==4||col==5||col==7)  assert(type==SQL_C_NUMERIC);
+	VERBOSE("SQLColAttribute col %d concise type %d \n", i_usi, type_i );
+        if(i_usi<3) assert(type_i==SQL_C_NUMERIC);
+        if(i_usi==6)assert(type_i==SQL_C_DOUBLE);
+        if(i_usi==8)assert(type_i==SQL_C_FLOAT);
+        if(i_usi==4||i_usi==5||i_usi==7)  assert(type_i==SQL_C_NUMERIC);
 
 
       }
@@ -158,42 +170,42 @@ int main()
     while(SQLFetch(StmtHandle)==SQL_SUCCESS){
 
       rc = SQLGetData(StmtHandle, 1, SQL_C_SLONG, 
-		      &anInteger, sizeof(anInteger), NULL);
+		      &anInteger_i, sizeof(anInteger_i), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
       
       rc = SQLGetData(StmtHandle, 2, SQL_C_SLONG, 
-		      &anInt, sizeof(anInt), NULL);
+		      &anInt_i, sizeof(anInt_i), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
       
       rc = SQLGetData(StmtHandle, 3, SQL_C_SLONG, 
-		      &aSmallInt, sizeof(aSmallInt), NULL);
+		      &aSmallInt_i, sizeof(aSmallInt_i), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
       
       rc = SQLGetData(StmtHandle, 4, SQL_C_FLOAT, 
-		      &aDecimal83, sizeof(aDecimal83), NULL);
+		      &aDecimal83_f, sizeof(aDecimal83_f), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
       
       rc = SQLGetData(StmtHandle, 5, SQL_C_FLOAT, 
-		      &aNumeric94, sizeof(aNumeric94), NULL);
+		      &aNumeric94_f, sizeof(aNumeric94_f), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
       
       rc = SQLGetData(StmtHandle, 6, SQL_C_FLOAT, 
-		      &aFloat, sizeof(aFloat), NULL);
+		      &aFloat_f, sizeof(aFloat_f), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
       
       
       rc = SQLGetData(StmtHandle, 7, SQL_C_FLOAT, 
-		      &aFloat9, sizeof(aFloat9), NULL);
+		      &aFloat9_f, sizeof(aFloat9_f), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
       
       rc = SQLGetData(StmtHandle, 8, SQL_C_FLOAT, 
-		      &aReal, sizeof(aReal), NULL);
+		      &aReal_f, sizeof(aReal_f), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
       
 
-      VERBOSE("anInteger=%d, anInt=%d, aSmallInt=%d, aDecimal83=%f, aNumeric94=%f, aFloat=%f, aFloat9=%f, aReal=%f\n",
-               anInteger,anInt,aSmallInt,aDecimal83,
-	       aNumeric94,aFloat,aFloat9,aReal);
+      VERBOSE("anInteger_i=%d, anInt_i=%d, aSmallInt_i=%d, aDecimal83_f=%f, aNumeric94_f=%f, aFloat_f=%f, aFloat9_f=%f, aReal_f=%f\n",
+               anInteger_i,anInt_i,aSmallInt_i,aDecimal83_f,
+	       aNumeric94_f,aFloat_f,aFloat9_f,aReal_f);
     }
     
     

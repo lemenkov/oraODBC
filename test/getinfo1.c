@@ -1,6 +1,6 @@
 /* test all possible inputs to SQLGetInfo
  * author: Dennis Box, dbox@fnal.gov
- * $Id: getinfo1.c,v 1.5 2002/08/14 04:02:25 dbox Exp $
+ * $Id: getinfo1.c,v 1.6 2003/01/17 23:10:42 dbox Exp $
  */
 
 
@@ -75,8 +75,7 @@ int main(int argc, char ** argv)
    
     rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
 		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
-    T_ASSERT3(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO,
-	     userName, pswd, " login must exist on TWO_TASK database " );
+    assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
 
     VERBOSE("connected to  database %s\n",twoTask);
 
@@ -99,7 +98,7 @@ int main(int argc, char ** argv)
 		    sizeof(result),&some_val);
     assert(rc==SQL_SUCCESS);
 
-    T_ASSERT(result.i[0]!=0, "Oops, doesnt report transactions correctly");
+    assert(result.i[0]!=0); /*test transactions*/
 
     rc = SQLDisconnect(ConHandle);
     assert(rc == SQL_SUCCESS);

@@ -1,6 +1,6 @@
 /*test function: SQLExecDirect  to insert a row into table 'some_types'
  * author: Dennis Box, dbox@fnal.gov
- * $Id: insert1.c,v 1.6 2003/01/06 20:03:13 dbox Exp $
+ * $Id: insert1.c,v 1.7 2003/01/17 23:10:42 dbox Exp $
  */
 
 
@@ -42,8 +42,7 @@ int main()
    
     rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
 		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
-    T_ASSERT3(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO,
-	      "login failed:",userName, pswd);
+    assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
 
     VERBOSE("connected to  database %s\n",twoTask);
 

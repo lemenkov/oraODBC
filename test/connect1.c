@@ -6,7 +6,7 @@
 /*              SQLSetEnvAttr()                                    */
 /*
  * author: Dennis Box, dbox@fnal.gov
- * $Id: connect1.c,v 1.5 2002/05/31 19:55:00 dbox Exp $
+ * $Id: connect1.c,v 1.6 2003/01/17 23:10:42 dbox Exp $
  */
 
 
@@ -50,15 +50,14 @@ int main()
    
     rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
 		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
-    T_ASSERT3(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO,
-	     userName, pswd, " login must exist on TWO_TASK database " );
+    assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
 
     VERBOSE("connected to  database %s\n",twoTask);
 
     result = 0;
     rc = SQLGetInfo(ConHandle,SQL_TXN_CAPABLE,&result,
 		    sizeof(result),&some_val);
-    T_ASSERT(result!=0, "Oops, doesnt report transactions correctly");
+    assert(result!=0); /* report transactions correctly? */
 
     rc = SQLDisconnect(ConHandle);
     assert(rc == SQL_SUCCESS);

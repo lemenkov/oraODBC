@@ -47,7 +47,7 @@ fi
 #-------------------------------------------
 echo -n "checking for tnsnames.ora file...."
 #-------------------------------------------
-if [ -s $TNS_ADMIN/tnsnames.ora ]  ; then
+if [ -r $TNS_ADMIN/tnsnames.ora ]  ; then
     echo OK
 else
     echo TNS_ADMIN/tnsnames.ora  not found! Check your oracle installation
@@ -130,7 +130,7 @@ fi
 echo -n "checking for a local .odbc.ini file... "
 #-------------------------------------------
 
-if [ -e $HOME/.odbc.ini ]  ; then
+if [ -r $HOME/.odbc.ini ]  ; then
     echo OK
 else
     echo $HOME/.odbc.ini  not found! check your unixODBC installation

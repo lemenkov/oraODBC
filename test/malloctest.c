@@ -1,7 +1,7 @@
 
 /* test of ORAMALLOC and ORAFREE
  * author: Dennis Box, dbox@fnal.gov
- * $Id: malloctest.c,v 1.3 2002/05/31 19:55:00 dbox Exp $
+ * $Id: malloctest.c,v 1.4 2003/01/17 23:10:42 dbox Exp $
  */
 
 #include "test_defs.h"
@@ -23,13 +23,11 @@ int main()
 		VERBOSE("alloced %Ld blocks of %Ld  bytes\n",i,i);
 		for(j=0; j<i; j++){
 		  ORAFREE(ptr[j]);
-		  T_ASSERT(ptr[j]==NULL, 
-			   "freed pointers must be reset to NULL");
+		  assert(ptr[j]==NULL); 
 		}
 		VERBOSE("freed %Ld blocks\n",i);
 		ORAFREE(ptr);	
-		T_ASSERT(ptr==NULL, 
-			   "freed pointers must be reset to NULL");
+		assert(ptr==NULL );
 		VERBOSE("freed %Ld bytes, ptr=%x\n",i,ptr);
 		i=i*10;
 	}
