@@ -1,7 +1,7 @@
 /* test reads data from some_numeric_types table inserted by insert3.c
  *
  * author: Dennis Box, dbox@fnal.gov
- * $Id: read3.c,v 1.8 2003/01/17 23:10:42 dbox Exp $
+ * $Id: read3.c,v 1.9 2003/01/18 14:16:31 dbox Exp $
  */
 
 /*      test following functions:                                  */
@@ -33,17 +33,22 @@
 int main()
 {
     // Declare The Local Memory Variables
-
+    // try a type-naming scheme to try to chase
+    // down some endian/alignment problems
+    // ugly but it helps
+ 
     int anInteger_i,anInt_i,aSmallInt_i;
     float aDecimal83_f,aNumeric94_f,aFloat_f,aFloat9_f,aReal_f;
     SQLSMALLINT numCols_si, p1_si;
     SQLINTEGER p2_i;
-    SQLCHAR buf1[MAX_LEN];
-    SQLCHAR buf2[MAX_LEN];
+    SQLCHAR buf1_cp[MAX_LEN];
+    SQLCHAR buf2_cp[MAX_LEN];
    
-    SQLUSMALLINT i_usi;
-    SQLSMALLINT len_si,tp_si;
+    SQLUSMALLINT col_usi;
+    SQLSMALLINT len_si;
     SQLINTEGER type_i;
+    SQLSMALLINT type_si; 
+
     SQLSMALLINT sz_si;
     SQLUINTEGER sz_ui;
     SQLSMALLINT scale_si;
@@ -97,7 +102,7 @@ int main()
 
 
     rc = SQLColAttribute(StmtHandle, 1, SQL_DESC_COUNT,
-			      NULL, NULL, NULL, &p2_i);
+			      NULL, 0, NULL, &p2_i);
     assert(rc==SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
 
     VERBOSE("SQLNumResultCols says  %d SQLColAttribute says %d\n",numCols_si,p2_i);
@@ -109,55 +114,55 @@ int main()
 
     assert(p1_si == 0);
 
-    for(i_usi=1; i_usi<=numCols_si; i_usi++)
+    for(col_usi=1; col_usi<=numCols_si; col_usi++) 
       {
 	rc = SQLDescribeCol(StmtHandle, 
-			    i_usi,
-			    buf1,
-			    sizeof(buf1),
+			    col_usi,
+			    buf1_cp,
+			    sizeof(buf1_cp),
 			    &len_si,
-			    &tp_si,
+			    &type_si,
 			    &sz_ui,
 			    &scale_si,
 			    &nullable_si);
 
 	assert(rc==SQL_SUCCESS); 
  
-	VERBOSE("SQLDescribeCol col=%d name:%s len=%d type_i=%d size=%d scale_si=%d nullable=%d\n"
-		,i_usi,buf1,len_si,type_i,sz_ui,scale_si,nullable_si);
-	/*	
-	if(i_usi<3) assert(type_i==SQL_C_SLONG);
-	if(i_usi==6)assert(type_i==SQL_C_DOUBLE);
-	if(i_usi==8)assert(type_i==SQL_C_FLOAT);
-	if(i_usi==4||i_usi==5||i_usi==7)  assert(type_i==SQL_C_NUMERIC);
-	*/
+	VERBOSE("SQLDescribeCol col=%d name:%s len=%d type=%d size=%d scale_si=%d nullable=%d\n"
+		,col_usi,buf1_cp,len_si,type_si,sz_ui,scale_si,nullable_si);
+	
+	if(col_usi<3) assert(type_si==SQL_C_SLONG);
+	if(col_usi==6)assert(type_si==SQL_C_DOUBLE);
+	if(col_usi==8)assert(type_si==SQL_C_FLOAT);
+	if(col_usi==4||col_usi==5||col_usi==7)  assert(type_si==SQL_C_NUMERIC);
+	
 	
 
-	rc = SQLColAttribute(StmtHandle, i_usi, SQL_DESC_NAME,
-			      buf2, sizeof(buf2), &sz_si, NULL);
+	rc = SQLColAttribute(StmtHandle, col_usi, SQL_DESC_NAME,
+			      buf2_cp, sizeof(buf2_cp), &sz_si, NULL);
 
 	assert(rc==SQL_SUCCESS);
-	assert(strcmp(buf1,buf2)==0);
+	assert(strcmp(buf1_cp,buf2_cp)==0);
 
 	type_i=0;
-	rc = SQLColAttribute(StmtHandle, i_usi, SQL_DESC_TYPE,
-			      NULL, NULL,NULL,(SQLPOINTER)&type_i);
+	rc = SQLColAttribute(StmtHandle, col_usi, SQL_DESC_TYPE,
+			      NULL, 0 ,NULL,(SQLPOINTER)&type_i);
 	assert(rc==SQL_SUCCESS);
-	VERBOSE("SQLColAttribute col %d type %d \n", i_usi, type_i );
-	if(i_usi<3) assert(type_i==SQL_C_SLONG);
-	if(i_usi==6)assert(type_i==SQL_C_DOUBLE);
-	if(i_usi==8)assert(type_i==SQL_C_FLOAT);
-	if(i_usi==4||i_usi==5||i_usi==7)  assert(type_i==SQL_C_NUMERIC);
+	VERBOSE("SQLColAttribute col %d type %d \n", col_usi, type_i );
+	if(col_usi<3) assert(type_i==SQL_C_SLONG);
+	if(col_usi==6)assert(type_i==SQL_C_DOUBLE);
+	if(col_usi==8)assert(type_i==SQL_C_FLOAT);
+	if(col_usi==4||col_usi==5||col_usi==7)  assert(type_i==SQL_C_NUMERIC);
 
         type_i=0;
-        rc = SQLColAttribute(StmtHandle, i_usi, SQL_DESC_CONCISE_TYPE,
-                              NULL, NULL,NULL,(SQLPOINTER)&type_i);
+        rc = SQLColAttribute(StmtHandle, col_usi, SQL_DESC_CONCISE_TYPE,
+                              NULL, 0 ,NULL,(SQLPOINTER)&type_i);
         assert(rc==SQL_SUCCESS);
-	VERBOSE("SQLColAttribute col %d concise type %d \n", i_usi, type_i );
-        if(i_usi<3) assert(type_i==SQL_C_NUMERIC);
-        if(i_usi==6)assert(type_i==SQL_C_DOUBLE);
-        if(i_usi==8)assert(type_i==SQL_C_FLOAT);
-        if(i_usi==4||i_usi==5||i_usi==7)  assert(type_i==SQL_C_NUMERIC);
+	VERBOSE("SQLColAttribute col %d concise type %d \n", col_usi, type_i );
+        if(col_usi<3) assert(type_i==SQL_C_NUMERIC);
+        if(col_usi==6)assert(type_i==SQL_C_DOUBLE);
+        if(col_usi==8)assert(type_i==SQL_C_FLOAT);
+        if(col_usi==4||col_usi==5||col_usi==7)  assert(type_i==SQL_C_NUMERIC);
 
 
       }
