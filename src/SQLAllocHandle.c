@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLAllocHandle.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLAllocHandle.c,v 1.2 2002/05/14 12:03:19 dbox Exp $
  *
  * $Log: SQLAllocHandle.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/14 12:03:19  dbox
+ * fixed some malloc/free syntax
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.17  2000/07/21 10:01:29  tom
  * Fixed descriptor flag init bug
@@ -82,7 +85,7 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.2 $";
 
 #include "common.h"
 
@@ -143,7 +146,7 @@ SQLRETURN _SQLAllocHandle(
             }
     
     
-            env = (hEnv_T*)malloc(sizeof(hEnv_T));
+            env = (hEnv_T*)ORAMALLOC(sizeof(hEnv_T));
             if ( !env )
             {
                 *OutputHandlePtr = SQL_NULL_HENV;
@@ -176,7 +179,7 @@ SQLRETURN _SQLAllocHandle(
                 return SQL_INVALID_HANDLE;
             }
 
-            dbc=(hDbc_T*)malloc(sizeof(hDbc_T));
+            dbc=(hDbc_T*)ORAMALLOC(sizeof(hDbc_T));
             if(!dbc)
             {
                 *OutputHandlePtr = SQL_NULL_HDBC;
@@ -244,7 +247,7 @@ SQLRETURN _SQLAllocHandle(
                 return SQL_ERROR;
             }
 
-            stmt=(hStmt_T*)malloc(sizeof(hStmt_T));
+            stmt=(hStmt_T*)ORAMALLOC(sizeof(hStmt_T));
 
             stmt->oci_stmt=NULL;
 #ifdef UNIX_DEBUG
@@ -357,7 +360,7 @@ SQLRETURN _SQLAllocHandle(
                 return SQL_ERROR;
             }
 
-            desc=(hDesc_T*)malloc(sizeof(hDesc_T));
+            desc=(hDesc_T*)ORAMALLOC(sizeof(hDesc_T));
             if(!desc)
             {
                 *OutputHandlePtr = SQL_NULL_HDBC;

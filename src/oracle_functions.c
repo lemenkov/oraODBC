@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.5 2002/05/02 15:39:48 dbox Exp $
+ * $Id: oracle_functions.c,v 1.6 2002/05/14 12:03:19 dbox Exp $
  *
  * $Log: oracle_functions.c,v $
+ * Revision 1.6  2002/05/14 12:03:19  dbox
+ * fixed some malloc/free syntax
+ *
  * Revision 1.5  2002/05/02 15:39:48  dbox
  * fixed unused var warnings found by insure++
  *
@@ -123,7 +126,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.5 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.6 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -2753,7 +2756,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 		{
 			char datetxt[25];
 			SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)ap->data_ptr;
-			ip->data_ptr=(OCIDate*)malloc(sizeof(OCIDate));
+			ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
 			ip->data_type=SQLT_ODT;
 			ip->data_size=sizeof(OCIDate);
 			bind_ptr=ip->data_ptr;
@@ -2807,7 +2810,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 		{
 			char datetxt[25];
 			SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)ap->data_ptr;
-			ip->data_ptr=(OCIDate*)malloc(sizeof(OCIDate));
+			ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
 			ip->data_type=SQLT_ODT;
 			ip->data_size=sizeof(OCIDate);
 			bind_ptr=ip->data_ptr;
@@ -2829,7 +2832,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 		{
 			char datetxt[25];
 			SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)ap->data_ptr;
-			ip->data_ptr=(OCIDate*)malloc(sizeof(OCIDate));
+			ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
 			ip->data_type=SQLT_ODT;
 			ip->data_size=sizeof(OCIDate);
 			bind_ptr=ip->data_ptr;
@@ -2853,7 +2856,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 				case SQL_TYPE_DATE:
 				{
                     sword ret;
-					ip->data_ptr=(OCIDate*)malloc(sizeof(OCIDate));
+					ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
 					/*
 					 * Dates are expected to be in the format 
 					 * "YYYY-MM-DD", but they can also be
@@ -2894,7 +2897,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 				case SQL_TYPE_TIME:
 				{
                     sword ret;
-					ip->data_ptr=(OCIDate*)malloc(sizeof(OCIDate));
+					ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
 					/*
 					 * Times are expected to be in the format 
 					 * "HH:MI:SS", but they can also be
@@ -2936,7 +2939,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 				case SQL_TYPE_TIMESTAMP:
 				{
 					sword ret;
-					ip->data_ptr=(OCIDate*)malloc(sizeof(OCIDate));
+					ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
 					/*
 					 * Timestamps are expected to be in the format 
 					 * "YYYY-MM-DD HH:MI:SS", but they can also be

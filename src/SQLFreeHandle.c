@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLFreeHandle.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLFreeHandle.c,v 1.2 2002/05/14 12:03:19 dbox Exp $
  *
  * $Log: SQLFreeHandle.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/14 12:03:19  dbox
+ * fixed some malloc/free syntax
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.18  2000/07/21 10:08:13  tom
  * LOB functionality added
@@ -85,7 +88,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.2 $";
 
 void ood_ap_free(ap_T *ap)
 {
@@ -301,7 +304,7 @@ SQLRETURN _SQLFreeHandle(
 #ifdef WIN32
                 OCIHandleFree(dbc->oci_env,OCI_HTYPE_ENV);
 #else
-				free(dbc->oci_env);
+				ORAFREE(dbc->oci_env);
 #endif
 			}
             THREAD_MUTEX_UNLOCK(dbc);
@@ -334,13 +337,11 @@ SQLRETURN _SQLFreeHandle(
 			/*
 			 * Free any data associated with an alternative fetch fn
 			 */
-			if(stmt->alt_fetch_data)
-				free(stmt->alt_fetch_data);
+				ORAFREE(stmt->alt_fetch_data);
 			/*
 			 * And the sql
 			 */
-			if(stmt->sql)
-				free(stmt->sql);
+				ORAFREE(stmt->sql);
 
             /* 
              * Knock the statement out of the statement list

@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColumns.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLColumns.c,v 1.2 2002/05/14 12:03:19 dbox Exp $
  *
  * $Log: SQLColumns.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/14 12:03:19  dbox
+ * fixed some malloc/free syntax
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.18  2000/07/21 10:04:17  tom
  * Fixed var init bug
@@ -83,7 +86,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.2 $";
 
 /*
  * Due to the fact that Oracle returns the data type as a varchar and
@@ -173,7 +176,7 @@ sword ood_fetch_sqlcolumns(struct hStmt_TAG* stmt)
     
 	}
 
-	free(indie);
+	ORAFREE(indie);
 	
 	return ret;
 }
