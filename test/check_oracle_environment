@@ -47,7 +47,7 @@ fi
 #-------------------------------------------
 echo -n "checking for tnsnames.ora file...."
 #-------------------------------------------
-if [ -e $TNS_ADMIN/tnsnames.ora ]  ; then
+if [ -s $TNS_ADMIN/tnsnames.ora ]  ; then
     echo OK
 else
     echo TNS_ADMIN/tnsnames.ora  not found! Check your oracle installation
@@ -104,7 +104,7 @@ fi
 #-------------------------------------------
 echo -n "checking ODBCSYSINI environment variable..."
 #-------------------------------------------
-if [ -n "$ODBCSYSINI" ]  ; then
+if [ -s "$ODBCSYSINI" ]  ; then
     echo OK
 else
     echo ODBCSYSINI  not found! check your unixODBC installation
