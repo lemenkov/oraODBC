@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.27 2004/06/11 20:10:43 dbox Exp $
+ * $Id: oracle_functions.c,v 1.28 2004/08/06 14:47:23 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.27 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.28 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -664,7 +664,7 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
   /*
    * Populate the descriptor records
    */
-  for(i=1;i<=stmt->current_ir->num_recs;i++)
+  for(i=1;i<=num_cols;i++)
     {
       /*
        * Make sure we can see the parent descriptor
