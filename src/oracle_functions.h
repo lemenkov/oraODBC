@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.h,v 1.6 2004/08/27 19:52:55 dbox Exp $
+ * $Id: oracle_functions.h,v 1.7 2005/03/17 02:37:32 dbox Exp $
  *
  * $Log: oracle_functions.h,v $
+ * Revision 1.7  2005/03/17 02:37:32  dbox
+ * added function ocistr_memcpy to handle binary output
+ *
  * Revision 1.6  2004/08/27 19:52:55  dbox
  * tons of changes by Gary Houston, ghouston@intellecthr.com.  Fixes error handling and handle re-use
  *
@@ -117,6 +120,7 @@ SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,ub4 param_num,
  * SQLGetData type conversions functions.
  */
 /* CHR */
+SQLRETURN ocistr_memcpy(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 SQLRETURN ocistr_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 SQLRETURN ocistr_sqlchr(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 

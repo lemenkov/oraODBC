@@ -25,7 +25,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.35 2005/03/17 01:36:32 dbox Exp $
+ * $Id: oracle_functions.c,v 1.36 2005/03/17 02:37:32 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -35,7 +35,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.35 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.36 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -1395,7 +1395,7 @@ SQLRETURN (*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
     case SQLT_LVB:
     case SQLT_FILE:
       return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-	ocistr_sqlnts;
+	ocistr_memcpy;
 
       /*others*/
     case SQLT_RDD:
@@ -1468,7 +1468,7 @@ SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
     case SQLT_LVB:
     case SQLT_FILE:
       return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-	ocistr_sqlnts;
+	ocistr_memcpy;
 
       /*date*/
     case SQLT_DAT:
@@ -1560,13 +1560,13 @@ SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar)
     case SQLT_LBI:
     case SQLT_LVB:
       ir->data_type=SQLT_BIN;
-      ir->to_string=ocistr_sqlnts;
+      ir->to_string=ocistr_memcpy;
       break;
 			
     case SQLT_BLOB:
       ir->data_type=SQLT_BLOB;
       ir->data_size=0;
-      ir->to_string=ocilob_sqllvc;
+      ir->to_string=ocilob_sqllvb;
       break;
 
     case SQLT_CLOB:
@@ -1636,22 +1636,14 @@ SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar)
  * ocistr_sqlnts =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=- *
  */
 
+
 SQLRETURN ocistr_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
 			SQLINTEGER* indi)
 {
   int i;
   SQLCHAR* src;
   src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
-#if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-		  (SQLHANDLE)ir->desc->stmt,0,"siihsh",
-		  NULL,"ocistr_sqlnts",
-		  "row",row,
-		  "BufferLength",buflen,
-		  "&ir->data_ptr",(long)ir->data_ptr,
-		  "src",src,
-		  "&Target",(long)target);
-#endif
+
   i=strlen((const char*)src);
   if(i<buflen)
     {
@@ -1659,27 +1651,38 @@ SQLRETURN ocistr_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
       if(indi)
 	indi[row]=i;
     }
-  else
-    {
-      for(i=0;i<buflen;i++)
-	{
-	  ((SQLCHAR*)target)[i]=src[i];
-	}
-      ((SQLCHAR*)target)[i-1]='\0';
-      ood_post_diag((hgeneric*)ir->desc->stmt,ERROR_ORIGIN_01004,ir->col_num,"",
-		    ERROR_MESSAGE_01004,
-                    __LINE__,0,"",ERROR_STATE_01004,
-                    __FILE__,__LINE__);
-      if(indi)
-	indi[row]=buflen;
+  else {
+    ocistr_memcpy(row,ir,target,buflen,indi);
+
+    ood_post_diag((hgeneric*)ir->desc->stmt,ERROR_ORIGIN_01004,ir->col_num,"",
+		  ERROR_MESSAGE_01004,
+		  __LINE__,0,"",ERROR_STATE_01004,
+		  __FILE__,__LINE__);
+    if(indi){
+      indi[row]=buflen;
       return SQL_SUCCESS_WITH_INFO;
     }
-#if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-		  (SQLHANDLE)ir->desc->stmt,SQL_SUCCESS,"ss",
-		  NULL,"ocistr_sqlnts",
-		  "Target",target);
-#endif
+  }
+  return SQL_SUCCESS;
+}
+
+/*
+ *  * ocistr_memcpy =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=- *
+ *   */
+
+SQLRETURN ocistr_memcpy(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
+			SQLINTEGER* indi)
+{
+  int i;
+  SQLCHAR* src;
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+
+  for(i=0;i<buflen;i++)
+    {
+      ((SQLCHAR*)target)[i]=src[i];
+    }
+  ((SQLCHAR*)target)[i-1]='\0';
+
   return SQL_SUCCESS;
 }
 
