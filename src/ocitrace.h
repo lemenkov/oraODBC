@@ -12,7 +12,11 @@
 #else
 #define DBD_OCI_TRACEON	( debugLevel3() )
 #define DBD_OCI_TRACEFP	stderr
+#if !defined (ENABLE_TRACE)
+/* May be already defined in config.h. This definition seems to allow
+   turning it on and off via calls to setDebugLevel.  */
 #define ENABLE_TRACE ( debugLevel2() )
+#endif
 #endif
 
 #define OciTp		("OCI")			/* OCI Trace Prefix */
