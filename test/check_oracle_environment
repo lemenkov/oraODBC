@@ -1,5 +1,7 @@
 #!/bin/sh 
 #oracle environment tester
+#author: Dennis Box, dbox@fnal.gov
+#May 2002
 echo
 echo
 echo This script tests for important environment variables that must be set
@@ -10,16 +12,31 @@ echo
 echo
 echo
 
-
-echo -n "checking for ORACLE_HOME... "
-if [ -d $ORACLE_HOME ]  ; then
+#-------------------------------------------
+echo -n "checking for ORACLE_HOME..."
+#-------------------------------------------
+if  [ -n "$ORACLE_HOME" ]   ; then
+    echo -n ".."
+else
+    echo ORACLE_HOME not found! Check your oracle installation
+    exit -1
+fi
+if  [ -d $ORACLE_HOME ]   ; then
     echo OK
 else
     echo ORACLE_HOME not found! Check your oracle installation
     exit -1
 fi
 
-echo -n "checking for TNS_ADMIN... "
+#-------------------------------------------
+echo -n "checking for TNS_ADMIN..."
+#-------------------------------------------
+if [ -n "$TNS_ADMIN" ]  ; then
+    echo -n ".."
+else
+    echo TNS_ADMIN  not found! Check your oracle installation
+    exit -1
+fi
 if [ -d $TNS_ADMIN ]  ; then
     echo .OK
 else
@@ -27,7 +44,9 @@ else
     exit -1
 fi
 
-echo -n "checking for tnsnames.ora file... "
+#-------------------------------------------
+echo -n "checking for tnsnames.ora file...."
+#-------------------------------------------
 if [ -e $TNS_ADMIN/tnsnames.ora ]  ; then
     echo OK
 else
@@ -35,7 +54,9 @@ else
     exit -1
 fi
 
+#-------------------------------------------
 echo -n "checking TWO_TASK environment variable... "
+#-------------------------------------------
 if [ -n "$TWO_TASK" ]  ; then
     echo OK
 else
@@ -43,8 +64,14 @@ else
     exit -1
 fi
 
-cmd="grep -i $TWO_TASK $TNS_ADMIN/tnsnames.ora"
+
+
+#-------------------------------------------
 echo -n  "checking that oracle client knows about $TWO_TASK... "
+#-------------------------------------------
+
+cmd="grep -i $TWO_TASK $TNS_ADMIN/tnsnames.ora"
+
 rslt=`$cmd`;
 if [ -n "$rslt" ] ; then
 	echo ..OK
@@ -53,7 +80,9 @@ if [ -n "$rslt" ] ; then
 	exit -1
 fi
 
+#-------------------------------------------
 echo -n "checking ORA_USER environment variable... "
+#-------------------------------------------
 if [ -n "$ORA_USER" ]  ; then
     echo OK
 else
@@ -61,7 +90,10 @@ else
     exit -1
 fi
 
+#-------------------------------------------
 echo -n "checking ORA_PWD environment variable... "
+#-------------------------------------------
+
 if [ -n "$ORA_PWD" ]  ; then
     echo OK
 else
@@ -69,15 +101,22 @@ else
     exit -1
 fi
 
-echo -n "checking ODBCSYSINI environment variable... "
+#-------------------------------------------
+echo -n "checking ODBCSYSINI environment variable..."
+#-------------------------------------------
 if [ -n "$ODBCSYSINI" ]  ; then
     echo OK
 else
     echo ODBCSYSINI  not found! check your unixODBC installation
     exit -1
 fi
-cmd="grep oraodbc $ODBCSYSINI/odbcinst.ini"
+
+#-------------------------------------------
 echo -n  "checking that unixODBC knows about oraodbc driver. "
+#-------------------------------------------
+
+cmd="grep oraodbc $ODBCSYSINI/odbcinst.ini"
+
 rslt=`$cmd`;
 if [ -n "$rslt" ] ; then
 	echo ..OK
@@ -87,8 +126,10 @@ if [ -n "$rslt" ] ; then
 fi
 
 
-
+#-------------------------------------------
 echo -n "checking for a local .odbc.ini file... "
+#-------------------------------------------
+
 if [ -e $HOME/.odbc.ini ]  ; then
     echo OK
 else
@@ -96,6 +137,38 @@ else
     exit -1
 fi
 
+#-------------------------------------------
+echo -n "checking oracle library version... "
+#-------------------------------------------
+
+cmd="$ORACLE_HOME/bin/sqlplus /nolog "
+rslt=`$cmd < /dev/null`;
+rslt2=`echo $rslt | grep '8.1.[67]'  `;
+
+
+if [ -n "$rslt2" ] ; then
+	echo
+	echo
+        echo 8.1.6 and 8.1.7 libraries are subject to a  bug
+        echo which causes a core dump on exit.  This can be
+	echo fixed with the following command:
+	echo
+	echo '(csh)$ setenv LD_PRELOAD $ORACLE_HOME/lib/libclntsh.so'
+	echo '  -or- '
+	echo '(sh)$ export LD_PRELOAD=$ORACLE_HOME/lib/libclntsh.so'
+	echo
+	echo -n checking LD_PRELOAD.....
+	if [ -n "$LD_PRELOAD" ]  ; then
+	    echo OK
+	else
+	    echo LD_PRELOAD  not found! \'make check\' targets will core
+	    echo dump on exit
+	    exit -1
+	fi
+   else
+        echo OK
+  
+fi
 
 echo
 echo ENVIRONMENT LOOKS OK!  you still need to make sure that 
