@@ -19,7 +19,7 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.11 2002/06/19 22:21:37 dbox Exp $
+ * $Id: oracle_functions.c,v 1.12 2002/06/26 20:59:06 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -29,7 +29,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.11 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.12 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -42,20 +42,20 @@ int slpmprodstab;
 
 int epc_exit_handler()
 {
-	/* in oracle 8.1.6 and 8.1.7 libclntsh.so registers an
-	 * exit handler function  epc_exit_handler when it is 
-         * dynamically loaded  (like an ODBC driver 
-         * might do, for instance) but fails to 
-         * un-register it when libclntsh.so is unloaded.  This causes a
-         * core dump unless this function stub is here to be called.
-	 *
-         * setting DEBUG or VERBOSE env variables allows  it to gloat.
-	 *
-         */
-
-	if(debugLevel()>0 || getenv("VERBOSE"))
-	printf("neener neener caught the exit handler bug!\n");
-	return 0;
+  /* in oracle 8.1.6 and 8.1.7 libclntsh.so registers an
+   * exit handler function  epc_exit_handler when it is 
+   * dynamically loaded  (like an ODBC driver 
+   * might do, for instance) but fails to 
+   * un-register it when libclntsh.so is unloaded.  This causes a
+   * core dump unless this function stub is here to be called.
+   *
+   * setting DEBUG or VERBOSE env variables allows  it to gloat.
+   *
+   */
+  
+  if(debugLevel()>0 || getenv("VERBOSE"))
+    printf("neener neener caught the exit handler bug!\n");
+  return 0;
 }
 
 #ifdef UNIX_DEBUG
@@ -67,49 +67,49 @@ int epc_exit_handler()
  */
 void errcheck(char *file, int line, sword ret, OCIError *err)
 {
-	char errtxt[512];
-    ub4 errnum;
-
-    switch(ret) 
-	{
-        case OCI_SUCCESS:
-           fprintf (stderr,"OCI_SUCCESS %s:%d\n",file,line);
-        break;
-
-        case OCI_NEED_DATA:
-            fprintf(stderr,"OCI_NEED_DATA %s:%d\n",file,line);
-        break;
-
-        case OCI_ERROR:
-            OCIErrorGet((dvoid*)err,1,NULL,&errnum,(text*)errtxt,sizeof(errtxt),
-                        OCI_HTYPE_ERROR);
-            fprintf(stderr,"ERROR [%s] %s:%d\n",errtxt,file,line);
-        break;
-
-		case OCI_CONTINUE:
-            fprintf(stderr,"OCI_CONTINUE %s:%d\n",file,line);
-        break;
-
-        case OCI_SUCCESS_WITH_INFO:
-            fprintf(stderr,"OCI_SUCCESS_WITH_INFO %s:%d\n",file,line);
-        break;
-
-        case OCI_NO_DATA:
-            fprintf(stderr,"OCI_NO_DATA %s:%d\n",file,line);
-        break;
-
-        case OCI_INVALID_HANDLE:
-            fprintf(stderr,"OCI_INVALID_HANDLE %s:%d\n",file,line);
-        break;
-
-        case OCI_STILL_EXECUTING:
-            fprintf(stderr,"OCI_STILL_EXECUTE %s:%d\n",file,line);
-		break;
-
-        default:
-            fprintf(stderr,"UNKOWN OCI RETURN [%d] %s:%d\n",ret,file,line);
-        break;
-        }
+  char errtxt[512];
+  ub4 errnum;
+  
+  switch(ret) 
+    {
+    case OCI_SUCCESS:
+      fprintf (stderr,"OCI_SUCCESS %s:%d\n",file,line);
+      break;
+      
+    case OCI_NEED_DATA:
+      fprintf(stderr,"OCI_NEED_DATA %s:%d\n",file,line);
+      break;
+      
+    case OCI_ERROR:
+      OCIErrorGet((dvoid*)err,1,NULL,&errnum,(text*)errtxt,sizeof(errtxt),
+		  OCI_HTYPE_ERROR);
+      fprintf(stderr,"ERROR [%s] %s:%d\n",errtxt,file,line);
+      break;
+      
+    case OCI_CONTINUE:
+      fprintf(stderr,"OCI_CONTINUE %s:%d\n",file,line);
+      break;
+      
+    case OCI_SUCCESS_WITH_INFO:
+      fprintf(stderr,"OCI_SUCCESS_WITH_INFO %s:%d\n",file,line);
+      break;
+      
+    case OCI_NO_DATA:
+      fprintf(stderr,"OCI_NO_DATA %s:%d\n",file,line);
+      break;
+      
+    case OCI_INVALID_HANDLE:
+      fprintf(stderr,"OCI_INVALID_HANDLE %s:%d\n",file,line);
+      break;
+      
+    case OCI_STILL_EXECUTING:
+      fprintf(stderr,"OCI_STILL_EXECUTE %s:%d\n",file,line);
+      break;
+      
+    default:
+      fprintf(stderr,"UNKOWN OCI RETURN [%d] %s:%d\n",ret,file,line);
+      break;
+    }
 }
 #endif
 
@@ -124,160 +124,162 @@ void errcheck(char *file, int line, sword ret, OCIError *err)
  */
 SQLRETURN ood_driver_error(void *hH, sword ret,char *file, int line)
 {
-    text txt[512]="";
-    sb4 errcodep;
-    ub4 handle_type;
-    int i=1;
-    dvoid *ood_driver_handle=NULL;
-    char *server_name;
-    switch(ret)
+  text txt[512]="";
+  sb4 errcodep;
+  ub4 handle_type;
+  int i=1;
+  dvoid *ood_driver_handle=NULL;
+  char *server_name;
+  switch(ret)
     {
-
-        case OCI_ERROR:
+      
+    case OCI_ERROR:
 #ifdef UNIX_DEBUG
-		case OCI_SUCCESS_WITH_INFO:
+    case OCI_SUCCESS_WITH_INFO:
 #endif
-        {
-            switch(((hgeneric*)hH)->htype)
-            {
-
-                case SQL_HANDLE_DBC:
-                    ood_driver_handle=((hDbc_T*)hH)->oci_err;
-                    handle_type=OCI_HTYPE_ERROR;
-                    server_name=((hDbc_T*)hH)->DSN;
-                    break;
-
-                case SQL_HANDLE_STMT:
-                    ood_driver_handle=((hStmt_T*)hH)->dbc->oci_err;
-                    handle_type=OCI_HTYPE_ERROR;
-                    server_name=((hStmt_T*)hH)->dbc->DSN;
-                    break;
-
-                case SQL_HANDLE_DESC:
-                    ood_driver_handle=((hDesc_T*)hH)->stmt->dbc->oci_err;
-                    handle_type=OCI_HTYPE_ERROR;
-                    server_name=((hDesc_T*)hH)->stmt->dbc->DSN;
-                    break;
-
-                case SQL_HANDLE_ENV:
-                default:
-                    return SQL_ERROR;
-            }
-            while(OCI_SUCCESS==OCIErrorGet(ood_driver_handle,
-                        i++,NULL,&errcodep,txt,512,handle_type))
-            {
-                switch (errcodep)
-                {
-                    case 1005:
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_08004,0,NULL,
-                            "Server will not accept NULL password",
-                            errcodep,0,server_name,ERROR_STATE_08004,
-                            file,line);
-                    break;
-    
-                    case 12154:
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_08001,0,NULL,
-                            "TNS: Could not resolve TARGETDB parameter as service name",
-                            errcodep,0,server_name,ERROR_STATE_08001,
-                            file,line);
-                    break;
-                    
-                    case 12545:
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_08001,0,NULL,
-                            "TNS: Could not resolve host for given service name",
-                            errcodep,0,server_name,ERROR_STATE_08001,
-                            file,line);
-                    break;
-    
-                    case 12541:
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_08001,0,NULL,
-                            "TNS: No Listener",
-                            errcodep,0,server_name,ERROR_STATE_08001,
-                            file,line);
-                    break;
-    
-                    case 4043 :
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_HY000,0,NULL,
-                            "Object not found",
-                            errcodep,0,server_name,ERROR_STATE_HY000,
-                            file,line);
-                    break;
-    
-                    case 1405:
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_HY000,0,NULL,
-                            "Unexpected NULL Values",
-                            errcodep,0,server_name,ERROR_STATE_HY000,
-                            file,line);
-                    break;
-    
-                    case 1 :
-    
-                    case 1400 :
-    
-                    case 1407 :
-
-                    case 2290 :
-    
-                    case 2291 :
-    
-                    case 2292 :
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_23000,0,NULL,
-                            ERROR_MESSAGE_23000,
-                            errcodep,0,server_name,ERROR_STATE_23000,
-                            file,line);
-                    break;
-                    
-        
-                    case 1406 :
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_01004,0,NULL,
-                            ERROR_MESSAGE_01004,
-                            errcodep,0,server_name,ERROR_STATE_01004,
-                            file,line);
-                    break;
-                    
-    
-                    case 910 :
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_42000,0,NULL,
-                            ERROR_MESSAGE_42000,
-                            errcodep,0,server_name,ERROR_STATE_42000,
-                            file,line);
-                    break;
-    
-                    case 3113:
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_08S01,0,NULL,
-                            ERROR_MESSAGE_08S01,
-                            errcodep,0,server_name,ERROR_STATE_08S01,
-                            file,line);
+      {
+	switch(((hgeneric*)hH)->htype)
+	  {
+	    
+	  case SQL_HANDLE_DBC:
+	    ood_driver_handle=((hDbc_T*)hH)->oci_err;
+	    handle_type=OCI_HTYPE_ERROR;
+	    server_name=((hDbc_T*)hH)->DSN;
+	    break;
+	    
+	  case SQL_HANDLE_STMT:
+	    ood_driver_handle=((hStmt_T*)hH)->dbc->oci_err;
+	    handle_type=OCI_HTYPE_ERROR;
+	    server_name=((hStmt_T*)hH)->dbc->DSN;
+	    break;
+	    
+	  case SQL_HANDLE_DESC:
+	    ood_driver_handle=((hDesc_T*)hH)->stmt->dbc->oci_err;
+	    handle_type=OCI_HTYPE_ERROR;
+	    server_name=((hDesc_T*)hH)->stmt->dbc->DSN;
+	    break;
+	    
+	  case SQL_HANDLE_ENV:
+	  default:
+	    return SQL_ERROR;
+	  }
+	while(OCI_SUCCESS==OCIErrorGet(ood_driver_handle,
+				       i++,NULL,&errcodep,txt,512,handle_type))
+	  {
+	    switch (errcodep)
+	      {
+	      case 1005:
+		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_08004,0,NULL,
+			      "Server will not accept NULL password",
+			      errcodep,0,server_name,ERROR_STATE_08004,
+			      file,line);
+		break;
+		
+	      case 12154:
+		ood_post_diag(
+                    (hgeneric*)hH,ERROR_ORIGIN_08001,0,NULL,
+		    "TNS: Could not resolve TARGETDB parameter as service name",
+		    errcodep,0,server_name,ERROR_STATE_08001,
+		    file,line);
+		break;
+		
+	      case 12545:
+		ood_post_diag(
+                    (hgeneric*)hH,ERROR_ORIGIN_08001,0,NULL,
+		    "TNS: Could not resolve host for given service name",
+		    errcodep,0,server_name,ERROR_STATE_08001,
+		    file,line);
+		break;
+		
+	      case 12541:
+		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_08001,0,NULL,
+			      "TNS: No Listener",
+			      errcodep,0,server_name,ERROR_STATE_08001,
+			      file,line);
+		break;
+		
+	      case 4043 :
+		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_HY000,0,NULL,
+			      "Object not found",
+			      errcodep,0,server_name,ERROR_STATE_HY000,
+			      file,line);
+		break;
+		
+	      case 1405:
+		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_HY000,0,NULL,
+			      "Unexpected NULL Values",
+			      errcodep,0,server_name,ERROR_STATE_HY000,
+			      file,line);
+		break;
+		
+	      case 1 :
+		
+	      case 1400 :
+		
+	      case 1407 :
+		
+	      case 2290 :
+		
+	      case 2291 :
+		
+	      case 2292 :
+		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_23000,0,NULL,
+			      ERROR_MESSAGE_23000,
+			      errcodep,0,server_name,ERROR_STATE_23000,
+			      file,line);
+		break;
+		
+		
+	      case 1406 :
+		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_01004,0,NULL,
+			      ERROR_MESSAGE_01004,
+			      errcodep,0,server_name,ERROR_STATE_01004,
+			      file,line);
+		break;
+		
+		
+	      case 910 :
+		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_42000,0,NULL,
+			      ERROR_MESSAGE_42000,
+			      errcodep,0,server_name,ERROR_STATE_42000,
+			      file,line);
+		break;
+		
+	      case 3113:
+		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_08S01,0,NULL,
+			      ERROR_MESSAGE_08S01,
+			      errcodep,0,server_name,ERROR_STATE_08S01,
+			      file,line);
+		
+	      case 600:
+	      case 1041:
+		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_08S01,0,NULL,
+			      ERROR_MESSAGE_08S01,
+			      errcodep,0,server_name,ERROR_STATE_08S01,
+			      file,line);
                 
-                    case 600:
-                    case 1041:
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_08S01,0,NULL,
-                            ERROR_MESSAGE_08S01,
-                            errcodep,0,server_name,ERROR_STATE_08S01,
-                            file,line);
-                
-                    default :
-                    ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_HY000,0,NULL,
-                            (char*)txt,
-                            errcodep,0,server_name,ERROR_STATE_HY000,
-                            file,line);
-                }
-                return SQL_ERROR;
-            }
-        }
-        case OCI_INVALID_HANDLE:
-            return SQL_INVALID_HANDLE;
-        
+	      default :
+		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_HY000,0,NULL,
+			      (char*)txt,
+			      errcodep,0,server_name,ERROR_STATE_HY000,
+			      file,line);
+	      }
+	    return SQL_ERROR;
+	  }
+      }
+    case OCI_INVALID_HANDLE:
+      return SQL_INVALID_HANDLE;
+      
 #ifndef UNIX_DEBUG
-        case OCI_SUCCESS_WITH_INFO:
-            return SQL_STILL_EXECUTING;
+    case OCI_SUCCESS_WITH_INFO:
+      return SQL_STILL_EXECUTING;
 #endif
-        
-        case OCI_SUCCESS:
-            return SQL_SUCCESS;
-
-        default:
-            return 0;
+      
+    case OCI_SUCCESS:
+      return SQL_SUCCESS;
+      
+    default:
+      return 0;
     }
 }
 
@@ -288,125 +290,127 @@ SQLRETURN ood_driver_error(void *hH, sword ret,char *file, int line)
  */
 SQLRETURN ood_driver_connect(hDbc_T *dbc)
 {
-    sword ret;
-    if(!dbc->oci_env)
+  sword ret;
+  if(!dbc->oci_env)
     {
 #ifdef LIBCLNTSH8
-        OCIEnvCreate((OCIEnv**)&dbc->oci_env,OCI_THREADED|OCI_OBJECT,
-                  0,0,0,0,0,0);
+      OCIEnvCreate((OCIEnv**)&dbc->oci_env,OCI_THREADED|OCI_OBJECT,
+		   0,0,0,0,0,0);
 #else
-        OCIInitialize_log_stat(OCI_OBJECT|OCI_THREADED, 0,0,0,0,ret );
-	OCIEnvInit_log_stat(&dbc->oci_env,OCI_DEFAULT,0,0,ret);
+      OCIInitialize_log_stat(OCI_OBJECT|OCI_THREADED, 0,0,0,0,ret );
+      OCIEnvInit_log_stat(&dbc->oci_env,OCI_DEFAULT,0,0,ret);
 #endif
     }
-
-    ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_err,
-            OCI_HTYPE_ERROR, 0,0,ret);
-    if(ret)
+  
+  ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_err,
+			      OCI_HTYPE_ERROR, 0,0,ret);
+  if(ret)
     {
-        /*
-         * This one has to be done manually as we have no error handle yet
-         */
-            sb4 errcodep;
-            text txt[512];
-            OCIErrorGet(dbc->oci_env,
-                        1,NULL,&errcodep,txt,512,OCI_HTYPE_ENV);
-			THREAD_MUTEX_UNLOCK(dbc);
-            ood_post_diag((hgeneric*)dbc,ERROR_ORIGIN_HY000,0,dbc->DB,
+      /*
+       * This one has to be done manually as we have no error handle yet
+       */
+      sb4 errcodep;
+      text txt[512];
+      OCIErrorGet(dbc->oci_env,
+		  1,NULL,&errcodep,txt,512,OCI_HTYPE_ENV);
+      THREAD_MUTEX_UNLOCK(dbc);
+      ood_post_diag((hgeneric*)dbc,ERROR_ORIGIN_HY000,0,dbc->DB,
                     (char*)txt,
                     errcodep,0,dbc->DSN,ERROR_STATE_HY000,
                     __FILE__,__LINE__);
-			THREAD_MUTEX_LOCK(dbc);
-            return SQL_ERROR;
+      THREAD_MUTEX_LOCK(dbc);
+      return SQL_ERROR;
     }
-
-    ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_srv,
-            OCI_HTYPE_SERVER,0,0,ret);
-    if(ret)
+  
+  ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_srv,
+			      OCI_HTYPE_SERVER,0,0,ret);
+  if(ret)
     {
-		THREAD_MUTEX_UNLOCK(dbc);
-        ood_driver_error(dbc,ret,__FILE__,__LINE__);
-		THREAD_MUTEX_LOCK(dbc);
-        return SQL_ERROR;
+      THREAD_MUTEX_UNLOCK(dbc);
+      ood_driver_error(dbc,ret,__FILE__,__LINE__);
+      THREAD_MUTEX_LOCK(dbc);
+      return SQL_ERROR;
     }
-	
-    return_to_space(dbc->DB);
-    ret=OCIServerAttach_log_stat(dbc->oci_srv,dbc->oci_err,(text*)dbc->DB,
-            strlen(dbc->DB),(ub4)OCI_DEFAULT,ret);
-    if(ret)
+  
+  return_to_space(dbc->DB);
+  ret=OCIServerAttach_log_stat(dbc->oci_srv,dbc->oci_err,(text*)dbc->DB,
+			       strlen(dbc->DB),(ub4)OCI_DEFAULT,ret);
+  if(ret)
     {
-		THREAD_MUTEX_UNLOCK(dbc);
-        ood_driver_error(dbc,ret,__FILE__,__LINE__);
-		THREAD_MUTEX_LOCK(dbc);
-        return SQL_ERROR;
+      THREAD_MUTEX_UNLOCK(dbc);
+      ood_driver_error(dbc,ret,__FILE__,__LINE__);
+      THREAD_MUTEX_LOCK(dbc);
+      return SQL_ERROR;
     }
-	else
+  else
+    {
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"Connect to [%s] OK\n",dbc->DB);
+#endif
+      ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_svc,
+				  OCI_HTYPE_SVCCTX,0,0,ret);
+      if(ret)
 	{
-#ifdef UNIX_DEBUG
-	    fprintf(stderr,"Connect to [%s] OK\n",dbc->DB);
-#endif
-        ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_svc,
-                OCI_HTYPE_SVCCTX,0,0,ret);
-        if(ret)
-		{
-			THREAD_MUTEX_UNLOCK(dbc);
-			ood_driver_error(dbc,ret,__FILE__,__LINE__);
-			THREAD_MUTEX_LOCK(dbc);
-            return SQL_ERROR;
-		}
-        else
-        {
-            ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_ses,
-                    OCI_HTYPE_SESSION,0,0,ret);
-            if(ret)
-			{
-			    THREAD_MUTEX_UNLOCK(dbc);
-				ood_driver_error(dbc,ret,__FILE__,__LINE__);
-			    THREAD_MUTEX_LOCK(dbc);
-                return SQL_ERROR;
-			}
-        }
-
-        ret=OCIAttrSet_log_stat(dbc->oci_svc,OCI_HTYPE_SVCCTX,dbc->oci_srv,0,
-                OCI_ATTR_SERVER,dbc->oci_err,ret);
-
-        ret|=OCIAttrSet_log_stat(dbc->oci_ses,OCI_HTYPE_SESSION,dbc->UID,
-				strlen(dbc->UID), OCI_ATTR_USERNAME,dbc->oci_err,ret);
-
-        ret|=OCIAttrSet_log_stat(dbc->oci_ses,OCI_HTYPE_SESSION,dbc->PWD,
-				strlen(dbc->PWD), OCI_ATTR_PASSWORD,dbc->oci_err,ret);
-        if(ret)
-        {
-			THREAD_MUTEX_UNLOCK(dbc);
-            ood_driver_error(dbc,ret,__FILE__,__LINE__);
-			THREAD_MUTEX_LOCK(dbc);
-            return SQL_ERROR;
-        }
-        ret=OCISessionBegin_log_stat(dbc->oci_svc,dbc->oci_err,dbc->oci_ses,
-                OCI_CRED_RDBMS,OCI_DEFAULT,ret);
-#ifdef UNIX_DEBUG
-	    fprintf(stderr,"Session Begin returns %d\n",ret);
-#endif
-        if(ret)
-        {
-		    THREAD_MUTEX_UNLOCK(dbc);
-            ood_driver_error(dbc,ret,__FILE__,__LINE__);
-		    THREAD_MUTEX_LOCK(dbc);
-            return SQL_ERROR;
-        }
-
-        ret=OCIAttrSet_log_stat(dbc->oci_svc,OCI_HTYPE_SVCCTX,dbc->oci_ses,0,
-                OCI_ATTR_SESSION,dbc->oci_err,ret);
-        if(ret)
-        {
-		    THREAD_MUTEX_UNLOCK(dbc);
-            ood_driver_error(dbc,ret,__FILE__,__LINE__);
-		    THREAD_MUTEX_LOCK(dbc);
-            return SQL_ERROR;
-        }
+	  THREAD_MUTEX_UNLOCK(dbc);
+	  ood_driver_error(dbc,ret,__FILE__,__LINE__);
+	  THREAD_MUTEX_LOCK(dbc);
+	  return SQL_ERROR;
 	}
-    assert(IS_VALID(dbc));
-    return SQL_SUCCESS;
+      else
+        {
+	  ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_ses,
+				      OCI_HTYPE_SESSION,0,0,ret);
+	  if(ret)
+	    {
+	      THREAD_MUTEX_UNLOCK(dbc);
+	      ood_driver_error(dbc,ret,__FILE__,__LINE__);
+	      THREAD_MUTEX_LOCK(dbc);
+	      return SQL_ERROR;
+	    }
+        }
+      
+      ret=OCIAttrSet_log_stat(dbc->oci_svc,OCI_HTYPE_SVCCTX,dbc->oci_srv,0,
+			      OCI_ATTR_SERVER,dbc->oci_err,ret);
+      
+      ret|=OCIAttrSet_log_stat(dbc->oci_ses,OCI_HTYPE_SESSION,dbc->UID,
+			       strlen(dbc->UID), OCI_ATTR_USERNAME,
+			       dbc->oci_err,ret);
+      
+      ret|=OCIAttrSet_log_stat(dbc->oci_ses,OCI_HTYPE_SESSION,dbc->PWD,
+			       strlen(dbc->PWD), OCI_ATTR_PASSWORD,
+			       dbc->oci_err,ret);
+      if(ret)
+        {
+	  THREAD_MUTEX_UNLOCK(dbc);
+	  ood_driver_error(dbc,ret,__FILE__,__LINE__);
+	  THREAD_MUTEX_LOCK(dbc);
+	  return SQL_ERROR;
+        }
+      ret=OCISessionBegin_log_stat(dbc->oci_svc,dbc->oci_err,dbc->oci_ses,
+				   OCI_CRED_RDBMS,OCI_DEFAULT,ret);
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"Session Begin returns %d\n",ret);
+#endif
+      if(ret)
+        {
+	  THREAD_MUTEX_UNLOCK(dbc);
+	  ood_driver_error(dbc,ret,__FILE__,__LINE__);
+	  THREAD_MUTEX_LOCK(dbc);
+	  return SQL_ERROR;
+        }
+      
+      ret=OCIAttrSet_log_stat(dbc->oci_svc,OCI_HTYPE_SVCCTX,dbc->oci_ses,0,
+			      OCI_ATTR_SESSION,dbc->oci_err,ret);
+      if(ret)
+        {
+	  THREAD_MUTEX_UNLOCK(dbc);
+	  ood_driver_error(dbc,ret,__FILE__,__LINE__);
+	  THREAD_MUTEX_LOCK(dbc);
+	  return SQL_ERROR;
+        }
+    }
+  assert(IS_VALID(dbc));
+  return SQL_SUCCESS;
 }
 
 /*
@@ -414,19 +418,19 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
  */
 SQLRETURN ood_driver_disconnect(hDbc_T *dbc)
 {
-    sword ret;
-    ret=OCISessionEnd_log_stat(dbc->oci_svc,dbc->oci_err,dbc->oci_ses,0,ret);
-    /*ret|=OCIServerDetach(dbc->oci_srv,dbc->oci_err,OCI_DEFAULT);
-	*/
-    if(ret)
+  sword ret;
+  ret=OCISessionEnd_log_stat(dbc->oci_svc,dbc->oci_err,dbc->oci_ses,0,ret);
+  /*ret|=OCIServerDetach(dbc->oci_srv,dbc->oci_err,OCI_DEFAULT);
+   */
+  if(ret)
     {
-		THREAD_MUTEX_UNLOCK(dbc);
-        ood_driver_error(dbc,ret,__FILE__,__LINE__);
-		THREAD_MUTEX_LOCK(dbc);
-        return SQL_ERROR;
+      THREAD_MUTEX_UNLOCK(dbc);
+      ood_driver_error(dbc,ret,__FILE__,__LINE__);
+      THREAD_MUTEX_LOCK(dbc);
+      return SQL_ERROR;
     }
-    assert(IS_VALID(dbc));
-    return SQL_SUCCESS;
+  assert(IS_VALID(dbc));
+  return SQL_SUCCESS;
 }
 
 /* 
@@ -437,44 +441,44 @@ SQLRETURN ood_driver_disconnect(hDbc_T *dbc)
 
 SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
 {
-    sword ret;
-
-    /*
-     * Allocate the Oracle statement handle 
-     */
-
-    ret=OCIHandleAlloc_log_stat(stmt->dbc->oci_env,(dvoid**)&stmt->oci_stmt,
-            OCI_HTYPE_STMT,0,0,ret);
-    if(ret)
+  sword ret;
+  
+  /*
+   * Allocate the Oracle statement handle 
+   */
+  
+  ret=OCIHandleAlloc_log_stat(stmt->dbc->oci_env,(dvoid**)&stmt->oci_stmt,
+			      OCI_HTYPE_STMT,0,0,ret);
+  if(ret)
     {
-        ood_driver_error(stmt->dbc,ret,__FILE__,__LINE__);
-#ifdef ENABLE_TRACE
+      ood_driver_error(stmt->dbc,ret,__FILE__,__LINE__);
+      if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)stmt->dbc,SQL_ERROR,
-            "");
-#endif
-        return SQL_ERROR;
+			(SQLHANDLE)stmt->dbc,SQL_ERROR,
+			"");
+      }
+      return SQL_ERROR;
     }
-
-
+  
+  
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)stmt->dbc,0,"s",
-			"ood_driver_prepare",sql_in);
+  ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)stmt->dbc,0,"s",
+		  "ood_driver_prepare",sql_in);
 #endif
-    ret=OCIStmtPrepare_log_stat(stmt->oci_stmt,stmt->dbc->oci_err,sql_in,
-            strlen((const char*)sql_in),OCI_NTV_SYNTAX,OCI_DEFAULT,ret);
-    if(ret)
+  ret=OCIStmtPrepare_log_stat(stmt->oci_stmt,stmt->dbc->oci_err,sql_in,
+			      strlen((const char*)sql_in),OCI_NTV_SYNTAX,OCI_DEFAULT,ret);
+  if(ret)
     {
-        ood_driver_error(stmt,ret,__FILE__,__LINE__);
-        if(ret==OCI_ERROR)
-            return SQL_ERROR;
-        else
-            return SQL_SUCCESS_WITH_INFO;
+      ood_driver_error(stmt,ret,__FILE__,__LINE__);
+      if(ret==OCI_ERROR)
+	return SQL_ERROR;
+      else
+	return SQL_SUCCESS_WITH_INFO;
     }
-    assert(IS_VALID(stmt));
-    assert(IS_VALID(stmt->dbc));
-    return SQL_SUCCESS;
+  assert(IS_VALID(stmt));
+  assert(IS_VALID(stmt->dbc));
+  return SQL_SUCCESS;
 }
 
 /*
@@ -483,36 +487,36 @@ SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
  */
 SQLRETURN ood_driver_execute(hStmt_T* stmt)
 {
-    sword ret=0;
-    assert(IS_VALID(stmt));
-	if(stmt->current_ap->bound_col_flag)
+  sword ret=0;
+  assert(IS_VALID(stmt));
+  if(stmt->current_ap->bound_col_flag)
+    {
+      unsigned int i;
+      for(i=1;i<=stmt->current_ap->num_recs;i++)
 	{
-		unsigned int i;
-		for(i=1;i<=stmt->current_ap->num_recs;i++)
-		{
-			ret|=ood_driver_bind_param(stmt,i);
-		}
+	  ret|=ood_driver_bind_param(stmt,i);
 	}
-	
-    ret=OCIAttrGet_log_stat(stmt->oci_stmt,
-			    OCI_HTYPE_STMT,
-			    (dvoid*)&stmt->stmt_type,
-			    NULL,
-			    OCI_ATTR_STMT_TYPE,
-			    stmt->dbc->oci_err,
-			    ret);
-
-    if(stmt->stmt_type==OCI_STMT_SELECT)
+    }
+  
+  ret=OCIAttrGet_log_stat(stmt->oci_stmt,
+			  OCI_HTYPE_STMT,
+			  (dvoid*)&stmt->stmt_type,
+			  NULL,
+			  OCI_ATTR_STMT_TYPE,
+			  stmt->dbc->oci_err,
+			  ret);
+  
+  if(stmt->stmt_type==OCI_STMT_SELECT)
     {
       if(stmt->row_array_size){
-	      
+	
 	ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc , 
 				    stmt->oci_stmt , 
 				    stmt->dbc->oci_err , 
 				    stmt->row_array_size , 
 				    0,0,0,OCI_DESCRIBE_ONLY,ret );
-	      
-	      
+	
+	
       }else{
 	ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc ,
 				    stmt->oci_stmt ,
@@ -520,52 +524,52 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
 				    0,0,0,0,OCI_DEFAULT,ret );
       }
     }
-    else
+  else
     {
-		ub4 commit_mode;
-        THREAD_MUTEX_LOCK(stmt->dbc);
-		commit_mode=stmt->dbc->autocommit;
-		THREAD_MUTEX_UNLOCK(stmt->dbc);
-        ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc,stmt->oci_stmt,stmt->dbc->oci_err,
-            1,0,0,0,commit_mode,ret);
+      ub4 commit_mode;
+      THREAD_MUTEX_LOCK(stmt->dbc);
+      commit_mode=stmt->dbc->autocommit;
+      THREAD_MUTEX_UNLOCK(stmt->dbc);
+      ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc,stmt->oci_stmt,stmt->dbc->oci_err,
+				  1,0,0,0,commit_mode,ret);
     }
-    if(ret)
+  if(ret)
     {
-        ood_driver_error(stmt,ret,__FILE__,__LINE__);
-        if(ret==OCI_ERROR)
-            return SQL_ERROR;
+      ood_driver_error(stmt,ret,__FILE__,__LINE__);
+      if(ret==OCI_ERROR)
+	return SQL_ERROR;
     }
-	OCIAttrGet_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,
-					&stmt->num_result_rows,NULL,
-                    OCI_ATTR_ROW_COUNT,stmt->dbc->oci_err,ret);
-    return SQL_SUCCESS;
+  OCIAttrGet_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,
+		      &stmt->num_result_rows,NULL,
+		      OCI_ATTR_ROW_COUNT,stmt->dbc->oci_err,ret);
+  return SQL_SUCCESS;
 }
 
 SQLRETURN ood_driver_transaction(hDbc_T *dbc, SQLSMALLINT action)
 {
   SQLRETURN stat = SQL_SUCCESS;
   sword ret;
-
-
+  
+  
   switch(action){
   case SQL_COMMIT: 
     THREAD_MUTEX_LOCK(dbc);
     ret = OCITransCommit_log_stat((OCISvcCtx *)dbc->oci_svc,
-			 (OCIError*)dbc->oci_err,
-			 (ub4)OCI_DEFAULT,ret);
+				  (OCIError*)dbc->oci_err,
+				  (ub4)OCI_DEFAULT,ret);
     if(ret) {
       ood_driver_error(dbc,ret,__FILE__,__LINE__);
       stat=SQL_ERROR;
     }
     THREAD_MUTEX_UNLOCK(dbc);
-
-
+    
+    
     break;
   case SQL_ROLLBACK:
     THREAD_MUTEX_LOCK(dbc);
     ret = OCITransRollback_log_stat((OCISvcCtx *)dbc->oci_svc,
-			   (OCIError*)dbc->oci_err,
-			   (ub4)OCI_DEFAULT,ret);
+				    (OCIError*)dbc->oci_err,
+				    (ub4)OCI_DEFAULT,ret);
     if(ret){
       ood_driver_error(dbc,ret,__FILE__,__LINE__);
       stat=SQL_ERROR;
@@ -576,9 +580,9 @@ SQLRETURN ood_driver_transaction(hDbc_T *dbc, SQLSMALLINT action)
   default:
     stat = SQL_ERROR;
   }
-
+  
   assert(IS_VALID(dbc));
- return stat;
+  return stat;
 }
 
 /*
@@ -589,115 +593,115 @@ SQLRETURN ood_driver_transaction(hDbc_T *dbc, SQLSMALLINT action)
  */
 SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
 {
-    sword ret;
-    OCIParam *parm;
-    ub4 i;
-    text *col_name;
-    ub4 siz=SQL_MAX_COLUMN_NAME_LEN;
-    ub4 num_cols;
-    SQLRETURN status=SQL_SUCCESS;
-    sb2 precision;
-    sb1 scale;
-    ub1 nullable;
-    assert(IS_VALID(stmt));
-	if(stmt->stmt_type!=OCI_STMT_SELECT)
-		return SQL_SUCCESS;
-
-    ret=OCIAttrGet_log_stat((dvoid*)stmt->oci_stmt,OCI_HTYPE_STMT,
-            (dvoid**)&num_cols,
-            0,OCI_ATTR_PARAM_COUNT,stmt->dbc->oci_err,ret);
-    if(ret)
+  sword ret;
+  OCIParam *parm;
+  ub4 i;
+  text *col_name;
+  ub4 siz=SQL_MAX_COLUMN_NAME_LEN;
+  ub4 num_cols;
+  SQLRETURN status=SQL_SUCCESS;
+  sb2 precision;
+  sb1 scale;
+  ub1 nullable;
+  assert(IS_VALID(stmt));
+  if(stmt->stmt_type!=OCI_STMT_SELECT)
+    return SQL_SUCCESS;
+  
+  ret=OCIAttrGet_log_stat((dvoid*)stmt->oci_stmt,OCI_HTYPE_STMT,
+			  (dvoid**)&num_cols,
+			  0,OCI_ATTR_PARAM_COUNT,stmt->dbc->oci_err,ret);
+  if(ret)
     {
-        ood_driver_error(stmt,ret,__FILE__,__LINE__);
-        if(ret==OCI_ERROR)
-            return SQL_ERROR;
+      ood_driver_error(stmt,ret,__FILE__,__LINE__);
+      if(ret==OCI_ERROR)
+	return SQL_ERROR;
     }
-
-    
-    if(SQL_SUCCESS!=
-            ood_alloc_col_desc(stmt,num_cols,stmt->current_ir,stmt->current_ar))
+  
+  
+  if(SQL_SUCCESS!=
+     ood_alloc_col_desc(stmt,num_cols,stmt->current_ir,stmt->current_ar))
     {
-        return SQL_ERROR;
+      return SQL_ERROR;
     }
-
-    /*
-     * Populate the descriptor records
-     */
-    for(i=1;i<=stmt->current_ir->num_recs;i++)
+  
+  /*
+   * Populate the descriptor records
+   */
+  for(i=1;i<=stmt->current_ir->num_recs;i++)
     {
-        /*
-         * Make sure we can see the parent descriptor
-         */
-        ret=OCIParamGet_log_stat((dvoid*)stmt->oci_stmt,OCI_HTYPE_STMT,
-                stmt->dbc->oci_err,(dvoid*)&parm,i,ret);
-
-        /* IR data type (AR types may be derived from this later) */
-	/* 
-	 * Annoyingly we find that ODBC expects the data type conversion to
-	 * happen in the driver rather than in the back-end. This means it
-	 * expects to be able to derive the original return type from the 
-	 * IRD. We use the IRD to store the type we actually get the data
-	 * as, so there needs to be an "original type" field to store what it
-	 * was.
-	 */
-        if(!stmt->current_ir->recs.ir[i].data_type)
-            ret|=OCIAttrGet_log_stat((dvoid*)parm,OCI_DTYPE_PARAM,
-                    &stmt->current_ir->recs.ir[i].orig_type,
-                    0,OCI_ATTR_DATA_TYPE,stmt->dbc->oci_err,ret);
-        stmt->current_ir->recs.ir[i].data_type
-			=stmt->current_ir->recs.ir[i].orig_type;
-        
-        /* IR data size */
-        if(!stmt->current_ir->recs.ir[i].data_size)
-	  ret|=OCIAttrGet_log_stat((dvoid*)parm,OCI_DTYPE_PARAM,
-			  &stmt->current_ir->recs.ir[i].data_size,
-			  0,OCI_ATTR_DATA_SIZE,stmt->dbc->oci_err,ret);
-	
-        /* AR column name :- can be set elsewhere */
-        ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
-			&col_name,
-			&siz,OCI_ATTR_NAME,stmt->dbc->oci_err);
-        if(ret)
-	  {
-            ood_driver_error(stmt,ret,__FILE__,__LINE__);
-            if(ret==OCI_ERROR)
-	      return SQL_ERROR;
-	  }
-        if(!*stmt->current_ar->recs.ar[i].column_name)
-	  {
-            siz=siz>ORACLE_MAX_COLUMN_LEN?ORACLE_MAX_COLUMN_LEN:siz;
-            memcpy(stmt->current_ar->recs.ar[i].column_name,col_name,(int)siz);
-            stmt->current_ar->recs.ar[i].column_name[siz]='\0';
-	  }
-	
-        /* AR precision */
-        ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
-			&precision,
-			0,OCI_ATTR_PRECISION,stmt->dbc->oci_err);
-        stmt->current_ar->recs.ar[i].precision=(SQLSMALLINT)precision;
-	
-        /* AR scale (aka decimal digits) */
-        ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
-			&scale,
-			0,OCI_ATTR_SCALE,stmt->dbc->oci_err);
-        if(scale!=-127)
-	  stmt->current_ar->recs.ar[i].scale=(SQLSMALLINT)scale;
-	
-        /* AR nullable */
-        ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
-			&nullable,
-			0,OCI_ATTR_IS_NULL,stmt->dbc->oci_err);
-        if(nullable)
-	  stmt->current_ar->recs.ar[i].nullable=SQL_NULLABLE;
-        else
-	  stmt->current_ar->recs.ar[i].nullable=SQL_NO_NULLS;
-	
-        /* setup the IR and a few more essential AR fields */
-        status|=ood_driver_setup_fetch_env(&stmt->current_ir->recs.ir[i],
-					   &stmt->current_ar->recs.ar[i]);
+      /*
+       * Make sure we can see the parent descriptor
+       */
+      ret=OCIParamGet_log_stat((dvoid*)stmt->oci_stmt,OCI_HTYPE_STMT,
+			       stmt->dbc->oci_err,(dvoid*)&parm,i,ret);
+      
+      /* IR data type (AR types may be derived from this later) */
+      /* 
+       * Annoyingly we find that ODBC expects the data type conversion to
+       * happen in the driver rather than in the back-end. This means it
+       * expects to be able to derive the original return type from the 
+       * IRD. We use the IRD to store the type we actually get the data
+       * as, so there needs to be an "original type" field to store what it
+       * was.
+       */
+      if(!stmt->current_ir->recs.ir[i].data_type)
+	ret|=OCIAttrGet_log_stat((dvoid*)parm,OCI_DTYPE_PARAM,
+				 &stmt->current_ir->recs.ir[i].orig_type,
+				 0,OCI_ATTR_DATA_TYPE,stmt->dbc->oci_err,ret);
+      stmt->current_ir->recs.ir[i].data_type
+	=stmt->current_ir->recs.ir[i].orig_type;
+      
+      /* IR data size */
+      if(!stmt->current_ir->recs.ir[i].data_size)
+	ret|=OCIAttrGet_log_stat((dvoid*)parm,OCI_DTYPE_PARAM,
+				 &stmt->current_ir->recs.ir[i].data_size,
+				 0,OCI_ATTR_DATA_SIZE,stmt->dbc->oci_err,ret);
+      
+      /* AR column name :- can be set elsewhere */
+      ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
+		      &col_name,
+		      &siz,OCI_ATTR_NAME,stmt->dbc->oci_err);
+      if(ret)
+	{
+	  ood_driver_error(stmt,ret,__FILE__,__LINE__);
+	  if(ret==OCI_ERROR)
+	    return SQL_ERROR;
+	}
+      if(!*stmt->current_ar->recs.ar[i].column_name)
+	{
+	  siz=siz>ORACLE_MAX_COLUMN_LEN?ORACLE_MAX_COLUMN_LEN:siz;
+	  memcpy(stmt->current_ar->recs.ar[i].column_name,col_name,(int)siz);
+	  stmt->current_ar->recs.ar[i].column_name[siz]='\0';
+	}
+      
+      /* AR precision */
+      ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
+		      &precision,
+		      0,OCI_ATTR_PRECISION,stmt->dbc->oci_err);
+      stmt->current_ar->recs.ar[i].precision=(SQLSMALLINT)precision;
+      
+      /* AR scale (aka decimal digits) */
+      ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
+		      &scale,
+		      0,OCI_ATTR_SCALE,stmt->dbc->oci_err);
+      if(scale!=-127)
+	stmt->current_ar->recs.ar[i].scale=(SQLSMALLINT)scale;
+      
+      /* AR nullable */
+      ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
+		      &nullable,
+		      0,OCI_ATTR_IS_NULL,stmt->dbc->oci_err);
+      if(nullable)
+	stmt->current_ar->recs.ar[i].nullable=SQL_NULLABLE;
+      else
+	stmt->current_ar->recs.ar[i].nullable=SQL_NO_NULLS;
+      
+      /* setup the IR and a few more essential AR fields */
+      status|=ood_driver_setup_fetch_env(&stmt->current_ir->recs.ir[i],
+					 &stmt->current_ar->recs.ar[i]);
     }
-    
-    return status;
+  
+  return status;
 }
 /*
  * execute_prefetch 
@@ -2626,389 +2630,411 @@ SQLRETURN ocidty_sqlnts(int row,ir_T* ir ,SQLPOINTER target,SQLINTEGER buflen,
 
 sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 {
-	sword ret;
-	OCIBind *ocibind;
-	ap_T* ap=&stmt->current_ap->recs.ap[parmnum];
-	ip_T* ip=&stmt->current_ip->recs.ip[parmnum];
-	void* bind_ptr;
+  sword ret;
+  OCIBind *ocibind;
+  ap_T* ap=&stmt->current_ap->recs.ap[parmnum];
+  ip_T* ip=&stmt->current_ip->recs.ip[parmnum];
+  void* bind_ptr;
+  
+  assert(IS_VALID(stmt));
+  assert(IS_VALID(ap));
+  assert(IS_VALID(ip));
+  
+  ip->col_num=parmnum;
+  ip->desc=stmt->current_ip;
+  
+  /*
+   * There are several types where no converswions that Oracle can't do
+   * are likely to arise. 
+   */
+  if(debugLevel()>0){
+    printf("ood_driver_bind_param::line %d concise_type=%d %s\n"
+	   ,__LINE__,ap->concise_type,odbc_var_type(ap->concise_type));
+  }
+  
+  switch(ap->concise_type)
+    {
+    case SQL_C_USHORT:
+    case SQL_C_SSHORT:
+      ip->data_size=sizeof(short);
+      ip->data_type=SQLT_INT;
+      ip->data_ptr=NULL; /* not malloc'd, we use APD directly */
+      bind_ptr=ap->data_ptr;
+			break;
+    case SQL_INTEGER:
+    case SQL_C_ULONG:
+    case SQL_C_SLONG:
+      ip->data_size=sizeof(long);
+      ip->data_type=SQLT_INT;
+      ip->data_ptr=NULL; /* not malloc'd, we use APD directly */
+      bind_ptr=ap->data_ptr;
+      break;
+      
+    case SQL_C_UBIGINT:
+    case SQL_C_SBIGINT:
+      ip->data_size=sizeof(SQLBIGINT);
+      ip->data_type=SQLT_INT;
+      ip->data_ptr=NULL; /* not malloc'd, we use APD directly */
+      bind_ptr=ap->data_ptr;
+      break;
+      
+    case SQL_C_DOUBLE:
+      ip->data_size=sizeof(double);
+      ip->data_type=SQLT_FLT;
+      ip->data_ptr=NULL;
+      bind_ptr=ap->data_ptr;
+      break;
+      
+    case SQL_C_FLOAT:
+      ip->data_size=sizeof(float);
+      ip->data_type=SQLT_FLT;
+      ip->data_ptr=NULL;
+      bind_ptr=ap->data_ptr;
+      break;
+      
+    case SQL_C_BINARY:
+      ip->data_size=ap->octet_length;
+      ip->data_type=SQLT_BIN;
+      ip->data_ptr=NULL;
+      bind_ptr=ap->data_ptr;
+      break;
+      
+      
+      /*
+       * There are however other types that we have to look out for
+       */
+      
+    case SQL_C_TIMESTAMP:
+      {
+	char datetxt[25];
+	SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)ap->data_ptr;
+	ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
+	ip->data_type=SQLT_ODT;
+	ip->data_size=sizeof(OCIDate);
+	bind_ptr=ip->data_ptr;
+	switch(ap->bind_target_type)
+	  {
+	  case SQL_TYPE_TIMESTAMP:
+	    sprintf(datetxt,"%.4d%.2d%.2d%.2d%.2d%.2d",
+		    ts->year,ts->month+1,ts->day,
+		    ts->hour,ts->minute,ts->second);
+	    ret=OCIDateFromText(stmt->dbc->oci_err,
+				(text*)datetxt,14,
+				(text*)"YYYYMMDDHH24MISS",16,
+				(text*)"",0,(OCIDate*)ip->data_ptr);
+	    if(ret)
+	      {
+		ood_driver_error(stmt,ret,__FILE__,__LINE__);
+		return(ret);
+	      }
+	    break;
+	    
+	  case SQL_TYPE_TIME:
+	    sprintf(datetxt,"%.2d%.2d%.2d",
+		    ts->year,ts->month+1,ts->day);
+	    ret=OCIDateFromText(stmt->dbc->oci_err,
+				(text*)datetxt,6,
+				(text*)"HH24MISS",8,
+				(text*)"",0,(OCIDate*)ip->data_ptr);
+	    if(ret)
+	      {
+		ood_driver_error(stmt,ret,__FILE__,__LINE__);
+		return(ret);
+	      }
+	    break;
+	    
+	  case SQL_TYPE_DATE:
+	    sprintf(datetxt,"%.4d%.2d%.2d",
+		    ts->year,ts->month+1,ts->day);
+	    ret=OCIDateFromText(stmt->dbc->oci_err,
+				(text*)datetxt,8,
+				(text*)"YYYYMMDD",8,
+				(text*)"",0,(OCIDate*)ip->data_ptr);
+	    if(ret)
+	      {
+		ood_driver_error(stmt,ret,__FILE__,__LINE__);
+		return(ret);
+	      }
+	    break;
+	  }
+      }
+    case SQL_C_TIME:
+      {
+	char datetxt[25];
+	SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)ap->data_ptr;
+	ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
+	ip->data_type=SQLT_ODT;
+	ip->data_size=sizeof(OCIDate);
+	bind_ptr=ip->data_ptr;
+	sprintf(datetxt,"%.2d%.2d%.2d",
+		ts->year,ts->month+1,ts->day);
+	ret=OCIDateFromText(stmt->dbc->oci_err,
+			    (text*)datetxt,6,
+			    (text*)"HH24MISS",8,
+			    (text*)"",0,(OCIDate*)ip->data_ptr);
+	if(ret)
+	  {
+	    ood_driver_error(stmt,ret,__FILE__,__LINE__);
+	    return(ret);
+	  }
+      }
+      break;
+      
+    case SQL_C_DATE:
+      {
+	char datetxt[25];
+	SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)ap->data_ptr;
+	ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
+	ip->data_type=SQLT_ODT;
+	ip->data_size=sizeof(OCIDate);
+	bind_ptr=ip->data_ptr;
+	sprintf(datetxt,"%.4d%.2d%.2d",
+		ts->year,ts->month+1,ts->day);
+	ret=OCIDateFromText(stmt->dbc->oci_err,
+			    (text*)datetxt,8,
+			    (text*)"YYYYMMDD",8,
+			    (text*)"",0,(OCIDate*)ip->data_ptr);
+	if(ret)
+	  {
+	    ood_driver_error(stmt,ret,__FILE__,__LINE__);
+	    return(ret);
+	  }
+      }
+      break;
 
-	assert(IS_VALID(stmt));
-	assert(IS_VALID(ap));
-	assert(IS_VALID(ip));
 
-	ip->col_num=parmnum;
-	ip->desc=stmt->current_ip;
+     
 
-	/*
-	 * There are several types where no converswions that Oracle can't do
-	 * are likely to arise. 
-	 */
-	if(debugLevel()>0){
-	  printf("ood_driver_bind_param::line %d concise_type=%d %s\n"
-		 ,__LINE__,ap->concise_type,odbc_var_type(ap->concise_type));
-	}
-
-	switch(ap->concise_type)
+    case SQL_CHAR:
+      
+      ip->data_type=SQLT_CHR;
+      ip->data_ptr=NULL;
+      bind_ptr=ap->data_ptr;
+      if(strlen(bind_ptr)<ap->octet_length)
+	ip->data_size=strlen(bind_ptr);
+      else
+	ip->data_size=ap->octet_length;
+      
+      break;
+      
+     
+    default:
+      switch(ap->bind_target_type)
 	{
-		case SQL_C_USHORT:
-		case SQL_C_SSHORT:
-			ip->data_size=sizeof(short);
-			ip->data_type=SQLT_INT;
-			ip->data_ptr=NULL; /* not malloc'd, we use APD directly */
-			bind_ptr=ap->data_ptr;
-			break;
-	case SQL_INTEGER:
-		case SQL_C_ULONG:
-		case SQL_C_SLONG:
-			ip->data_size=sizeof(long);
-			ip->data_type=SQLT_INT;
-			ip->data_ptr=NULL; /* not malloc'd, we use APD directly */
-			bind_ptr=ap->data_ptr;
-			break;
-
-		case SQL_C_UBIGINT:
-		case SQL_C_SBIGINT:
-			ip->data_size=sizeof(SQLBIGINT);
-			ip->data_type=SQLT_INT;
-			ip->data_ptr=NULL; /* not malloc'd, we use APD directly */
-			bind_ptr=ap->data_ptr;
-			break;
-
-		case SQL_C_DOUBLE:
-			ip->data_size=sizeof(double);
-			ip->data_type=SQLT_FLT;
-			ip->data_ptr=NULL;
-			bind_ptr=ap->data_ptr;
-			break;
-			
-		case SQL_C_FLOAT:
-			ip->data_size=sizeof(float);
-			ip->data_type=SQLT_FLT;
-			ip->data_ptr=NULL;
-			bind_ptr=ap->data_ptr;
-			break;
-
-		case SQL_C_BINARY:
-			ip->data_size=ap->octet_length;
-			ip->data_type=SQLT_BIN;
-			ip->data_ptr=NULL;
-			bind_ptr=ap->data_ptr;
-			break;
-
-
-		/*
-		 * There are however other types that we have to look out for
-		 */
-
-		case SQL_C_TIMESTAMP:
-		{
-			char datetxt[25];
-			SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)ap->data_ptr;
-			ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
-			ip->data_type=SQLT_ODT;
-			ip->data_size=sizeof(OCIDate);
-			bind_ptr=ip->data_ptr;
-			switch(ap->bind_target_type)
-			{
-				case SQL_TYPE_TIMESTAMP:
-					sprintf(datetxt,"%.4d%.2d%.2d%.2d%.2d%.2d",
-							ts->year,ts->month+1,ts->day,
-							ts->hour,ts->minute,ts->second);
-					ret=OCIDateFromText(stmt->dbc->oci_err,
-							(text*)datetxt,14,
-							(text*)"YYYYMMDDHH24MISS",16,
-							(text*)"",0,(OCIDate*)ip->data_ptr);
-					if(ret)
-					{
-						ood_driver_error(stmt,ret,__FILE__,__LINE__);
-						return(ret);
-					}
-				break;
-
-				case SQL_TYPE_TIME:
-					sprintf(datetxt,"%.2d%.2d%.2d",
-							ts->year,ts->month+1,ts->day);
-					ret=OCIDateFromText(stmt->dbc->oci_err,
-							(text*)datetxt,6,
-							(text*)"HH24MISS",8,
-							(text*)"",0,(OCIDate*)ip->data_ptr);
-					if(ret)
-					{
-						ood_driver_error(stmt,ret,__FILE__,__LINE__);
-						return(ret);
-					}
-				break;
-
-				case SQL_TYPE_DATE:
-					sprintf(datetxt,"%.4d%.2d%.2d",
-							ts->year,ts->month+1,ts->day);
-					ret=OCIDateFromText(stmt->dbc->oci_err,
-							(text*)datetxt,8,
-							(text*)"YYYYMMDD",8,
-							(text*)"",0,(OCIDate*)ip->data_ptr);
-					if(ret)
-					{
-						ood_driver_error(stmt,ret,__FILE__,__LINE__);
-						return(ret);
-					}
-				break;
-			}
-		}
-		case SQL_C_TIME:
-		{
-			char datetxt[25];
-			SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)ap->data_ptr;
-			ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
-			ip->data_type=SQLT_ODT;
-			ip->data_size=sizeof(OCIDate);
-			bind_ptr=ip->data_ptr;
-			sprintf(datetxt,"%.2d%.2d%.2d",
-					ts->year,ts->month+1,ts->day);
-			ret=OCIDateFromText(stmt->dbc->oci_err,
-					(text*)datetxt,6,
-					(text*)"HH24MISS",8,
-					(text*)"",0,(OCIDate*)ip->data_ptr);
-			if(ret)
-			{
-				ood_driver_error(stmt,ret,__FILE__,__LINE__);
-				return(ret);
-			}
-		}
-		break;
-
-		case SQL_C_DATE:
-		{
-			char datetxt[25];
-			SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)ap->data_ptr;
-			ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
-			ip->data_type=SQLT_ODT;
-			ip->data_size=sizeof(OCIDate);
-			bind_ptr=ip->data_ptr;
-			sprintf(datetxt,"%.4d%.2d%.2d",
-					ts->year,ts->month+1,ts->day);
-			ret=OCIDateFromText(stmt->dbc->oci_err,
-					(text*)datetxt,8,
-					(text*)"YYYYMMDD",8,
-					(text*)"",0,(OCIDate*)ip->data_ptr);
-			if(ret)
-			{
-				ood_driver_error(stmt,ret,__FILE__,__LINE__);
-				return(ret);
-			}
-		}
-		break;
-
-		default:
-			switch(ap->bind_target_type)
-			{
-				case SQL_TYPE_DATE:
-				{
-                    sword ret;
-					ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
-					/*
-					 * Dates are expected to be in the format 
-					 * "YYYY-MM-DD", but they can also be
-					 * odbc escaped, ie "{d 'YYYY-..."
-					 */
-					if(!strncmp(ap->data_ptr,"{d ",3))
-					{
-						char *date_start=strchr(ap->data_ptr,'\'');
-						date_start++;
-						ret=OCIDateFromText(stmt->dbc->oci_err,
-								(text*)date_start,10,
-								(text*)"YYYY-MM-DD",10,
-								(text*)"",0,(OCIDate*)ip->data_ptr);
-						if(ret)
-						{
-							ood_driver_error(stmt,ret,__FILE__,__LINE__);
-							return(ret);
-						}
-
-					}
-					else
-					{
-						ret=OCIDateFromText(stmt->dbc->oci_err,
-								(text*)ip->data_ptr,10,
-								(text*)"YYYY-MM-DD",10,
-								(text*)"",0,(OCIDate*)ip->data_ptr);
-						if(ret)
-						{
-							ood_driver_error(stmt,ret,__FILE__,__LINE__);
-							return(ret);
-						}
-					}
-					ip->data_type=SQLT_ODT;
-					ip->data_size=sizeof(OCIDate);
-					bind_ptr=ip->data_ptr;
-				}
-				break;
-				case SQL_TYPE_TIME:
-				{
-                    sword ret;
-					ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
-					/*
-					 * Times are expected to be in the format 
-					 * "HH:MI:SS", but they can also be
-					 * odbc escaped, ie "{t 'HH:MI..."
-					 */
-					if(!strncmp(ap->data_ptr,"{t ",3))
-					{
-						char *date_start=strchr(ap->data_ptr,'\'');
-						date_start++;
-						ret=OCIDateFromText(stmt->dbc->oci_err,
-								(text*)date_start,8,
-								(text*)"HH24:MI:SS",10,
-								(text*)"",0,(OCIDate*)ip->data_ptr);
-						if(ret)
-						{
-							ood_driver_error(stmt,ret,__FILE__,__LINE__);
-							return(ret);
-						}
-
-					}
-					else
-					{
-						ret=OCIDateFromText(stmt->dbc->oci_err,
-								(text*)ip->data_ptr,8,
-								(text*)"HH24:MI:SS",10,
-								(text*)"",0,(OCIDate*)ip->data_ptr);
-						if(ret)
-						{
-							ood_driver_error(stmt,ret,__FILE__,__LINE__);
-							return(ret);
-						}
-					}
-					ip->data_type=SQLT_ODT;
-					ip->data_size=sizeof(OCIDate);
-					bind_ptr=ip->data_ptr;
-				}
-				break;
-
-				case SQL_TYPE_TIMESTAMP:
-				{
-					sword ret;
-					ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
-					/*
-					 * Timestamps are expected to be in the format 
-					 * "YYYY-MM-DD HH:MI:SS", but they can also be
-					 * odbc escaped, ie "{ts 'YYYY-..."
-					 */
-					if(!strncmp(ap->data_ptr,"{ts ",4))
-					{
-						char *date_start=strchr(ap->data_ptr,'\'');
-						date_start++;
-						ret=OCIDateFromText(stmt->dbc->oci_err,
-								(text*)date_start,19,
-								(text*)"YYYY-MM-DD HH24:MI:SS",21,
-								(text*)"",0,(OCIDate*)ip->data_ptr);
-						if(ret)
-						{
-							ood_driver_error(stmt,ret,__FILE__,__LINE__);
-							return(ret);
-						}
-
-					}
-					else
-					{
-						ret=OCIDateFromText(stmt->dbc->oci_err,
-								(text*)ip->data_ptr,19,
-								(text*)"YYYY-MM-DD HH24:MI:SS",21,
-								(text*)"",0,(OCIDate*)ip->data_ptr);
-						if(ret)
-						{
-							ood_driver_error(stmt,ret,__FILE__,__LINE__);
-							return(ret);
-						}
-					}
-					ip->data_type=SQLT_ODT;
-					ip->data_size=sizeof(OCIDate);
-					bind_ptr=ip->data_ptr;
-				}
-				break;
-
-		        default:
+	case SQL_TYPE_DATE:
+	  {
+	    sword ret;
+	    ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
+	    /*
+	     * Dates are expected to be in the format 
+	     * "YYYY-MM-DD", but they can also be
+	     * odbc escaped, ie "{d 'YYYY-..."
+	     */
+	    if(!strncmp(ap->data_ptr,"{d ",3))
+	      {
+		char *date_start=strchr(ap->data_ptr,'\'');
+		date_start++;
+		ret=OCIDateFromText(stmt->dbc->oci_err,
+				    (text*)date_start,10,
+				    (text*)"YYYY-MM-DD",10,
+				    (text*)"",0,(OCIDate*)ip->data_ptr);
+		if(ret)
+		  {
+		    ood_driver_error(stmt,ret,__FILE__,__LINE__);
+		    return(ret);
+		  }
+		
+	      }
+	    else
+	      {
+		ret=OCIDateFromText(
+		      stmt->dbc->oci_err,
+		      (text*)ip->data_ptr,10,
+		      (text*)"YYYY-MM-DD",10,
+		      (text*)"",0,(OCIDate*)ip->data_ptr);
+		if(ret)
+		  {
+		    ood_driver_error(stmt,ret,__FILE__,__LINE__);
+		    return(ret);
+		  }
+	      }
+	    ip->data_type=SQLT_ODT;
+	    ip->data_size=sizeof(OCIDate);
+	    bind_ptr=ip->data_ptr;
+	  }
+	  break;
+	case SQL_TYPE_TIME:
+	  {
+	    sword ret;
+	    ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
+	    /*
+	     * Times are expected to be in the format 
+	     * "HH:MI:SS", but they can also be
+	     * odbc escaped, ie "{t 'HH:MI..."
+	     */
+	    if(!strncmp(ap->data_ptr,"{t ",3))
+	      {
+		char *date_start=strchr(ap->data_ptr,'\'');
+		date_start++;
+		ret=OCIDateFromText(stmt->dbc->oci_err,
+				    (text*)date_start,8,
+				    (text*)"HH24:MI:SS",10,
+				    (text*)"",0,(OCIDate*)ip->data_ptr);
+		if(ret)
+		  {
+		    ood_driver_error(stmt,ret,__FILE__,__LINE__);
+		    return(ret);
+		  }
+		
+	      }
+	    else
+	      {
+		ret=OCIDateFromText(
+			      stmt->dbc->oci_err,
+			      (text*)ip->data_ptr,8,
+			      (text*)"HH24:MI:SS",10,
+			      (text*)"",0,(OCIDate*)ip->data_ptr);
+		if(ret)
+		  {
+		    ood_driver_error(stmt,ret,__FILE__,__LINE__);
+		    return(ret);
+		  }
+	      }
+	    ip->data_type=SQLT_ODT;
+	    ip->data_size=sizeof(OCIDate);
+	    bind_ptr=ip->data_ptr;
+	  }
+	  break;
+	  
+	case SQL_TYPE_TIMESTAMP:
+	  {
+	    sword ret;
+	    ip->data_ptr=(OCIDate*)ORAMALLOC(sizeof(OCIDate));
+	    /*
+	     * Timestamps are expected to be in the format 
+	     * "YYYY-MM-DD HH:MI:SS", but they can also be
+	     * odbc escaped, ie "{ts 'YYYY-..."
+	     */
+	    if(!strncmp(ap->data_ptr,"{ts ",4))
+	      {
+		char *date_start=strchr(ap->data_ptr,'\'');
+		date_start++;
+		ret=OCIDateFromText(
+		       stmt->dbc->oci_err,
+		       (text*)date_start,19,
+		       (text*)"YYYY-MM-DD HH24:MI:SS",21,
+		       (text*)"",0,(OCIDate*)ip->data_ptr);
+		if(ret)
+		  {
+		    ood_driver_error(stmt,ret,__FILE__,__LINE__);
+		    return(ret);
+		  }
+		
+	      }
+	    else
+	      {
+		ret=OCIDateFromText(
+                           stmt->dbc->oci_err,
+			   (text*)ip->data_ptr,19,
+			   (text*)"YYYY-MM-DD HH24:MI:SS",21,
+			   (text*)"",0,(OCIDate*)ip->data_ptr);
+		if(ret)
+		  {
+		    ood_driver_error(stmt,ret,__FILE__,__LINE__);
+		    return(ret);
+		  }
+	      }
+	    ip->data_type=SQLT_ODT;
+	    ip->data_size=sizeof(OCIDate);
+	    bind_ptr=ip->data_ptr;
+	  }
+	  break;
+	  
+	default:
 				/*case SQL_INTEGER:*/
-				case SQL_DECIMAL:
-				case SQL_NUMERIC:
-				case SQL_SMALLINT:
-				case SQL_REAL:
-				case SQL_FLOAT:
-				case SQL_DOUBLE:
-				case SQL_TINYINT:
-				case SQL_BIGINT:
-				case SQL_BIT:
-				case SQL_BINARY:
-				case SQL_LONGVARCHAR:
-				case SQL_VARBINARY:
-				case SQL_LONGVARBINARY:
-			    ip->data_size=ap->octet_length;
-			    ip->data_type=SQLT_CHR;
-			    ip->data_ptr=NULL;
-			    bind_ptr=ap->data_ptr;
-				break;
-			}
-		break;
+	case SQL_DECIMAL:
+	case SQL_NUMERIC:
+	case SQL_SMALLINT:
+	case SQL_REAL:
+	case SQL_FLOAT:
+	case SQL_DOUBLE:
+	case SQL_TINYINT:
+	case SQL_BIGINT:
+	case SQL_BIT:
+	case SQL_BINARY:
+	case SQL_LONGVARCHAR:
+	case SQL_VARBINARY:
+	case SQL_LONGVARBINARY:
+	  ip->data_size=ap->octet_length;
+	  ip->data_type=SQLT_CHR;
+	  ip->data_ptr=NULL;
+	  bind_ptr=ap->data_ptr;
+	  break;
 	}
-
+      break;
+    }
+  
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ip->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)ip->desc->stmt,0,"siiiiiis",
-			NULL,"ood_driver_bind_parm",
-			"parmnum",parmnum,
-			"ap->octet_length",ap->octet_length,
-			"ip->data_size",ip->data_size,
-			"ap->concise_type",ap->concise_type,
-			"ap->bind_target_type",ap->bind_target_type,
-			"ip->data_type",ip->data_type,
-			"bind_ptr",bind_ptr
-			);
+  ood_log_message(ip->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ip->desc->stmt,0,"siiiiiis",
+		  NULL,"ood_driver_bind_parm",
+		  "parmnum",parmnum,
+		  "ap->octet_length",ap->octet_length,
+		  "ip->data_size",ip->data_size,
+		  "ap->concise_type",ap->concise_type,
+		  "ap->bind_target_type",ap->bind_target_type,
+		  "ip->data_type",ip->data_type,
+		  "bind_ptr",bind_ptr
+		  );
 #endif
-	if(debugLevel()>0){
-	  printf("ood_driver_bind_param::OCIBindByPos parm=%d size=%d type=%d %s\n",
-		 parmnum,ip->data_size,ip->data_type,oci_var_type(ip->data_type));
-	}
-	ret=OCIBindByPos(stmt->oci_stmt,&ocibind,stmt->dbc->oci_err,
-			(ub4)parmnum,bind_ptr,
-			 ip->data_size , ip->data_type,
-			 /*&ap->bind_indicator*/ 0,
-			0,0,0,0,OCI_DEFAULT);
-	return(ret);
+  if(debugLevel()>0){
+    printf("ood_driver_bind_param::OCIBindByPos parm=%d size=%d type=%d %s\n",
+	   parmnum,ip->data_size,ip->data_type,oci_var_type(ip->data_type));
+  }
+  ret=OCIBindByPos(stmt->oci_stmt,&ocibind,stmt->dbc->oci_err,
+		   (ub4)parmnum,bind_ptr,
+		   ip->data_size , ip->data_type,
+		   /*&ap->bind_indicator*/ 0,
+		   0,0,0,0,OCI_DEFAULT);
+  return(ret);
 }
 char *
 oci_status_name(sword status)
 {
-    
-    switch (status) {
-    case OCI_SUCCESS:		return "SUCCESS";
-    case OCI_SUCCESS_WITH_INFO:	return "SUCCESS_WITH_INFO";
-    case OCI_NEED_DATA:		return "NEED_DATA";
-    case OCI_NO_DATA:		return "NO_DATA";
-    case OCI_ERROR:		return "ERROR";
-    case OCI_INVALID_HANDLE:	return "INVALID_HANDLE";
-    case OCI_STILL_EXECUTING:	return "STILL_EXECUTING";
-    case OCI_CONTINUE:		return "CONTINUE";
-    }
-    return "UNKNOWN OCI STATUS";
+  
+  switch (status) {
+  case OCI_SUCCESS:		return "SUCCESS";
+  case OCI_SUCCESS_WITH_INFO:	return "SUCCESS_WITH_INFO";
+  case OCI_NEED_DATA:		return "NEED_DATA";
+  case OCI_NO_DATA:		return "NO_DATA";
+  case OCI_ERROR:		return "ERROR";
+  case OCI_INVALID_HANDLE:	return "INVALID_HANDLE";
+  case OCI_STILL_EXECUTING:	return "STILL_EXECUTING";
+  case OCI_CONTINUE:		return "CONTINUE";
+  }
+  return "UNKNOWN OCI STATUS";
 }
 
 
 char *
 oci_stmt_type_name(int stmt_type)
 {
-   
-    switch (stmt_type) {
-    case OCI_STMT_SELECT:	return "SELECT";
-    case OCI_STMT_UPDATE:	return "UPDATE";
-    case OCI_STMT_DELETE:	return "DELETE";
-    case OCI_STMT_INSERT:	return "INSERT";
-    case OCI_STMT_CREATE:	return "CREATE";
-    case OCI_STMT_DROP:		return "DROP";
-    case OCI_STMT_ALTER:	return "ALTER";
-    case OCI_STMT_BEGIN:	return "BEGIN";
-    case OCI_STMT_DECLARE:	return "DECLARE";
-    }
+  
+  switch (stmt_type) {
 
-    return "UNKOWN OCI STMT TYPE";
+  case OCI_STMT_SELECT:	  return "SELECT";
+  case OCI_STMT_UPDATE:	  return "UPDATE";
+  case OCI_STMT_DELETE:	  return "DELETE";
+  case OCI_STMT_INSERT:	  return "INSERT";
+  case OCI_STMT_CREATE:	  return "CREATE";
+  case OCI_STMT_DROP:	  return "DROP";
+  case OCI_STMT_ALTER:	  return "ALTER";
+  case OCI_STMT_BEGIN:	  return "BEGIN";
+  case OCI_STMT_DECLARE:  return "DECLARE";
+
+  }
+  
+  return "UNKOWN OCI STMT TYPE";
 }
 
 
