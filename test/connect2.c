@@ -57,15 +57,15 @@ int main()
     assert(ConHandle != (SQLHANDLE)NULL);
     assert(rc == SQL_SUCCESS);
 
-    sprintf(driverStr,"DSN=\"%s\";UID=\"%s\";PWD=\"%s\";",
-	    twoTask,userName,pswd);
+    sprintf(driverStr,"DRIVER=\"%s\"; DB=\"%s\"; DSN=\"%s\"; UID=\"%s\"; PWD=\"%s\";",
+	    "oracle",twoTask,twoTask,userName,pswd);
     VERBOSE("connecting with string '%s'\n",driverStr);
     rc = SQLDriverConnect(ConHandle, NULL, driverStr,
 			  SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
    
-    rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
-		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
-    assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO );
+
+    T_ASSERT2(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO,
+	    " failed to login with this string:",driverStr );
 
     VERBOSE("Connected to  database %s\n",twoTask);
 

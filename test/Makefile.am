@@ -1,25 +1,27 @@
 check_PROGRAMS=\
 connect1 \
 connect2 \
-insert1 \
-insert2 \
 direct_exec1 \
+direct_exec2 \
+insert1 \
+insert3 \
 read1 \
 read2 \
-malloctest \
-insert3 \
-direct_exec2 \
 read3 \
+malloctest \
 rollback1 \
-commit1
-
+commit1 \
+insert2 
 
 INCLUDES = -I${ODBCIDIR} -I../src
 
-EXTRA_DIST = 
+TESTS = $(check_PROGRAMS)
+EXTRA_DIST = runtests
 
 
 LDFLAGS = \
 	-L${ODBCLDIR} -lodbc ../src/mem_functions.o
+
+CLEANFILES=*.*~
 
 

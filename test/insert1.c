@@ -52,7 +52,8 @@ int main()
    
     rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
 		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
-    assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO );
+    T_ASSERT3(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO,
+	      "login failed:",userName, pswd);
 
     VERBOSE("connected to  database %s\n",twoTask);
 

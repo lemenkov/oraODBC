@@ -82,7 +82,9 @@ int main()
        The Driver To Use Column-Wise Binding. */
        rc = SQLSetStmtAttr(StmtHandle, SQL_ATTR_PARAM_BIND_TYPE, 
 			   SQL_PARAM_BIND_BY_COLUMN, 0);
-    assert(rc==SQL_SUCCESS );
+    T_ASSERT3(rc==SQL_SUCCESS, "failed to Set The SQL_ATTR_ROW_BIND_TYPE",
+	      " Statement Attribute To Tell The Driver To Use ",
+	      "Column-Wise Binding\n");
   
     /*Tell The Driver That There Are 3 Values For Each Parameter
       (By Setting The SQL_ATTR_PARAMSET_SIZE Statement

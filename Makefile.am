@@ -1,19 +1,8 @@
-check_PROGRAMS=\
-connect1 \
-connect2 \
-insert1 \
-insert2 \
-direct_exec1 \
-read1 \
-malloctest 
+EXTRA_DIST = \
+	FAQ BUGS README.0.4.0pre1\
+	odbcdriver.exp
 
 
-INCLUDES = -I${ODBCIDIR} -I../src
-
-EXTRA_DIST = 
-
-
-LDFLAGS = \
-	-L${ODBCLDIR} -lodbc ../src/mem_functions.o
-
-
+SUBDIRS= src config test
+ 
+CLEANFILES=*.*~
