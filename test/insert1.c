@@ -1,6 +1,6 @@
 /*test function: SQLExecDirect  to insert a row into table 'some_types'
  * author: Dennis Box, dbox@fnal.gov
- * $Id: insert1.c,v 1.7 2003/01/17 23:10:42 dbox Exp $
+ * $Id: insert1.c,v 1.8 2003/08/05 19:40:43 dbox Exp $
  */
 
 
@@ -40,7 +40,11 @@ int main()
     assert(ConHandle != (SQLHANDLE)NULL);
     assert(rc == SQL_SUCCESS);
    
-    rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
+    if(dsn[0])
+      rc = SQLDriverConnect(ConHandle, NULL, dsn,
+			  SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
+    else
+      rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
 		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
     assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
 
@@ -53,7 +57,7 @@ int main()
 
  
     sprintf(SQLStmt,"insert into some_types values( ");
-    strcat(SQLStmt," 1,1.95,'a random STRING'); ");
+    strcat(SQLStmt," 1,1.95,'a random STRING') ");
     
     rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
     VERBOSE("executing statement: %s \n", SQLStmt);

@@ -54,9 +54,13 @@ int main(int argc, char ** argv)
     rc = SQLAllocHandle(SQL_HANDLE_DBC, EnvHandle, &ConHandle);
     assert(ConHandle != (SQLHANDLE)NULL);
     assert(rc == SQL_SUCCESS);
-   
-    rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
-		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
+    if(dsn[0])
+      rc = SQLDriverConnect(ConHandle, NULL, dsn,
+			    SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
+    else
+      rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
+		      (SQLCHAR *)userName , 
+		      SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
     assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO );
 
     VERBOSE("connected to  database %s\n",twoTask);

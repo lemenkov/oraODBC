@@ -2,7 +2,7 @@
  * as a sanity check
  *
  * author: Dennis Box, dbox@fnal.gov
- * $Id: read2.c,v 1.3 2002/05/31 19:55:00 dbox Exp $
+ * $Id: read2.c,v 1.4 2003/08/05 19:40:43 dbox Exp $
  */
 
 /*      test following functions:                                  */
@@ -62,7 +62,11 @@ int main()
     assert(ConHandle != (SQLHANDLE)NULL);
     assert(rc == SQL_SUCCESS);
    
-    rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
+     if(dsn[0])
+      rc = SQLDriverConnect(ConHandle, NULL, dsn,
+			  SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
+    else
+      rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
 		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
     assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO );
 

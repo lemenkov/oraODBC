@@ -32,12 +32,11 @@
  *
  *******************************************************************************
  *
- * $Id: config.h.in,v 1.9 2003/02/03 22:44:33 dbox Exp $
+ * $Id: config.h.in,v 1.10 2003/08/05 19:40:43 dbox Exp $
  *
  * $Log: config.h.in,v $
- * Revision 1.9  2003/02/03 22:44:33  dbox
- * added test for SQLColumns, and changed behavior of SQLColumns deep in
- * belly of oracle_functions.c
+ * Revision 1.10  2003/08/05 19:40:43  dbox
+ * changed tests to make less oracle specific
  *
  * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
  * second try, importing code into directories

@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLDriverConnect.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLDriverConnect.c,v 1.5 2003/08/05 19:40:43 dbox Exp $
  *
  * $Log: SQLDriverConnect.c,v $
+ * Revision 1.5  2003/08/05 19:40:43  dbox
+ * changed tests to make less oracle specific
+ *
  * Revision 1.4  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -82,7 +85,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDriverConnect.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLDriverConnect.c,v $ $Revision: 1.5 $";
 
 SQLRETURN ood_SQLDriverConnect(
     SQLHDBC                ConnectionHandle,
@@ -140,22 +143,22 @@ SQLRETURN ood_SQLDriverConnect(
         else if(!strnicmp(this_pair,"PWD=",4))
             strcpy(dbc->PWD,&this_pair[4]);
         
-        else if(!strnicmp(this_pair,"DB=",4))
-            strcpy(dbc->DB,&this_pair[4]);
+        else if(!strnicmp(this_pair,"DB=",3))
+            strcpy(dbc->DB,&this_pair[3]);
 
 #else
-        if(!strncasecmp(this_pair,"DSN=",4))
+        if(!strncasecmp(this_pair,"DSN=",4)){
             strcpy(dbc->DSN,&this_pair[4]);
-
-        else if(!strncasecmp(this_pair,"UID=",4))
+	}
+        else if(!strncasecmp(this_pair,"UID=",4)){
             strcpy(dbc->UID,&this_pair[4]);
-
-        else if(!strncasecmp(this_pair,"PWD=",4))
+	}
+        else if(!strncasecmp(this_pair,"PWD=",4)){
             strcpy(dbc->PWD,&this_pair[4]);
-        
-        else if(!strncasecmp(this_pair,"DB=",4))
-            strcpy(dbc->DB,&this_pair[4]);
-
+	}
+        else if(!strncasecmp(this_pair,"DB=",3)){
+            strcpy(dbc->DB,&this_pair[3]);
+	}
 #endif
 
         this_pair=next_pair;

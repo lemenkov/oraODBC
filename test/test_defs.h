@@ -1,7 +1,7 @@
 
 /* bunch of definitions common to all of the tests in this subdirectory
  * author: Dennis Box, dbox@fnal.gov
- * $Id: test_defs.h,v 1.6 2003/01/17 23:10:42 dbox Exp $
+ * $Id: test_defs.h,v 1.7 2003/08/05 19:40:43 dbox Exp $
  */
 
 #ifndef _TEST_DEFS__H
@@ -22,6 +22,7 @@ SQLCHAR     twoTask[MAX_LEN];
 SQLCHAR     driverStr[MAX_LEN];
 SQLCHAR     userName[MAX_LEN];
 SQLCHAR     pswd[MAX_LEN];
+SQLCHAR     dsn[MAX_LEN];
 SQLHANDLE    EnvHandle;
 SQLHANDLE    ConHandle;
 HSTMT    StmtHandle;
@@ -31,7 +32,13 @@ SQLCHAR  SQLStmt[255];
 
 #define VERBOSE if(getenv("VERBOSE")!=NULL)printf
 
-#define GET_LOGIN_VARS()     if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_LEN)\
+#define GET_LOGIN_VARS() if(getenv("CONNECT_STR") && strlen((const char*)getenv("CONNECT_STR"))<MAX_LEN)\
+      sprintf(dsn,"%s",getenv("CONNECT_STR"));\
+    else{\
+	dsn[0]=0;twoTask[0]=0;userName[0]=0;pswd[0]=0;\
+    }\
+if(!dsn[0]){\
+ if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_LEN)\
       sprintf(twoTask,"%s",getenv("TWO_TASK"));\
     else{\
       fprintf(stderr,"Error: TWO_TASK env variable must be set\n");\
@@ -48,5 +55,11 @@ SQLCHAR  SQLStmt[255];
     else{\
       fprintf(stderr,"Error: ORACLE_PSWD env variable must be set\n");\
       exit(-1);\
-    }
+   }\
+}\
+if(!dsn[0] && !userName[0]){\
+      fprintf(stderr,"Error: must define CONNECT_STR or ORACLE_USER env variable \n");\
+      exit(-1);\
+}
+
 #endif

@@ -5,7 +5,7 @@
 /*              SQLFreeHandle()                                    */
 /*              SQLSetEnvAttr()                                    */
  /* author: Dennis Box, dbox@fnal.gov
- * $Id: connect2.c,v 1.6 2003/01/17 23:10:42 dbox Exp $
+ * $Id: connect2.c,v 1.7 2003/08/05 19:40:43 dbox Exp $
  */
 
 #include "test_defs.h"
@@ -44,19 +44,17 @@ int main()
     rc = SQLAllocHandle(SQL_HANDLE_DBC, EnvHandle, &ConHandle);
     assert(ConHandle != (SQLHANDLE)NULL);
     assert(rc == SQL_SUCCESS);
-
-	/*
-    sprintf(driverStr,"DRIVER=%s; DB=%s; DSN=%s; USER=%s;PWD=%s;",
-	    "oracle",twoTask,twoTask,userName,pswd);
-	*/
-    /*this is incredibly fragile and should be fixed*/
-    sprintf(driverStr,"DRIVER=%s;DB=%s;UID=%s;PWD=%s;",
-	    "oracle",twoTask,userName,pswd);
-    VERBOSE("connecting with string '%s'\n",driverStr);
-    rc = SQLDriverConnect(ConHandle, NULL, driverStr,
+    if(dsn[0])
+      rc = SQLDriverConnect(ConHandle, NULL, dsn,
 			  SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
-   
-
+    else{
+      sprintf(driverStr,"DRIVER=%s;DB=%s;UID=%s;PWD=%s;",
+	      "oracle",twoTask,userName,pswd);
+      VERBOSE("connecting with string '%s'\n",driverStr);
+      rc = SQLDriverConnect(ConHandle, NULL, driverStr,
+			    SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
+    }
+    
     assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
 
     VERBOSE("Connected to  database %s\n",twoTask);

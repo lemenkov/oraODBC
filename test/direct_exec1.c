@@ -1,6 +1,6 @@
 /*test function: SQLExecDirect to create table 'some_types' 
  * author: Dennis Box, dbox@fnal.gov
- * $Id: direct_exec1.c,v 1.5 2003/02/11 21:37:55 dbox Exp $
+ * $Id: direct_exec1.c,v 1.6 2003/08/05 19:40:43 dbox Exp $
  */
 
 
@@ -39,8 +39,12 @@ int main()
   assert(ConHandle != (SQLHANDLE)NULL);
   assert(rc == SQL_SUCCESS);
   
-  rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
-		  (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
+  if(dsn[0])
+    rc = SQLDriverConnect(ConHandle, NULL, dsn,
+			  SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
+  else
+    rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
+		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
   assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO );
   
   VERBOSE("connected to  database %s\n",twoTask);
@@ -58,7 +62,7 @@ int main()
   
   rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
   
-  assert(rc == SQL_SUCCESS);
+  assert(rc == SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
   VERBOSE("success: executed statement: %s \n", SQLStmt);
   
   

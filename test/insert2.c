@@ -5,7 +5,7 @@
 /* last 2 of 3 char arrays dont insert... */
 /* see SQLSetStmtAttr.c */
 /* author: Dennis Box, dbox@fnal.gov
- * $Id: insert2.c,v 1.8 2003/02/11 21:37:55 dbox Exp $
+ * $Id: insert2.c,v 1.9 2003/08/05 19:40:43 dbox Exp $
  */
 
 
@@ -60,8 +60,12 @@ int main()
   assert(ConHandle != (SQLHANDLE)NULL);
   assert(rc == SQL_SUCCESS);
   
-  rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
-		  (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
+  if(dsn[0])
+    rc = SQLDriverConnect(ConHandle, NULL, dsn,
+			  SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
+  else
+    rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
+		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
   assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO );
   
   VERBOSE("connected to  database %s\n",twoTask);
@@ -79,17 +83,18 @@ int main()
   
   assert(rc==SQL_SUCCESS);
   
-  /*T_ASSERT3(rc==SQL_SUCCESS, "failed to Set The SQL_ATTR_ROW_BIND_TYPE",
-    " Statement Attribute To Tell The Driver To Use ",
-    "Column-Wise Binding\n");*/
-  
   /*Tell The Driver That There Are 3 Values For Each Parameter
     (By Setting The SQL_ATTR_PARAMSET_SIZE Statement
       Attribute*/
   rc = SQLSetStmtAttr(StmtHandle, SQL_ATTR_PARAMSET_SIZE,  ARRAY_LEN, 0);
   assert(rc==SQL_SUCCESS);
   
-  
+  rc = SQLGetStmtAttr(StmtHandle, SQL_ATTR_PARAMSET_SIZE,  
+		      (SQLPOINTER)&retval, 0, 0);
+
+  assert(rc==SQL_SUCCESS);
+  assert(retval==ARRAY_LEN);
+
   sprintf(SQLStmt,"insert into some_types values( ");
   strcat(SQLStmt," ?, ?, ? ) ");
   

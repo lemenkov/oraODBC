@@ -4,7 +4,7 @@
  * by SQLDescribeParam resulted in a core dump.  This is fixed but 
  * SQLDescribeParam is returning incorrect info despite reporting SQL_SUCCESS
  * author: Dennis Box, dbox@fnal.gov
- * $Id: insert5.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
+ * $Id: insert5.c,v 1.3 2003/08/05 19:40:43 dbox Exp $
  */
 
 
@@ -58,7 +58,11 @@ int main()
     assert(ConHandle != (SQLHANDLE)NULL);
     assert(rc == SQL_SUCCESS);
    
-    rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
+    if(dsn[0])
+      rc = SQLDriverConnect(ConHandle, NULL, dsn,
+			  SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
+    else
+      rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
 		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
     assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO );
 
