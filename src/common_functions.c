@@ -19,11 +19,11 @@
  *
  *******************************************************************************
  *
- * $Id: common_functions.c,v 1.6 2002/11/14 22:28:36 dbox Exp $
+ * $Id: common_functions.c,v 1.7 2002/11/15 16:17:42 dbox Exp $
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.6 $";
+static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.7 $";
 
 /*
  * SQL type display size
@@ -610,7 +610,6 @@ static void _log_message_imp(char *tracefilename,char *file,int line,
 {
     FILE *tracefile=stderr;
     char *left; /*left hand side of each format pair */
-    return;
     /*
     if(NULL==(tracefile=fopen(tracefilename,"a")))
     {
@@ -735,7 +734,7 @@ static void _log_message_imp(char *tracefilename,char *file,int line,
 
               case 'I':            /* a short */
               {
-              short i = va_arg( ap, short );
+              short i = (short) va_arg( ap, int );
 
                 fprintf(tracefile, "%d\n", i );
                 break;
@@ -743,7 +742,7 @@ static void _log_message_imp(char *tracefilename,char *file,int line,
 
               case 'U':            /* a unsigned short */
               {
-              unsigned short i = (unsigned short) va_arg( ap, short );
+              unsigned short i = (unsigned short) va_arg( ap, int );
 
                 fprintf(tracefile, "%u\n", i );
                 break;
