@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: diagnostics.c,v 1.3 2003/12/16 01:22:06 dbox Exp $
+ * $Id: diagnostics.c,v 1.4 2004/08/27 19:51:29 dbox Exp $
  *
  * $Log: diagnostics.c,v $
+ * Revision 1.4  2004/08/27 19:51:29  dbox
+ * added a new error condition
+ *
  * Revision 1.3  2003/12/16 01:22:06  dbox
  * changes contributed by Steven Reynolds sreynolds@bradmark.com
  * SQLFreeHandle.c: Change order of frees in _SQLFreeHandle(). Free oci_stmt
@@ -111,6 +114,7 @@ char *error_messages[]=
     "Option value changed",                                         /* 01S02 */
     "Fractional truncation",                                        /* 01S07 */
     "Invalid keyword",                                              /* 01S09 */
+    "Count field incorrect",                                        /* 07002 */
     "Prepared statement not a cursor-specification",                /* 07005 */
     "Restricted data type attribute violation",                     /* 07006 */
     "Invalid descriptor index",                                     /* 07009 */
@@ -173,6 +177,7 @@ char *error_states[]={
  "01S02",
  "01S07",
  "01S09",
+ "07002",
  "07005",
  "07006",
  "07009",
