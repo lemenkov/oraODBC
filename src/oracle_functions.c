@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: oracle_functions.c,v 1.2 2002/03/05 22:55:50 dbox Exp $
  *
  * $Log: oracle_functions.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/03/05 22:55:50  dbox
+ * added functionality to oracle_functions.c
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.26  2000/07/21 10:18:50  tom
  * Initial implementation of LOBs
@@ -108,7 +111,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.2 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -745,6 +748,7 @@ SQLRETURN ood_driver_prefetch(hStmt_T* stmt)
  */
 SQLRETURN ood_ocitype_to_sqltype(ub2 data_type)
 {
+  
     switch(data_type)
     {
         /*varchar*/
@@ -1537,6 +1541,16 @@ SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
 			ir->data_type=SQLT_VNU;
 			ir->data_size=1024;
 			ir->to_string=ocivnu_sqlnts;
+
+			/*hack alert!! 
+			if(ar->precision==38 && ar->scale==0)
+			  ir->data_type=SQL_C_SLONG;
+			if(ar->precision==126 && ar->scale==0)
+			  ir->data_type=SQL_C_DOUBLE;
+			if(ar->precision==63 && ar->scale==0)
+			  ir->data_type=SQL_C_FLOAT;
+			*/
+
 			break;
 
 			/* LONGs, LOBs and binaries*/
@@ -1588,6 +1602,14 @@ SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
     if(!ar->data_type) /* not bound (yet) */
     {
         ar->data_type=ood_ocitype_to_sqltype(ir->data_type);
+	/*hack alert!! */
+	if(ar->precision==38 && ar->scale==0)
+	  ar->data_type=SQL_C_SLONG;
+	if(ar->precision==126 && ar->scale==0)
+	  ar->data_type=SQL_C_DOUBLE;
+	if(ar->precision==63 && ar->scale==0)
+	  ar->data_type=SQL_C_FLOAT;
+
         ar->concise_type=ar->data_type;
         ar->display_size=sqltype_display_size(ar->data_type,ir->data_size);
     }

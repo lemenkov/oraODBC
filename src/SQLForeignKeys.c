@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLForeignKeys.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLForeignKeys.c,v 1.2 2002/03/05 22:55:50 dbox Exp $
  *
  * $Log: SQLForeignKeys.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/03/05 22:55:50  dbox
+ * added functionality to oracle_functions.c
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.12  2000/07/21 10:04:17  tom
  * Fixed var init bug
@@ -59,7 +62,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLForeignKeys.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLForeignKeys.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLForeignKeys (
     SQLHSTMT            StatementHandle,
@@ -107,7 +110,7 @@ SQLRETURN SQL_API SQLForeignKeys (
 	
 #ifdef UNIX_DEBUG    
 fprintf(stderr,"SQLForeignKeys pkschema [%s], pktable [%s] \
-fkschema [%s], fktable [%s]\n"pkschema,pktable,fkschema,fktable);
+fkschema [%s], fktable [%s]\n",pkschema,pktable,fkschema,fktable);
 #endif
 
    if(pkschema&&*pkschema)
