@@ -25,7 +25,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.32 2004/08/27 23:11:31 dbox Exp $
+ * $Id: oracle_functions.c,v 1.33 2004/11/23 23:02:11 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -35,7 +35,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.32 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.33 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -1690,6 +1690,7 @@ SQLRETURN ocivnu_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
   sword ret;
   ub4 len=64;
   char txt[64];
+  unsigned char *c1;
   /*
     SQLCHAR *src;
     src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
@@ -1725,14 +1726,17 @@ SQLRETURN ocivnu_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
       ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
       return SQL_ERROR;
     }
-  ood_bounded_strcpy(target,txt,buflen);
-#if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-		  (SQLHANDLE)ir->desc->stmt,0,"sis",
+  c1=txt;
+  while(isspace(*c1)&&*c1) ++c1;
+  ood_bounded_strcpy(target,c1,buflen);
+  if(ENABLE_TRACE)
+    ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ir->desc->stmt,0,"siss",
 		  NULL,"ocivnu_sqlnts",
 		  "BufferLength",buflen,
+		    "Source",c1,
 		  "Target",target);
-#endif
+
   return SQL_SUCCESS;
 }
 /*
