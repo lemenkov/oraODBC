@@ -29,10 +29,9 @@ int main()
     SQLHANDLE    ConHandle;
     HSTMT    StmtHandle;
     SQLCHAR  SQLStmt[MAX_CHAR_LEN];
-    SQLINTEGER   anIntArray[ARRAY_LEN];
-    SQLFLOAT   aFloatArray[ARRAY_LEN];
-    SQLCHAR   aCharArray[ARRAY_LEN][MAX_CHAR_LEN];
-    SQLINTEGER   charInsArray[ARRAY_LEN];
+    SQLINTEGER   anInt,cbInt,cbFloat;
+    SQLFLOAT   aFloat;
+    SQLCHAR   aCharArray[MAX_CHAR_LEN];
     int i;
 
     if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_CHAR_LEN)
@@ -42,12 +41,6 @@ int main()
       exit(-1);
     }
       
-    for(i=0;i<ARRAY_LEN;i++){
-      anIntArray[i]=i;
-      aFloatArray[i]=(float)i+0.5;
-      sprintf(aCharArray[i],"int=%d flt=%f",anIntArray[i],aFloatArray[i]);
-      charInsArray[i]=SQL_NTS;
-    }
     VERBOSE("calling SQLAllocHandle(EnvHandle) \n");
 
     rc = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &EnvHandle);
@@ -78,22 +71,7 @@ int main()
     rc = SQLAllocStmt(ConHandle, &StmtHandle);
     assert(rc == SQL_SUCCESS);
 
-    /* Set The SQL_ATTR_ROW_BIND_TYPE Statement Attribute To Tell
-       The Driver To Use Column-Wise Binding. */
-    /*see SQLGetFunctions*/
-       rc = SQLSetStmtAttr(StmtHandle, SQL_ATTR_PARAM_BIND_TYPE, 
-			   SQL_PARAM_BIND_BY_COLUMN, 0);
-    T_ASSERT3(rc==SQL_SUCCESS, "failed to Set The SQL_ATTR_ROW_BIND_TYPE",
-	      " Statement Attribute To Tell The Driver To Use ",
-	      "Column-Wise Binding\n");
-  
-    /*Tell The Driver That There Are 3 Values For Each Parameter
-      (By Setting The SQL_ATTR_PARAMSET_SIZE Statement
-      Attribute*/
-    rc = SQLParamOptions(StmtHandle,  ARRAY_LEN, 0);
-    assert(rc==SQL_SUCCESS);
-    
-     
+
     sprintf(SQLStmt,"insert into some_types values( ");
     strcat(SQLStmt," ?, ?, ? ) ");
 
@@ -106,29 +84,32 @@ int main()
     VERBOSE("binding....\n");
 
     rc = SQLBindParameter(StmtHandle, 1, SQL_PARAM_INPUT, 
-			  SQL_C_DEFAULT, SQL_INTEGER, 0, 0, anIntArray, 0,
-			  NULL);
+			  SQL_C_SSHORT, SQL_INTEGER, 0, 0, &anInt, 0,
+			  &cbInt);
     assert(rc == SQL_SUCCESS);
 
     rc = SQLBindParameter(StmtHandle, 2, SQL_PARAM_INPUT, 
-			  SQL_C_DEFAULT, SQL_FLOAT, 0, 0, aFloatArray, 0,
-			  NULL);
+			  SQL_C_FLOAT, SQL_FLOAT, 0, 0, &aFloat, 0,
+			  &cbFloat);
     assert(rc == SQL_SUCCESS);
 
     rc = SQLBindParameter(StmtHandle, 3, SQL_PARAM_INPUT, 
 			  SQL_C_CHAR, SQL_CHAR, MAX_CHAR_LEN, 
 			  0, aCharArray, MAX_CHAR_LEN,
-			  charInsArray);
+			  SQL_NTS);
     assert(rc == SQL_SUCCESS);
 
     VERBOSE("executing....\n");
 
+    for(i=0;i<ARRAY_LEN;i++){
+      anInt=i;
+      aFloat=i+0.5;
+      sprintf(aCharArray,"int=%d flt=%f",anInt,aFloat);
+      rc = SQLExecute(StmtHandle);
+      assert(rc == SQL_SUCCESS);
+      VERBOSE("success: executed statement values %s\n",aCharArray);
+    }
 
-    rc = SQLExecute(StmtHandle);
-
- 
-    assert(rc == SQL_SUCCESS);
-    VERBOSE("success: executed statement\n");
 
     VERBOSE("calling SQLFreeStmt\n");
     if (StmtHandle != NULL)

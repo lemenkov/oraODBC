@@ -40,7 +40,7 @@ int main()
 
     int anInteger,anInt,aSmallInt;
     float aDecimal83,aNumeric94,aFloat,aFloat9,aReal;
-    SQLUSMALLINT num_cols;
+    SQLUSMALLINT num_cols, param1, param2;
     SQLCHAR buf1[MAX_LEN];
     SQLCHAR buf2[MAX_LEN];
    
@@ -103,6 +103,19 @@ int main()
     assert(rc==SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
     assert(num_cols==8);
 
+
+    rc = SQLColAttribute(StmtHandle, 1, SQL_DESC_COUNT,
+			      NULL, NULL, NULL, &param2);
+    assert(rc==SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
+
+    VERBOSE("SQLNumParams says  %d SQLColAttribute says %d\n",param1,param2);
+
+    assert(param2 == 8);
+
+    rc = SQLNumParams(StmtHandle,&param1);
+    assert(rc==SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
+
+    assert(param1 == 0);
 
     for(col=1; col<=num_cols; col++)
       {
