@@ -2,7 +2,7 @@
 #define _TEST_DEFS__H
 #include <stdlib.h>
 #include <assert.h>
-#define VERBOSE if(getenv("VERBOSE"))printf
+#define VERBOSE if(getenv("VERBOSE")!=NULL)printf
 
 #define T_ASSERT( x , y ) if (!x) printf("%s\n",y); assert(x);
 #define T_ASSERT2( x , y , z ) if (!x) printf("%s %s\n",y,z); assert(x);

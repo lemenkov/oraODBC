@@ -57,8 +57,13 @@ int main()
     assert(ConHandle != (SQLHANDLE)NULL);
     assert(rc == SQL_SUCCESS);
 
-    sprintf(driverStr,"DRIVER=\"%s\"; DB=\"%s\"; DSN=\"%s\"; UID=\"%s\"; PWD=\"%s\";",
+	/*
+    sprintf(driverStr,"DRIVER=%s; DB=%s; DSN=%s; USER=%s;PWD=%s;",
 	    "oracle",twoTask,twoTask,userName,pswd);
+	*/
+    /*this is incredibly fragile and should be fixed*/
+    sprintf(driverStr,"DRIVER=%s;DB=%s;UID=%s;PWD=%s;",
+	    "oracle",twoTask,userName,pswd);
     VERBOSE("connecting with string '%s'\n",driverStr);
     rc = SQLDriverConnect(ConHandle, NULL, driverStr,
 			  SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
