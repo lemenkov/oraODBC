@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.22 2003/02/03 23:52:23 dbox Exp $
+ * $Id: oracle_functions.c,v 1.23 2003/02/10 19:58:50 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.22 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.23 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -2764,7 +2764,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	  {
 	  case SQL_TYPE_TIMESTAMP:
 	    sprintf(datetxt,"%.4d%.2d%.2d%.2d%.2d%.2d",
-		    ts->year,ts->month+1,ts->day,
+		    ts->year,ts->month,ts->day,
 		    ts->hour,ts->minute,ts->second);
 	    ret=OCIDateFromText(stmt->dbc->oci_err,
 				(text*)datetxt,14,
@@ -2779,7 +2779,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	    
 	  case SQL_TYPE_TIME:
 	    sprintf(datetxt,"%.2d%.2d%.2d",
-		    ts->year,ts->month+1,ts->day);
+		    ts->year,ts->month,ts->day);
 	    ret=OCIDateFromText(stmt->dbc->oci_err,
 				(text*)datetxt,6,
 				(text*)"HH24MISS",8,
@@ -2793,7 +2793,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	    
 	  case SQL_TYPE_DATE:
 	    sprintf(datetxt,"%.4d%.2d%.2d",
-		    ts->year,ts->month+1,ts->day);
+		    ts->year,ts->month,ts->day);
 	    ret=OCIDateFromText(stmt->dbc->oci_err,
 				(text*)datetxt,8,
 				(text*)"YYYYMMDD",8,
@@ -2815,7 +2815,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	ip->data_size=sizeof(OCIDate);
 	bind_ptr=ip->data_ptr;
 	sprintf(datetxt,"%.2d%.2d%.2d",
-		ts->year,ts->month+1,ts->day);
+		ts->year,ts->month,ts->day);
 	ret=OCIDateFromText(stmt->dbc->oci_err,
 			    (text*)datetxt,6,
 			    (text*)"HH24MISS",8,
@@ -2837,7 +2837,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	ip->data_size=sizeof(OCIDate);
 	bind_ptr=ip->data_ptr;
 	sprintf(datetxt,"%.4d%.2d%.2d",
-		ts->year,ts->month+1,ts->day);
+		ts->year,ts->month,ts->day);
 	ret=OCIDateFromText(stmt->dbc->oci_err,
 			    (text*)datetxt,8,
 			    (text*)"YYYYMMDD",8,
