@@ -25,7 +25,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.34 2005/02/21 19:43:53 dbox Exp $
+ * $Id: oracle_functions.c,v 1.35 2005/03/17 01:36:32 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -35,7 +35,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.34 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.35 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -2510,7 +2510,7 @@ SQLRETURN ocilob_sqllvc(int row,ir_T* ir ,SQLPOINTER target,
   OCILobGetLength(ir->desc->stmt->dbc->oci_svc,ir->desc->stmt->dbc->oci_err,
 		  ir->locator[row],&ir->lobsiz);
 
-  amtp=ir->lobsiz-ir->posn;
+  amtp=ir->lobsiz-ir->posn+1;
   if(amtp>(unsigned)buflen)
     amtp=(unsigned)buflen;
 
