@@ -18,11 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: SQLPrepare.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: SQLPrepare.c,v 1.2 2002/05/31 19:54:59 dbox Exp $
  *
  * $Log: SQLPrepare.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/05/31 19:54:59  dbox
+ * added  reasonable comments to the tests, fixed SQLPrepare so that it
+ * allocates space in the statement for the column ap and ir descriptors
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.11  2000/07/10 08:24:35  tom
  * tweaks for less tolerant compilers
@@ -62,13 +66,14 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLPrepare.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLPrepare.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLPrepare(
     SQLHSTMT        StatementHandle,
     SQLCHAR            *StatementText,
     SQLINTEGER        TextLength )
 {
+  int i;
     hStmt_T *stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status=SQL_SUCCESS;
 
@@ -88,7 +93,10 @@ SQLRETURN SQL_API SQLPrepare(
     ood_mutex_lock_stmt(stmt);
 
     status=ood_driver_prepare(stmt,(unsigned char*)stmt->sql);
-
+    for(i=1;i<=stmt->current_ap->num_recs; i++){
+      status |= ood_alloc_param_desc(stmt,i,
+				     stmt->current_ip,stmt->current_ap);
+    }
     ood_mutex_unlock_stmt(stmt);
 
 #ifdef ENABLE_TRACE

@@ -1,8 +1,13 @@
 
 
 
-/*test array inserts, doesnt seem to work!*/
-/*see SQLSetStmtAttr.c line 188 */
+/* test inserts, using bound parameters*/
+/* currently returns SQL_SUCCESS but inserts corrupted char strings 
+ * into database, yuck
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: insert4.c,v 1.4 2002/05/31 19:55:00 dbox Exp $
+ */
+
 #include "test_defs.h"
 
 #include <stdio.h>
@@ -82,7 +87,7 @@ int main()
     assert(rc == SQL_SUCCESS);
 
     rc = SQLBindParameter(StmtHandle, 2, SQL_PARAM_INPUT, 
-			  SQL_C_FLOAT, SQL_FLOAT, 0, 0, &aFloat, 0,
+			  SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &aFloat, 0,
 			  &cbFloat);
     assert(rc == SQL_SUCCESS);
 

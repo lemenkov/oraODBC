@@ -1,4 +1,8 @@
-/*test function: SQLExecDirect to create table 'some_numeric_types' */
+/*test function: SQLExecDirect to create table 'some_numeric_types' 
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: direct_exec2.c,v 1.3 2002/05/31 19:55:00 dbox Exp $
+ */
+
 #include "test_defs.h"
 #include <stdio.h>
 #include <assert.h>

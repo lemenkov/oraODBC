@@ -1,10 +1,14 @@
-/*test function: SQLExecDirect  to insert a row into table 'some_types'
+/* test correctly  inserts  floats, using bound parameters*/
+/* tests that a bug was fixed in driver where calling SQLPrepareStmt followed
+ * by SQLDescribeParam resulted in a core dump.  This is fixed but 
+ * SQLDescribeParam is returning incorrect info despite reporting SQL_SUCCESS
  * author: Dennis Box, dbox@fnal.gov
- * $Id: insert1.c,v 1.4 2002/05/31 19:55:00 dbox Exp $
+ * $Id: insert6.c,v 1.1 2002/05/31 19:55:00 dbox Exp $
  */
 
 
 #include "test_defs.h"
+
 #include <stdio.h>
 #include <assert.h>
 #ifdef WIN32
@@ -19,8 +23,21 @@
 int main()
 {
     // Declare The Local Memory Variables
+    #define MAX_CHAR_LEN 255
+    #define ARRAY_LEN 3
+    SQLINTEGER   cbFloat;
+    SQLFLOAT   aFloat;
+ 
+    int i;
 
-  GET_LOGIN_VARS();
+
+    SQLSMALLINT      DataType;
+    SQLUINTEGER      ParameterSize;
+    SQLSMALLINT      DecimalDigits;
+    SQLSMALLINT      Nullable;
+
+
+    GET_LOGIN_VARS();
     VERBOSE("calling SQLAllocHandle(EnvHandle) \n");
 
     rc = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &EnvHandle);
@@ -42,29 +59,53 @@ int main()
    
     rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
 		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
-    T_ASSERT3(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO,
-	      "login failed:",userName, pswd);
+    assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO );
 
     VERBOSE("connected to  database %s\n",twoTask);
 
-   
+    
 
     rc = SQLAllocStmt(ConHandle, &StmtHandle);
     assert(rc == SQL_SUCCESS);
 
- 
-    sprintf(SQLStmt,"insert into some_types values( ");
-    strcat(SQLStmt," 1,1.95,'a random STRING') ");
-    
+    sprintf(SQLStmt, "drop table float_table");
     rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
-    VERBOSE("executing statement: %s \n", SQLStmt);
 
+    sprintf(SQLStmt, "create table float_table (a_float float)");
+    rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
+    assert(rc==SQL_SUCCESS);
+
+    sprintf(SQLStmt,"insert into float_table values( ");
+    strcat(SQLStmt," ? ) ");
+
+    VERBOSE("preparing statement %s\n", SQLStmt);
+
+
+    rc = SQLPrepare(StmtHandle, SQLStmt, SQL_NTS);
     assert(rc == SQL_SUCCESS);
-    VERBOSE("success: executed statement\n");
 
 
+    rc = SQLDescribeParam(StmtHandle,1,&DataType,&ParameterSize,
+			  &DecimalDigits, &Nullable);
+    VERBOSE("1:DataType=%d ParameterSize=%d DecimalDigits=%d Nullable=%d\n",
+	    DataType,ParameterSize,DecimalDigits, Nullable);
+    assert(rc == SQL_SUCCESS);
 
- 
+    VERBOSE("binding....\n");
+
+    rc = SQLBindParameter(StmtHandle, 1, SQL_PARAM_INPUT, 
+			  SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &aFloat, 0,
+			  &cbFloat);
+    assert(rc == SQL_SUCCESS);
+    
+    VERBOSE("executing....\n");
+
+    for(i=0;i<ARRAY_LEN;i++){
+      aFloat=i+0.2333;
+      rc = SQLExecute(StmtHandle);
+      assert(rc == SQL_SUCCESS);
+      VERBOSE("success: executed statement values %f\n",aFloat);
+    }
 
 
     VERBOSE("calling SQLFreeStmt\n");
@@ -73,13 +114,10 @@ int main()
     assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
 
 
-
-
-
     rc = SQLDisconnect(ConHandle);
     assert(rc == SQL_SUCCESS);
     VERBOSE("disconnected from  database\n");
-    
+     
 
     VERBOSE("calling SQLFreeHandle(ConHandle) \n");
 

@@ -1,3 +1,9 @@
+
+/* test of ORAMALLOC and ORAFREE
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: malloctest.c,v 1.3 2002/05/31 19:55:00 dbox Exp $
+ */
+
 #include "test_defs.h"
 #include <mem_functions.h>
 #include <stdio.h>

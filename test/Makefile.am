@@ -14,7 +14,10 @@ commit1 \
 insert2 \
 insert4 \
 lowlevel \
-getinfo1
+getinfo1 \
+insert5 \
+insert6
+
 
 INCLUDES = -I${ODBCIDIR} -I../src \
  -I${ODBCIDIR} -I${ORAIDIR} -I${ORANDIR} -I${ORAPDIR}

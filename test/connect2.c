@@ -1,9 +1,12 @@
-/*      test following functions:                                  */
-/*              SQLAllocHandle()                                   */
-/*              SQLConnect()                                       */      
+/* test SQLConnect via long "DSN=foo;UID=bar;PWD=secret" input */
+/* other functions tested: */
+/*              SQLAllocHandle()                                   */      
 /*              SQLDisconnect()                                    */
 /*              SQLFreeHandle()                                    */
 /*              SQLSetEnvAttr()                                    */
+ /* author: Dennis Box, dbox@fnal.gov
+ * $Id: connect2.c,v 1.5 2002/05/31 19:55:00 dbox Exp $
+ */
 
 #include "test_defs.h"
 #include <stdio.h>

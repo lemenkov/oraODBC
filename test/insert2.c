@@ -1,8 +1,13 @@
 
 
 
-/*test array inserts, doesnt seem to work!*/
-/*see SQLSetStmtAttr.c line 188 */
+/* test array inserts, can't get it  to work!*/
+/* see SQLSetStmtAttr.c line 188 */
+/* author: Dennis Box, dbox@fnal.gov
+ * $Id: insert2.c,v 1.5 2002/05/31 19:55:00 dbox Exp $
+ */
+
+
 #include "test_defs.h"
 
 #include <stdio.h>

@@ -1,3 +1,8 @@
+/* test reads data from some_numeric_types table inserted by insert3.c
+ *
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: read3.c,v 1.7 2002/05/31 19:55:00 dbox Exp $
+ */
 
 /*      test following functions:                                  */
 

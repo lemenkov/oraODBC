@@ -1,3 +1,9 @@
+/* test compares results from SQLDescribeCol and SQLColAttribute
+ * as a sanity check
+ *
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: read2.c,v 1.3 2002/05/31 19:55:00 dbox Exp $
+ */
 
 /*      test following functions:                                  */
 

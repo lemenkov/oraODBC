@@ -81,23 +81,23 @@ if [ -n "$rslt" ] ; then
 fi
 
 #-------------------------------------------
-echo -n "checking ORA_USER environment variable... "
+echo -n "checking ORACLE_USER environment variable... "
 #-------------------------------------------
-if [ -n "$ORA_USER" ]  ; then
+if [ -n "$ORACLE_USER" ]  ; then
     echo OK
 else
-    echo ORA_USER  not found! \'make check\' target will fail
+    echo ORACLE_USER  not found! \'make check\' target will fail
     exit -1
 fi
 
 #-------------------------------------------
-echo -n "checking ORA_PWD environment variable... "
+echo -n "checking ORACLE_PSWD environment variable... "
 #-------------------------------------------
 
-if [ -n "$ORA_PWD" ]  ; then
+if [ -n "$ORACLE_PSWD" ]  ; then
     echo OK
 else
-    echo ORA_PWD  not found! \'make check\' target will fail
+    echo ORACLE_PSWD  not found! \'make check\' target will fail
     exit -1
 fi
 
@@ -172,7 +172,7 @@ fi
 
 echo
 echo ENVIRONMENT LOOKS OK!  you still need to make sure that 
-echo user $ORA_USER has a valid login on $TWO_TASK database 
+echo user $ORACLE_USER has a valid login on $TWO_TASK database 
 echo
 
 exit 0

@@ -1,3 +1,9 @@
+
+/* bunch of definitions common to all of the tests in this subdirectory
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: test_defs.h,v 1.5 2002/05/31 19:55:00 dbox Exp $
+ */
+
 #ifndef _TEST_DEFS__H
 #define _TEST_DEFS__H
 #include <stdlib.h>
@@ -40,15 +46,15 @@ SQLCHAR  SQLStmt[255];
       fprintf(stderr,"Error: TWO_TASK env variable must be set\n");\
       exit(-1);\
     }\
-    if(getenv("ORA_USER") && strlen((const char*)getenv("ORA_USER"))<MAX_LEN)\
-      sprintf(userName,"%s",getenv("ORA_USER"));\
+    if(getenv("ORACLE_USER") && strlen((const char*)getenv("ORACLE_USER"))<MAX_LEN)\
+      sprintf(userName,"%s",getenv("ORACLE_USER"));\
     else{\
-      fprintf(stderr,"Error: ORA_USER env variable must be set\n");\
+      fprintf(stderr,"Error: ORACLE_USER env variable must be set\n");\
       exit(-1);\
     }\
-    if(getenv("ORA_PWD") && strlen((const char*)getenv("ORA_PWD"))<MAX_LEN)\
-      sprintf(pswd,"%s",getenv("ORA_PWD"));\
+    if(getenv("ORACLE_PSWD") && strlen((const char*)getenv("ORACLE_PSWD"))<MAX_LEN)\
+      sprintf(pswd,"%s",getenv("ORACLE_PSWD"));\
     else{\
-      fprintf(stderr,"Error: ORA_PWD env variable must be set\n");\
+      fprintf(stderr,"Error: ORACLE_PSWD env variable must be set\n");\
       exit(-1);\
     }

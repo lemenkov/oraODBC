@@ -1,3 +1,13 @@
+
+/* array of all defined inputs to SQLGetInfo
+ * source: ODBC 3.5 Developers Guide by Roger E Sanders ISBN 0-07-058087-1
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: SQLGetInfoIn.h,v 1.2 2002/05/31 19:54:59 dbox Exp $
+ */
+
+
+
+
 SQLUSMALLINT getInfoOpts[] = {
 SQL_ACCESSIBLE_PROCEDURES,
 SQL_ACCESSIBLE_TABLES,

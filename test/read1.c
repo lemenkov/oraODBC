@@ -1,3 +1,9 @@
+/* test reads data from some_types table inserted by insert1.c insert2.c
+ * and insert4.c
+ *
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: read1.c,v 1.6 2002/05/31 19:55:00 dbox Exp $
+ */
 
 /*      test following functions:                                  */
 

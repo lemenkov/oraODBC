@@ -1,4 +1,12 @@
-/*test function: SQLExecDirect  to insert a row into table 'some_types'*/
+
+
+/* test SQLExecDirect  to insert a row into table 'some_numeric_types'
+ *      SQLEndTran then rolls back the  insertion
+ *
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: rollback1.c,v 1.3 2002/05/31 19:55:00 dbox Exp $
+ */
+
 #include "test_defs.h"
 #include <stdio.h>
 #include <assert.h>

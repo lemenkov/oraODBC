@@ -1,3 +1,11 @@
+
+/* array of all defined inputs to SQLColAttributes
+ * source: ODBC 3.5 Developers Guide by Roger E Sanders ISBN 0-07-058087-1
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: SQLColAttributesIn.h,v 1.2 2002/05/31 19:54:59 dbox Exp $
+ */
+
+
 SQLColAttributesIn[] = {
 SQL_COLUMN_COUNT,
 SQL_COLUMN_NAME,

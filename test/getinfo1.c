@@ -1,4 +1,10 @@
-/*      test following functions:                                  */
+/* test all possible inputs to SQLGetInfo
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: getinfo1.c,v 1.4 2002/05/31 19:55:00 dbox Exp $
+ */
+
+
+/*    also  exercises following functions                          */
 /*              SQLAllocHandle()                                   */
 /*              SQLConnect()                                       */      
 /*              SQLDisconnect()                                    */
@@ -87,11 +93,7 @@ int main(int argc, char ** argv)
       }
     }
 
-    /*
-      rc = SQLGetInfo(ConHandle,SQL_DRIVER_NAME,(void*)&result,
-		      sizeof(result),&some_val);
-    */
-    
+     
     result.i[0] = 0;
     rc = SQLGetInfo(ConHandle,SQL_TXN_CAPABLE,&result,
 		    sizeof(result),&some_val);

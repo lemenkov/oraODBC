@@ -1,4 +1,15 @@
-/*test function: SQLExecDirect  to insert a row into table 'some_types'*/
+
+
+/* test SQLExecDirect  to insert a row into table 'some_numeric_types'
+ *      SQLEndTran to commit insertion
+ *
+ * author: Dennis Box, dbox@fnal.gov
+ * $Id: commit1.c,v 1.3 2002/05/31 19:54:59 dbox Exp $
+ */
+
+
+
+/*'*/
 #include "test_defs.h"
 #include <stdio.h>
 #include <assert.h>
@@ -57,7 +68,7 @@ int main()
     VERBOSE("success: executed statement\n");
 
 
-    VERBOSE("WELL!!! rolling it back anyway\n");
+    VERBOSE("Committing transaction...");
     rc = SQLEndTran(SQL_HANDLE_DBC, ConHandle, SQL_COMMIT);
     assert(rc == SQL_SUCCESS);
 
