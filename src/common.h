@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.2 2002/05/14 23:01:06 dbox Exp $
+ * $Id: common.h,v 1.3 2002/06/19 15:21:04 dbox Exp $
  *
  * $Log: common.h,v $
+ * Revision 1.3  2002/06/19 15:21:04  dbox
+ * added trace macros from DBD:Oracle project
+ *
  * Revision 1.2  2002/05/14 23:01:06  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -103,6 +106,7 @@
 
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
+#include "ocitrace.h"
 #endif
 
 /*
@@ -477,6 +481,7 @@ struct hStmt_TAG
   SQLUINTEGER *rows_fetched_ptr;
   SQLUINTEGER query_timeout; /* NOTE: does nothing (TODO)*/
   SQLSMALLINT valid_flag;
+
 };
 
 /*

@@ -91,7 +91,7 @@ lib_LTLIBRARIES = liboraodbc.la
 
 INCLUDES = -I${ODBCIDIR} -I${ORAIDIR} -I${ORANDIR} -I${ORAPDIR} -D_REENTRANT
 
-EXTRA_DIST =  	common.h 	diagnostics.h 	oracle_functions.h 	string_functions.h 	common_functions.h 	acconfig.h 	mem_functions.h
+EXTRA_DIST =  	common.h 	diagnostics.h 	oracle_functions.h 	string_functions.h 	common_functions.h 	acconfig.h 	mem_functions.h 	ocitrace.h
 
 
 liboraodbc_la_LIBADD = @LD_ODBCINSTLIB@
