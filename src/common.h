@@ -18,11 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: common.h,v 1.2 2002/05/14 23:01:06 dbox Exp $
  *
  * $Log: common.h,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/05/14 23:01:06  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.18  2000/07/21 10:16:08  tom
  * Changes to descriptors to accomodate LOBs
@@ -177,6 +181,7 @@ typedef uint64_t u_int64_t;
 #ifdef UNIX_DEBUG
 #include <signal.h>
 #endif
+#include <assert.h>
 
 
 #include <oci.h>
@@ -185,7 +190,7 @@ typedef uint64_t u_int64_t;
 #include <sqlext.h>
 
 struct hgeneric_TAG;
-
+#define IS_VALID(x) (x->valid_flag==VALID_FLAG_DEFAULT)
 #include "diagnostics.h"
 #include "mem_functions.h"
 
@@ -199,9 +204,10 @@ typedef struct hgeneric_TAG
 #elif defined(WIN32)
     HANDLE mutex;
 #endif
-    error_node *error_list;
-    error_header diag_fields;
-    int htype;
+  error_node *error_list;
+  error_header diag_fields;
+  int htype;
+  SQLSMALLINT valid_flag;
 }hgeneric;
 
 /*
@@ -258,6 +264,22 @@ typedef struct hgeneric_TAG
 #define DESC_AR 2
 #define DESC_IR 3
 
+SQLRETURN not_implemented();
+SQLRETURN init_hgeneric(hgeneric *t);
+#define SQLSMALLINT_DEFAULT (SQLSMALLINT)0
+#define SQLCHAR_DEFAULT (SQLCHAR)NULL
+#define SQLPOINTER_DEFAULT (SQLPOINTER)NULL
+#define SQLINTEGER_DEFAULT (SQLINTEGER)0
+#define VALID_FLAG_DEFAULT 100
+#define ub2_DEFAULT (ub2)0
+#define ub4_DEFAULT (ub4)0
+#define sb2_DEFAULT (sb2)0
+#define sb4_DEFAULT (sb4)0
+#define int_DEFAULT (int)0
+#define FUNCTION_DEFAULT not_implemented
+#define struct_DEFAULT (void*)NULL;
+#define OCILobLocator_DEFAULT (OCILobLocator*)NULL
+
 /*
  * ODBC Handle strunctures :- see later for the definitions.
  */
@@ -265,6 +287,7 @@ struct hEnv_TAG;
 struct hDbc_TAG;
 struct hStmt_TAG;
 struct hDesc_TAG;
+
 
 /*
  * Application Parameter Descriptor
@@ -283,37 +306,38 @@ struct hDesc_TAG;
  */
 struct ar_TAG
 {
-    SQLSMALLINT auto_unique;
-    SQLCHAR*    base_column_name;
-    SQLCHAR*    base_table_name;
-    SQLSMALLINT case_sensitive;
-    SQLCHAR*    catalog_name;
-    SQLSMALLINT concise_type;
-    SQLPOINTER  data_ptr;
-    SQLINTEGER  display_size;
-    SQLSMALLINT fixed_prec_scale;
-    SQLINTEGER *bind_indicator; /* for bound columns */
-    SQLCHAR*    column_label;
-    SQLINTEGER  length;
-    SQLCHAR*    literal_prefix;
-    SQLCHAR*    literal_suffix;
-    SQLCHAR*    local_type_name;
-    SQLCHAR     column_name[ORACLE_MAX_COLUMN_LEN+1];
-    SQLSMALLINT nullable;
-    SQLINTEGER  num_prec_radix;
-    SQLINTEGER  octet_length;
-    SQLSMALLINT precision;
-    SQLSMALLINT scale;
-    SQLCHAR*    schema_name;
-    SQLSMALLINT searchable;
-    SQLCHAR*    table_name;
-    SQLSMALLINT data_type;
-    SQLCHAR*    type_name;
-    SQLSMALLINT un_signed;
-    SQLSMALLINT updateable;
-
-    SQLINTEGER buffer_length;
-	SQLSMALLINT bind_target_type;
+  SQLSMALLINT auto_unique;
+  SQLCHAR*    base_column_name;
+  SQLCHAR*    base_table_name;
+  SQLSMALLINT case_sensitive;
+  SQLCHAR*    catalog_name;
+  SQLSMALLINT concise_type;
+  SQLPOINTER  data_ptr;
+  SQLINTEGER  display_size;
+  SQLSMALLINT fixed_prec_scale;
+  SQLINTEGER *bind_indicator; /* for bound columns */
+  SQLCHAR*    column_label;
+  SQLINTEGER  length;
+  SQLCHAR*    literal_prefix;
+  SQLCHAR*    literal_suffix;
+  SQLCHAR*    local_type_name;
+  SQLCHAR     column_name[ORACLE_MAX_COLUMN_LEN+1];
+  SQLSMALLINT nullable;
+  SQLINTEGER  num_prec_radix;
+  SQLINTEGER  octet_length;
+  SQLSMALLINT precision;
+  SQLSMALLINT scale;
+  SQLCHAR*    schema_name;
+  SQLSMALLINT searchable;
+  SQLCHAR*    table_name;
+  SQLSMALLINT data_type;
+  SQLCHAR*    type_name;
+  SQLSMALLINT un_signed;
+  SQLSMALLINT updateable;
+  
+  SQLINTEGER buffer_length;
+  SQLSMALLINT bind_target_type;
+  SQLSMALLINT valid_flag;
 };
 
 /*
@@ -321,35 +345,37 @@ struct ar_TAG
  */
 struct ir_TAG
 {
-    ub2 data_type;
-    ub2 orig_type;
-    ub4 data_size;
-    int col_num;
-    SQLRETURN (*default_copy)();
-    SQLRETURN (*to_string)();
-	SQLRETURN (*to_oracle)();
-    struct hDesc_TAG *desc;
-    void *data_ptr;
-	sb2 *ind_arr;
-	ub2 *length_arr;
-	ub2 *rcode_arr;
-	/*
-	 * For locator based types
-	 */
-	OCILobLocator **locator;       /* The oracle locator */
-	ub4 posn;  /* the current posistion in the data */
-	ub4 lobsiz; /* the size of the lob */
-};
+  ub2 data_type;
+  ub2 orig_type;
+  ub4 data_size;
+  int col_num;
+  SQLRETURN (*default_copy)();
+  SQLRETURN (*to_string)();
+  SQLRETURN (*to_oracle)();
+  struct hDesc_TAG *desc;
+  void *data_ptr;
+  sb2 *ind_arr;
+  ub2 *length_arr;
+  ub2 *rcode_arr;
+  /*
+   * For locator based types
+   */
+  OCILobLocator **locator;       /* The oracle locator */
+  ub4 posn;  /* the current posistion in the data */
+  ub4 lobsiz; /* the size of the lob */
+  SQLSMALLINT valid_flag;
+};  
 
 /*
  * Environment Handle
  */
 struct hEnv_TAG
 {
-    hgeneric base_handle;
-
-    SQLHANDLE parent;
-    SQLINTEGER odbc_ver;
+  hgeneric base_handle;
+  
+  SQLHANDLE parent;
+  SQLINTEGER odbc_ver;
+  SQLSMALLINT valid_flag;
 };
 
 /*
@@ -357,29 +383,31 @@ struct hEnv_TAG
  */
 struct hDbc_TAG
 {
-    hgeneric base_handle;
+  hgeneric base_handle;
+  
+  char UID[32];
+  char PWD[64];
+  char DB[128];
+  char DSN[64];
+  
+  OCIEnv *oci_env;
+  OCIError *oci_err;
+  OCIServer *oci_srv;
+  OCISvcCtx *oci_svc;
+  OCISession *oci_ses;
+  
+  SQLUINTEGER metadata_id;
+  SQLUINTEGER trace;
+  SQLCHAR tracefile[FILENAME_MAX];
+  
+  ub4 autocommit;
+  
+  struct hStmt_TAG *stmt_list;
+  struct hDesc_TAG *desc_list;
+  
+  struct hEnv_TAG *env;  
+  SQLSMALLINT valid_flag;
 
-    char UID[32];
-    char PWD[64];
-    char DB[128];
-    char DSN[64];
-
-    OCIEnv *oci_env;
-    OCIError *oci_err;
-    OCIServer *oci_srv;
-    OCISvcCtx *oci_svc;
-    OCISession *oci_ses;
-
-    SQLUINTEGER metadata_id;
-    SQLUINTEGER trace;
-    SQLCHAR tracefile[FILENAME_MAX];
-
-	ub4 autocommit;
-
-    struct hStmt_TAG *stmt_list;
-    struct hDesc_TAG *desc_list;
-
-    struct hEnv_TAG *env;
 };
 
 /*
@@ -406,6 +434,7 @@ struct hDesc_TAG
 
     struct hStmt_TAG *stmt;
     struct hDbc_TAG *dbc;
+  SQLSMALLINT valid_flag;
 };
 
 /*
@@ -413,40 +442,41 @@ struct hDesc_TAG
  */
 struct hStmt_TAG 
 {
-    hgeneric base_handle;
-
-    struct hDesc_TAG *implicit_ap;
-    struct hDesc_TAG *implicit_ip;
-    struct hDesc_TAG *implicit_ar;
-    struct hDesc_TAG *implicit_ir;
-    struct hDesc_TAG *current_ap;
-    struct hDesc_TAG *current_ip;
-    struct hDesc_TAG *current_ar;
-    struct hDesc_TAG *current_ir;
-
-    OCIStmt *oci_stmt;
-    struct hStmt_TAG *next;
-    struct hStmt_TAG *prev;
-
-	ub2 stmt_type; /* The Oracle stmt type ie select, update*/
-	int num_result_rows; /* The number of the result rows */
-	int num_fetched_rows; /* we need this data anyway */
-	int bookmark;
-	int current_row;
-	sword (*alt_fetch)(struct hStmt_TAG*); /*alternative fetch func */
-	void *alt_fetch_data; /* Extra things alt_fetch needs, is ORAFREEd so must
-							 be malloc'd */
-	SQLRETURN fetch_status; /* to return next */
-	char *sql;
-    struct hDbc_TAG *dbc;
-
-	SQLPOINTER row_bind_offset_ptr;
-	SQLPOINTER param_bind_offset_ptr;
-	SQLUINTEGER row_array_size;
-	SQLUSMALLINT *row_status_ptr;
-	SQLUINTEGER row_bind_type;
-	SQLUINTEGER *rows_fetched_ptr;
-	SQLUINTEGER query_timeout; /* NOTE: does nothing (TODO)*/
+  hgeneric base_handle;
+  
+  struct hDesc_TAG *implicit_ap;
+  struct hDesc_TAG *implicit_ip;
+  struct hDesc_TAG *implicit_ar;
+  struct hDesc_TAG *implicit_ir;
+  struct hDesc_TAG *current_ap;
+  struct hDesc_TAG *current_ip;
+  struct hDesc_TAG *current_ar;
+  struct hDesc_TAG *current_ir;
+  
+  OCIStmt *oci_stmt;
+  struct hStmt_TAG *next;
+  struct hStmt_TAG *prev;
+  
+  ub2 stmt_type; /* The Oracle stmt type ie select, update*/
+  int num_result_rows; /* The number of the result rows */
+  int num_fetched_rows; /* we need this data anyway */
+  int bookmark;
+  int current_row;
+  sword (*alt_fetch)(struct hStmt_TAG*); /*alternative fetch func */
+  void *alt_fetch_data; /* Extra things alt_fetch needs, 
+			   is ORAFREEd so must  be malloc'd */
+  SQLRETURN fetch_status; /* to return next */
+  char *sql;
+  struct hDbc_TAG *dbc;
+  
+  SQLPOINTER row_bind_offset_ptr;
+  SQLPOINTER param_bind_offset_ptr;
+  SQLUINTEGER row_array_size;
+  SQLUSMALLINT *row_status_ptr;
+  SQLUINTEGER row_bind_type;
+  SQLUINTEGER *rows_fetched_ptr;
+  SQLUINTEGER query_timeout; /* NOTE: does nothing (TODO)*/
+  SQLSMALLINT valid_flag;
 };
 
 /*
@@ -460,6 +490,15 @@ typedef struct hDesc_TAG hDesc_T;
 typedef struct ar_TAG ar_T;
 #define ip_T ir_T
 typedef struct ir_TAG ir_T;
+
+
+ar_T * make_ar_T();
+ir_T * make_ir_T();
+hEnv_T * make_hEnv_T();
+hDbc_T * make_hDbc_T();
+hDesc_T * make_hDesc_T();
+hStmt_T * make_hStmt_T();
+
 
 /*
  * FUDGE dm functions

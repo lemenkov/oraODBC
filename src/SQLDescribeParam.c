@@ -18,11 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: SQLDescribeParam.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLDescribeParam.c,v 1.2 2002/05/14 23:01:05 dbox Exp $
  *
  * $Log: SQLDescribeParam.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/14 23:01:05  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.9  2000/06/06 10:24:14  tom
  * Initial Implementation
@@ -50,7 +54,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDescribeParam.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLDescribeParam.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLDescribeParam(
     SQLHSTMT            StatementHandle,
@@ -62,6 +66,8 @@ SQLRETURN SQL_API SQLDescribeParam(
 {
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
 	ap_T *ap;
+  
+	assert(IS_VALID(stmt));
 
 #ifdef ENABLE_TRACE
     SQLRETURN status=SQL_SUCCESS;
@@ -84,12 +90,17 @@ SQLRETURN SQL_API SQLDescribeParam(
 #endif
 		return SQL_ERROR;
 	}
-
+	assert(IS_VALID(stmt->current_ap));
 	ap=&stmt->current_ap->recs.ap[ParameterNumber];
+	assert(IS_VALID(ap));
+	if(!ap)
+	  return SQL_ERROR;
 
-	if(DataTypePtr)
-		*DataTypePtr=ap->concise_type;
-
+	if(DataTypePtr){
+	  if(!ap->concise_type)
+	    return SQL_ERROR;
+	  *DataTypePtr=ap->concise_type;
+	}
 	if(ParameterSizePtr)
 		*ParameterSizePtr=ap->length;
 

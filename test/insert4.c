@@ -34,6 +34,12 @@ int main()
     SQLCHAR   aCharArray[MAX_CHAR_LEN];
     int i;
 
+
+    SQLSMALLINT      DataType;
+    SQLUINTEGER      ParameterSize;
+    SQLSMALLINT      DecimalDigits;
+    SQLSMALLINT      Nullable;
+
     if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_CHAR_LEN)
       sprintf(twoTask,"%s",getenv("TWO_TASK"));
     else{
@@ -84,7 +90,7 @@ int main()
     VERBOSE("binding....\n");
 
     rc = SQLBindParameter(StmtHandle, 1, SQL_PARAM_INPUT, 
-			  SQL_C_SSHORT, SQL_INTEGER, 0, 0, &anInt, 0,
+			  SQL_C_LONG, SQL_INTEGER, 0, 0, &anInt, 0,
 			  &cbInt);
     assert(rc == SQL_SUCCESS);
 
@@ -97,6 +103,24 @@ int main()
 			  SQL_C_CHAR, SQL_CHAR, MAX_CHAR_LEN, 
 			  0, aCharArray, MAX_CHAR_LEN,
 			  SQL_NTS);
+    assert(rc == SQL_SUCCESS);
+
+    rc = SQLDescribeParam(StmtHandle,1,&DataType,&ParameterSize,
+			  &DecimalDigits, &Nullable);
+    VERBOSE("1:DataType=%d ParameterSize=%d DecimalDigits=%d Nullable=%d\n",
+	    DataType,ParameterSize,DecimalDigits, Nullable);
+    assert(rc == SQL_SUCCESS);
+    
+    rc = SQLDescribeParam(StmtHandle,2,&DataType,&ParameterSize,
+			  &DecimalDigits,&Nullable);
+    VERBOSE("2:DataType=%d ParameterSize=%d DecimalDigits=%d Nullable=%d\n",
+	    DataType,ParameterSize,DecimalDigits, Nullable);
+    assert(rc == SQL_SUCCESS);
+   
+    rc = SQLDescribeParam(StmtHandle,3,&DataType,
+			  &ParameterSize,&DecimalDigits,&Nullable);
+    VERBOSE("3:DataType=%d ParameterSize=%d DecimalDigits=%d Nullable=%d\n",
+	    DataType,ParameterSize,DecimalDigits, Nullable);
     assert(rc == SQL_SUCCESS);
 
     VERBOSE("executing....\n");

@@ -18,11 +18,15 @@
  *
  ******************************************************************************
  *
- * $Id: SQLGetDiagRec.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLGetDiagRec.c,v 1.2 2002/05/14 23:01:06 dbox Exp $
  *
  * $Log: SQLGetDiagRec.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/14 23:01:06  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.7  2000/07/21 10:10:19  tom
  * logging increased, diags now cleared more aggressively
@@ -48,7 +52,7 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: SQLGetDiagRec.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLGetDiagRec.c,v $ $Revision: 1.2 $";
 
 #include "common.h"
 
@@ -81,11 +85,13 @@ SQLRETURN SQL_API SQLGetDiagRec(
             dbc=((hDesc_T*)Handle)->dbc;
             break;
     }
-    if(dbc)
+    if(dbc){
         ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)Handle,0,"II",
 			"RecNumber",RecNumber,
 			"BufferLength,",BufferLength);
+	assert(IS_VALID(dbc));
+    }
 #endif
     status=_SQLGetDiagRec( HandleType, Handle, RecNumber, SqlState,
             NativeErrorPtr, MessageText, BufferLength, TextLengthPtr );

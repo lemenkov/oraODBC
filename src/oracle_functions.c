@@ -18,9 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.6 2002/05/14 12:03:19 dbox Exp $
+ * $Id: oracle_functions.c,v 1.7 2002/05/14 23:01:06 dbox Exp $
  *
  * $Log: oracle_functions.c,v $
+ * Revision 1.7  2002/05/14 23:01:06  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
  * Revision 1.6  2002/05/14 12:03:19  dbox
  * fixed some malloc/free syntax
  *
@@ -126,7 +130,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.6 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.7 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -490,6 +494,7 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
             return SQL_ERROR;
         }
 	}
+    assert(IS_VALID(dbc));
     return SQL_SUCCESS;
 }
 
@@ -509,6 +514,7 @@ SQLRETURN ood_driver_disconnect(hDbc_T *dbc)
 		THREAD_MUTEX_LOCK(dbc);
         return SQL_ERROR;
     }
+    assert(IS_VALID(dbc));
     return SQL_SUCCESS;
 }
 
@@ -555,6 +561,8 @@ SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
         else
             return SQL_SUCCESS_WITH_INFO;
     }
+    assert(IS_VALID(stmt));
+    assert(IS_VALID(stmt->dbc));
     return SQL_SUCCESS;
 }
 
@@ -565,7 +573,7 @@ SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
 SQLRETURN ood_driver_execute(hStmt_T* stmt)
 {
     sword ret=0;
-
+    assert(IS_VALID(stmt));
 	if(stmt->current_ap->bound_col_flag)
 	{
 		unsigned int i;
@@ -645,7 +653,7 @@ SQLRETURN ood_driver_transaction(hDbc_T *dbc, SQLSMALLINT action)
     stat = SQL_ERROR;
   }
 
-
+  assert(IS_VALID(dbc));
  return stat;
 }
 
@@ -667,7 +675,7 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
     sb2 precision;
     sb1 scale;
     ub1 nullable;
-
+    assert(IS_VALID(stmt));
 	if(stmt->stmt_type!=OCI_STMT_SELECT)
 		return SQL_SUCCESS;
 

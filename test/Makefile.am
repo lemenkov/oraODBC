@@ -12,7 +12,8 @@ malloctest \
 rollback1 \
 commit1 \
 insert2 \
-insert4
+insert4 \
+lowlevel
 
 INCLUDES = -I${ODBCIDIR} -I../src
 

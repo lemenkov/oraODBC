@@ -18,11 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: SQLConnect.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLConnect.c,v 1.2 2002/05/14 23:01:05 dbox Exp $
  *
  * $Log: SQLConnect.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/14 23:01:05  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.14  2000/07/10 08:24:35  tom
  * tweaks for less tolerant compilers
@@ -68,7 +72,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLConnect.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLConnect.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLConnect(
     SQLHDBC         ConnectionHandle,
@@ -81,6 +85,7 @@ SQLRETURN SQL_API SQLConnect(
 {
     hDbc_T *dbc=(hDbc_T*)ConnectionHandle;
     SQLRETURN status=SQL_SUCCESS;
+    assert(IS_VALID(dbc));
 #ifdef ENABLE_TRACE
     SQLCHAR trace_opt[4];
 #endif

@@ -18,9 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: SQLAllocHandle.c,v 1.2 2002/05/14 12:03:19 dbox Exp $
+ * $Id: SQLAllocHandle.c,v 1.3 2002/05/14 23:01:05 dbox Exp $
  *
  * $Log: SQLAllocHandle.c,v $
+ * Revision 1.3  2002/05/14 23:01:05  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
  * Revision 1.2  2002/05/14 12:03:19  dbox
  * fixed some malloc/free syntax
  *
@@ -85,36 +89,24 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.3 $";
 
 #include "common.h"
 
 static void descriptor_init(hDesc_T *this,hDesc_T* next,hDesc_T *prev,
         int type,hStmt_T* stmt)
 {
-    this->type=type;
-    switch(type)
-    {
-        case DESC_AP:
-            this->recs.ap=NULL;
-            break;
-        case DESC_IP:
-            this->recs.ip=NULL;
-            break;
-        case DESC_AR:
-            this->recs.ar=NULL;
-            break;
-        case DESC_IR:
-            this->recs.ir=NULL;
-            break;
-    }
+  assert(IS_VALID(this));
+  this->type=type;
+
+
     this->next=next;
     this->prev=prev;
     this->stmt=stmt;
     this->dbc=stmt->dbc;
 	
-	this->bound_col_flag=0;
-	this->lob_col_flag=0;
+    this->bound_col_flag=0;
+    this->lob_col_flag=0;
     this->num_recs=0;
     ood_mutex_init((hgeneric*)this);
     ood_init_hgeneric(this,SQL_HANDLE_DESC);
@@ -125,10 +117,13 @@ SQLRETURN _SQLAllocHandle(
     SQLHANDLE         InputHandle,
     SQLHANDLE        *OutputHandlePtr )
 {
+    
     hgeneric *parent=(hgeneric*)InputHandle;
-
-    if(parent)
-        ood_clear_diag((hgeneric*)parent);
+    
+    if(parent){
+      assert(IS_VALID(parent));
+      ood_clear_diag((hgeneric*)parent);
+    }
 
     switch(HandleType)
     {
@@ -146,7 +141,8 @@ SQLRETURN _SQLAllocHandle(
             }
     
     
-            env = (hEnv_T*)ORAMALLOC(sizeof(hEnv_T));
+            
+	    env = make_hEnv_T();
             if ( !env )
             {
                 *OutputHandlePtr = SQL_NULL_HENV;
@@ -179,7 +175,8 @@ SQLRETURN _SQLAllocHandle(
                 return SQL_INVALID_HANDLE;
             }
 
-            dbc=(hDbc_T*)ORAMALLOC(sizeof(hDbc_T));
+            
+	    dbc=make_hDbc_T();
             if(!dbc)
             {
                 *OutputHandlePtr = SQL_NULL_HDBC;
@@ -202,9 +199,9 @@ SQLRETURN _SQLAllocHandle(
             dbc->oci_svc=NULL;
             dbc->oci_ses=NULL;
             dbc->oci_env=NULL;
-			/* and autocommit */
-			dbc->autocommit=OCI_DEFAULT;
-			dbc->metadata_id=0;
+	    /* and autocommit */
+	    dbc->autocommit=OCI_DEFAULT;
+	    dbc->metadata_id=0;
 
             /*
              * init the lists
@@ -224,7 +221,9 @@ SQLRETURN _SQLAllocHandle(
         {
             hStmt_T *stmt;
             hDbc_T *dbc=(hDbc_T*)InputHandle;
-            
+	    hDesc_T *ar, *ap, *ir, *ip;
+	    assert(IS_VALID(dbc));
+
             if(!dbc || HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
                 return SQL_INVALID_HANDLE;
 #ifdef ENABLE_TRACE
@@ -247,8 +246,8 @@ SQLRETURN _SQLAllocHandle(
                 return SQL_ERROR;
             }
 
-            stmt=(hStmt_T*)ORAMALLOC(sizeof(hStmt_T));
-
+            
+	    stmt = make_hStmt_T();
             stmt->oci_stmt=NULL;
 #ifdef UNIX_DEBUG
 			fprintf(stderr,"%s %d stmt [0x%.8lx] \n",
@@ -262,17 +261,25 @@ SQLRETURN _SQLAllocHandle(
             /*
              * Set up our four implicits
              */
-            stmt->implicit_ap=ORAMALLOC(sizeof(hDesc_T));
-            stmt->current_ap=stmt->implicit_ap;
+            
+	    ap=make_hDesc_T();
+	    stmt->implicit_ap=ap;
+            stmt->current_ap=ap;
 
-            stmt->implicit_ar=ORAMALLOC(sizeof(hDesc_T));
-            stmt->current_ar=stmt->implicit_ar;
+            
+            ar=make_hDesc_T();
+	    stmt->implicit_ar=ar;
+	    stmt->current_ar=ar;
 
-            stmt->implicit_ip=ORAMALLOC(sizeof(hDesc_T));
-            stmt->current_ip=stmt->implicit_ip;
+            
+            ip=make_hDesc_T();
+            stmt->implicit_ip=ip;
+            stmt->current_ip=ip;
 
-            stmt->implicit_ir=ORAMALLOC(sizeof(hDesc_T));
-            stmt->current_ir=stmt->implicit_ir;
+           
+            ir=make_hDesc_T();
+            stmt->implicit_ir=ir;
+            stmt->current_ir=ir;
 
             descriptor_init(stmt->implicit_ap,stmt->implicit_ar,
                     NULL,DESC_AP,stmt);
@@ -287,19 +294,19 @@ SQLRETURN _SQLAllocHandle(
             /*
              * initialise to defaults
              */
-			stmt->num_result_rows=0;
-			stmt->alt_fetch=NULL;
-			stmt->alt_fetch_data=NULL;
-			stmt->sql=NULL;
-			stmt->row_bind_offset_ptr=NULL;
-			stmt->row_array_size=1;
-			stmt->param_bind_offset_ptr=NULL;
-			stmt->rows_fetched_ptr=NULL;
-			stmt->num_fetched_rows=0;
-			stmt->fetch_status=SQL_SUCCESS;
-			stmt->current_row=0;
-			stmt->bookmark=0;
-			stmt->row_status_ptr=NULL;
+	    stmt->num_result_rows=0;
+	    stmt->alt_fetch=NULL;
+	    stmt->alt_fetch_data=NULL;
+	    stmt->sql=NULL;
+	    stmt->row_bind_offset_ptr=NULL;
+	    stmt->row_array_size=1;
+	    stmt->param_bind_offset_ptr=NULL;
+	    stmt->rows_fetched_ptr=NULL;
+	    stmt->num_fetched_rows=0;
+	    stmt->fetch_status=SQL_SUCCESS;
+	    stmt->current_row=0;
+	    stmt->bookmark=0;
+	    stmt->row_status_ptr=NULL;
 
             /*
              * Drop them into the descriptor list
@@ -335,7 +342,8 @@ SQLRETURN _SQLAllocHandle(
         {
             hDbc_T *dbc=(hDbc_T*)InputHandle;
             hDesc_T *desc;
-                
+       	    assert(IS_VALID(dbc));
+         
             if(!dbc || HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
                 return SQL_INVALID_HANDLE;
 #ifdef ENABLE_TRACE
@@ -360,7 +368,8 @@ SQLRETURN _SQLAllocHandle(
                 return SQL_ERROR;
             }
 
-            desc=(hDesc_T*)ORAMALLOC(sizeof(hDesc_T));
+            
+	    desc=make_hDesc_T();
             if(!desc)
             {
                 *OutputHandlePtr = SQL_NULL_HDBC;
@@ -404,6 +413,7 @@ SQLRETURN _SQLAllocHandle(
         default:
             return SQL_ERROR;
     }
+   
     return SQL_SUCCESS;
 }
 

@@ -18,9 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: SQLNativeSql.c,v 1.2 2002/02/20 03:09:05 dbox Exp $
+ * $Id: SQLNativeSql.c,v 1.3 2002/05/14 23:01:06 dbox Exp $
  *
  * $Log: SQLNativeSql.c,v $
+ * Revision 1.3  2002/05/14 23:01:06  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
  * Revision 1.2  2002/02/20 03:09:05  dbox
  * changed error reporting for stubbed out functions.  Added function calls
  * to 'test' subdirectory programs
@@ -54,7 +58,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLNativeSql.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLNativeSql.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLNativeSql(
     SQLHDBC            ConnectionHandle,
@@ -67,6 +71,7 @@ SQLRETURN SQL_API SQLNativeSql(
     hDbc_T* dbc=(hDbc_T*)ConnectionHandle;
 #ifdef ENABLE_TRACE
     SQLRETURN status=SQL_SUCCESS;
+
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)dbc,0,"");
 #endif
@@ -79,5 +84,6 @@ SQLRETURN SQL_API SQLNativeSql(
             (SQLHANDLE)NULL,status,"");
 #endif
     fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
+    assert(IS_VALID(dbc));
     return SQL_SUCCESS;
 }

@@ -18,11 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: SQLDisconnect.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLDisconnect.c,v 1.2 2002/05/14 23:01:05 dbox Exp $
  *
  * $Log: SQLDisconnect.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/14 23:01:05  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.12  2000/05/23 09:18:42  tom
  * Fixed double disconnect
@@ -65,14 +69,14 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDisconnect.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLDisconnect.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLDisconnect(
     SQLHDBC        ConnectionHandle )
 {
     hDbc_T *dbc=(hDbc_T*)ConnectionHandle;
     SQLRETURN status;
-
+    assert(IS_VALID(dbc));
     if(!dbc || HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
         return SQL_INVALID_HANDLE;
 #ifdef ENABLE_TRACE

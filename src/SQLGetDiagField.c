@@ -18,11 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetDiagField.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLGetDiagField.c,v 1.2 2002/05/14 23:01:06 dbox Exp $
  *
  * $Log: SQLGetDiagField.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/14 23:01:06  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.6  2000/05/04 15:53:44  tom
  * fixed a cut-and-paste error
@@ -47,7 +51,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetDiagField.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLGetDiagField.c,v $ $Revision: 1.2 $";
 
 /*
  * Please note this in implemented in diagnostics.h
@@ -77,17 +81,21 @@ SQLRETURN SQL_API SQLGetDiagField(
             dbc=((hDesc_T*)Handle)->dbc;
             break;
     }
-    if(dbc)
+    if(dbc){
         ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)Handle,0,"");
+	assert(IS_VALID(dbc));
+    }
 #endif
      status=_SQLGetDiagField( HandleType, Handle, RecNumber, DiagIdentifier, 
             DiagInfoPtr, BufferLength, StringLengthPtr );
 
 #ifdef ENABLE_TRACE
-     if(dbc)
+     if(dbc){
          ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
              (SQLHANDLE)NULL,status,"");
+	 assert(IS_VALID(dbc));
+     }
 #endif
      return status;
 }

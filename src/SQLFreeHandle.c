@@ -18,9 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: SQLFreeHandle.c,v 1.2 2002/05/14 12:03:19 dbox Exp $
+ * $Id: SQLFreeHandle.c,v 1.3 2002/05/14 23:01:05 dbox Exp $
  *
  * $Log: SQLFreeHandle.c,v $
+ * Revision 1.3  2002/05/14 23:01:05  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
  * Revision 1.2  2002/05/14 12:03:19  dbox
  * fixed some malloc/free syntax
  *
@@ -88,7 +92,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.3 $";
 
 void ood_ap_free(ap_T *ap)
 {
@@ -175,6 +179,7 @@ static void descriptor_free(hDesc_T *desc)
     /*
      * Free the records
      */
+  assert(IS_VALID(desc));
     switch(desc->type)
     {
         case DESC_AP:
@@ -223,7 +228,7 @@ static void descriptor_free(hDesc_T *desc)
 
 static void free_descriptor_list(hDesc_T *list)
 {
-    if(list)
+    if(list && IS_VALID(list))
     {
         free_descriptor_list(list->next);
         descriptor_free(list);
@@ -233,7 +238,7 @@ static void free_descriptor_list(hDesc_T *list)
 
 static void free_statement_list(hStmt_T *list)
 {
-    if(list)
+    if(list && IS_VALID(list))
     {
         free_statement_list(list->next);
         _SQLFreeHandle(SQL_HANDLE_STMT,(SQLHANDLE)list);
@@ -263,10 +268,11 @@ SQLRETURN _SQLFreeHandle(
         case SQL_HANDLE_ENV:
         {
             hEnv_T *env=(hEnv_T*)Handle;
-			if(HANDLE_TYPE(env)!=SQL_HANDLE_ENV)
-			{
-				abort();
-			}
+	    assert(IS_VALID(env));
+	    if(HANDLE_TYPE(env)!=SQL_HANDLE_ENV)
+	      {
+		abort();
+	      }
 #ifdef LIBCLNTSH8
             OCITerminate(OCI_DEFAULT);
 #endif
@@ -279,22 +285,24 @@ SQLRETURN _SQLFreeHandle(
         case SQL_HANDLE_DBC:
         {
             hDbc_T *dbc=(hDbc_T*)Handle;
+	    if(dbc && IS_VALID(dbc))
+	      {
 #ifdef ENABLE_TRACE
-            ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-                    (SQLHANDLE)dbc,0,"s",NULL,"(No Exit Trace)");
+		ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
+				(SQLHANDLE)dbc,0,"s",NULL,"(No Exit Trace)");
 #endif
-            ood_free_diag((hgeneric*)dbc);
-            THREAD_MUTEX_LOCK(dbc);
-            if(dbc->oci_err)
-                OCIHandleFree(dbc->oci_err,OCI_HTYPE_ERROR);
-            if(dbc->oci_srv)
-                OCIHandleFree(dbc->oci_srv,OCI_HTYPE_SERVER);
-            if(dbc->oci_svc)
-                OCIHandleFree(dbc->oci_svc,OCI_HTYPE_SVCCTX);
-            if(dbc->oci_ses)
-                OCIHandleFree(dbc->oci_ses,OCI_HTYPE_SESSION);
-            if(dbc->oci_env)
-			{
+		ood_free_diag((hgeneric*)dbc);
+		THREAD_MUTEX_LOCK(dbc);
+		if(dbc->oci_err)
+		  OCIHandleFree(dbc->oci_err,OCI_HTYPE_ERROR);
+		if(dbc->oci_srv)
+		  OCIHandleFree(dbc->oci_srv,OCI_HTYPE_SERVER);
+		if(dbc->oci_svc)
+		  OCIHandleFree(dbc->oci_svc,OCI_HTYPE_SVCCTX);
+		if(dbc->oci_ses)
+		  OCIHandleFree(dbc->oci_ses,OCI_HTYPE_SESSION);
+		if(dbc->oci_env)
+		  {
 				/*
 				 * I can't find any documentation on what should be done with
 				 * the Oracle environment handle at the end of a session.
@@ -302,24 +310,28 @@ SQLRETURN _SQLFreeHandle(
 				 * results. ORAFREE() seems OK on UNIX
 				 */
 #ifdef WIN32
-                OCIHandleFree(dbc->oci_env,OCI_HTYPE_ENV);
+		    OCIHandleFree(dbc->oci_env,OCI_HTYPE_ENV);
 #else
-				ORAFREE(dbc->oci_env);
+		    ORAFREE(dbc->oci_env);
 #endif
-			}
-            THREAD_MUTEX_UNLOCK(dbc);
-            free_statement_list(dbc->stmt_list);
-            free_descriptor_list(dbc->desc_list);
-            ood_mutex_destroy((hgeneric*)dbc);
-            ORAFREE(dbc);
+		  }
+		THREAD_MUTEX_UNLOCK(dbc);
+		free_statement_list(dbc->stmt_list);
+		free_descriptor_list(dbc->desc_list);
+		ood_mutex_destroy((hgeneric*)dbc);
+		ORAFREE(dbc);
+	      }
         }
         break;
 
         case SQL_HANDLE_STMT:
         {
             hStmt_T *stmt=(hStmt_T*)Handle;
+	    if(!IS_VALID(stmt)) return SQL_ERROR;
 #ifdef ENABLE_TRACE
             hDbc_T* dbc=stmt->dbc;
+	    if(!IS_VALID(dbc)) return SQL_ERROR;
+
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
                     (SQLHANDLE)stmt,0,"");
 #endif
@@ -370,6 +382,9 @@ SQLRETURN _SQLFreeHandle(
             hDesc_T *desc=(hDesc_T*)Handle;
 #ifdef ENABLE_TRACE
             hDbc_T* dbc=desc->dbc;
+	    if(!IS_VALID(desc)) return SQL_FAILURE;
+	    if(!IS_VALID(dbc)) return SQL_FAILURE;
+	    
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
                     (SQLHANDLE)desc,0,"");
 #endif

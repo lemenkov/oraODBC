@@ -18,9 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: SQLDriverConnect.c,v 1.2 2002/05/02 15:39:48 dbox Exp $
+ * $Id: SQLDriverConnect.c,v 1.3 2002/05/14 23:01:05 dbox Exp $
  *
  * $Log: SQLDriverConnect.c,v $
+ * Revision 1.3  2002/05/14 23:01:05  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
  * Revision 1.2  2002/05/02 15:39:48  dbox
  * fixed unused var warnings found by insure++
  *
@@ -71,7 +75,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDriverConnect.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLDriverConnect.c,v $ $Revision: 1.3 $";
 
 SQLRETURN ood_SQLDriverConnect(
     SQLHDBC                ConnectionHandle,
@@ -92,7 +96,7 @@ SQLRETURN ood_SQLDriverConnect(
 #ifdef ENABLE_TRACE
     SQLCHAR trace_opt[4];
 #endif
-
+    assert(IS_VALID(dbc));
 
     if(!dbc||HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
     {

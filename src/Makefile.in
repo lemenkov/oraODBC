@@ -101,7 +101,7 @@ liboraodbc_la_LDFLAGS =  	-version-info @LIB_VERSION@     -export-dynamic 	-expo
 
 liboraodbc_la_DEPENDENCIES = 
 
-liboraodbc_la_SOURCES =  	SQLAllocHandle.c 	SQLBindCol.c 	SQLBindParameter.c 	SQLBrowseConnect.c 	SQLBulkOperations.c 	SQLCancel.c 	SQLCloseCursor.c 	SQLColAttribute.c 	SQLColumnPrivileges.c 	SQLColumns.c 	SQLConnect.c 	SQLCopyDesc.c 	SQLDescribeCol.c 	SQLDescribeParam.c 	SQLDisconnect.c 	SQLDriverConnect.c 	SQLEndTran.c 	SQLExecDirect.c 	SQLExecute.c 	SQLFetch.c 	SQLFetchScroll.c 	SQLForeignKeys.c 	SQLFreeHandle.c 	SQLFreeStmt.c 	SQLGetConnectAttr.c 	SQLGetCursorName.c 	SQLGetData.c 	SQLGetDescField.c 	SQLGetDescRec.c 	SQLGetDiagField.c 	SQLGetDiagRec.c 	SQLGetEnvAttr.c 	SQLGetFunctions.c 	SQLGetInfo.c 	SQLGetStmtAttr.c 	SQLGetTypeInfo.c 	SQLMoreResults.c 	SQLNativeSql.c 	SQLNumParams.c 	SQLNumResultCols.c 	SQLParamData.c 	SQLPrepare.c 	SQLPrimaryKeys.c 	SQLProcedureColumns.c 	SQLProcedures.c 	SQLPutData.c 	SQLRowCount.c 	SQLSetConnectAttr.c 	SQLSetCursorName.c 	SQLSetDescField.c 	SQLSetDescRec.c 	SQLSetEnvAttr.c 	SQLSetPos.c 	SQLSetStmtAttr.c 	SQLSpecialColumns.c 	SQLStatistics.c 	SQLTablePrivileges.c 	SQLTables.c 	SQLExtendedFetch.c 	diagnostics.c 	string_functions.c 	common_functions.c 	oracle_functions.c 	sqllex.l 	mem_functions.c
+liboraodbc_la_SOURCES =  	SQLAllocHandle.c 	SQLBindCol.c 	SQLBindParameter.c 	SQLBrowseConnect.c 	SQLBulkOperations.c 	SQLCancel.c 	SQLCloseCursor.c 	SQLColAttribute.c 	SQLColumnPrivileges.c 	SQLColumns.c 	SQLConnect.c 	SQLCopyDesc.c 	SQLDescribeCol.c 	SQLDescribeParam.c 	SQLDisconnect.c 	SQLDriverConnect.c 	SQLEndTran.c 	SQLExecDirect.c 	SQLExecute.c 	SQLFetch.c 	SQLFetchScroll.c 	SQLForeignKeys.c 	SQLFreeHandle.c 	SQLFreeStmt.c 	SQLGetConnectAttr.c 	SQLGetCursorName.c 	SQLGetData.c 	SQLGetDescField.c 	SQLGetDescRec.c 	SQLGetDiagField.c 	SQLGetDiagRec.c 	SQLGetEnvAttr.c 	SQLGetFunctions.c 	SQLGetInfo.c 	SQLGetStmtAttr.c 	SQLGetTypeInfo.c 	SQLMoreResults.c 	SQLNativeSql.c 	SQLNumParams.c 	SQLNumResultCols.c 	SQLParamData.c 	SQLPrepare.c 	SQLPrimaryKeys.c 	SQLProcedureColumns.c 	SQLProcedures.c 	SQLPutData.c 	SQLRowCount.c 	SQLSetConnectAttr.c 	SQLSetCursorName.c 	SQLSetDescField.c 	SQLSetDescRec.c 	SQLSetEnvAttr.c 	SQLSetPos.c 	SQLSetStmtAttr.c 	SQLSpecialColumns.c 	SQLStatistics.c 	SQLTablePrivileges.c 	SQLTables.c 	SQLExtendedFetch.c 	diagnostics.c 	string_functions.c 	common_functions.c 	oracle_functions.c 	sqllex.l 	mem_functions.c 	common.c
 
 
 CLEANFILES = .deps/*.P *.lo
@@ -132,7 +132,8 @@ SQLSetConnectAttr.lo SQLSetCursorName.lo SQLSetDescField.lo \
 SQLSetDescRec.lo SQLSetEnvAttr.lo SQLSetPos.lo SQLSetStmtAttr.lo \
 SQLSpecialColumns.lo SQLStatistics.lo SQLTablePrivileges.lo \
 SQLTables.lo SQLExtendedFetch.lo diagnostics.lo string_functions.lo \
-common_functions.lo oracle_functions.lo sqllex.lo mem_functions.lo
+common_functions.lo oracle_functions.lo sqllex.lo mem_functions.lo \
+common.lo
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
 LEXLIB = @LEXLIB@
 CFLAGS = @CFLAGS@
@@ -168,8 +169,9 @@ DEP_FILES =  .deps/SQLAllocHandle.P .deps/SQLBindCol.P \
 .deps/SQLSetDescField.P .deps/SQLSetDescRec.P .deps/SQLSetEnvAttr.P \
 .deps/SQLSetPos.P .deps/SQLSetStmtAttr.P .deps/SQLSpecialColumns.P \
 .deps/SQLStatistics.P .deps/SQLTablePrivileges.P .deps/SQLTables.P \
-.deps/common_functions.P .deps/diagnostics.P .deps/mem_functions.P \
-.deps/oracle_functions.P .deps/sqllex.P .deps/string_functions.P
+.deps/common.P .deps/common_functions.P .deps/diagnostics.P \
+.deps/mem_functions.P .deps/oracle_functions.P .deps/sqllex.P \
+.deps/string_functions.P
 SOURCES = $(liboraodbc_la_SOURCES)
 OBJECTS = $(liboraodbc_la_OBJECTS)
 

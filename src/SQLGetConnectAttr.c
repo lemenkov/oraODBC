@@ -18,11 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetConnectAttr.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLGetConnectAttr.c,v 1.2 2002/05/14 23:01:06 dbox Exp $
  *
  * $Log: SQLGetConnectAttr.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/14 23:01:06  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.9  2000/07/10 08:24:35  tom
  * tweaks for less tolerant compilers
@@ -58,7 +62,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetConnectAttr.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLGetConnectAttr.c,v $ $Revision: 1.2 $";
 SQLRETURN SQL_API SQLGetConnectAttr(
     SQLHDBC                ConnectionHandle,
     SQLINTEGER            Attribute,
@@ -68,7 +72,7 @@ SQLRETURN SQL_API SQLGetConnectAttr(
 {
     hDbc_T* dbc=(hDbc_T*)ConnectionHandle;
     SQLRETURN status=SQL_SUCCESS;
-
+    assert(IS_VALID(dbc));
 #ifdef ENABLE_TRACE
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)dbc,0,"i","Attribute",Attribute);

@@ -18,9 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetInfo.c,v 1.2 2002/04/03 01:21:44 dbox Exp $
+ * $Id: SQLGetInfo.c,v 1.3 2002/05/14 23:01:06 dbox Exp $
  *
  * $Log: SQLGetInfo.c,v $
+ * Revision 1.3  2002/05/14 23:01:06  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
  * Revision 1.2  2002/04/03 01:21:44  dbox
  * reports that it supports transactions
  *
@@ -64,7 +68,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetInfo.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLGetInfo.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLGetInfo(
     SQLHDBC                ConnectionHandle,
@@ -75,6 +79,7 @@ SQLRETURN SQL_API SQLGetInfo(
 {
     hDbc_T* dbc=(hDbc_T*)ConnectionHandle;
     SQLRETURN status=SQL_SUCCESS;
+    assert(IS_VALID(dbc));
 #ifdef UNIX_DEBUG
 	char inftxt[80]="MISSED";
 #endif

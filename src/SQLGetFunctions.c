@@ -17,9 +17,13 @@
  * Contributor(s): Tom Fosdick (Easysoft) 
  *
  *******************************************************************************
- * $Id: SQLGetFunctions.c,v 1.2 2002/03/08 22:07:19 dbox Exp $
+ * $Id: SQLGetFunctions.c,v 1.3 2002/05/14 23:01:06 dbox Exp $
  *
  * $Log: SQLGetFunctions.c,v $
+ * Revision 1.3  2002/05/14 23:01:06  dbox
+ * added a bunch of error checking and some 'constructors' for the
+ * environment handles
+ *
  * Revision 1.2  2002/03/08 22:07:19  dbox
  * added commit/rollback, more tests for SQLColAttribute
  *
@@ -78,7 +82,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetFunctions.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLGetFunctions.c,v $ $Revision: 1.3 $";
 
 int supported_functions[] = 
 {
@@ -170,6 +174,7 @@ SQLRETURN SQL_API SQLGetFunctions(
     {
         return SQL_INVALID_HANDLE;
     }
+    assert(IS_VALID(dbc));
 #ifdef ENABLE_TRACE
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)dbc,0,"Uh"
