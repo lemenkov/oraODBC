@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLExecDirect.c,v 1.3 2004/05/04 22:41:51 dbox Exp $
+ * $Id: SQLExecDirect.c,v 1.4 2004/05/05 18:08:39 dbox Exp $
  *
  * $Log: SQLExecDirect.c,v $
+ * Revision 1.4  2004/05/05 18:08:39  dbox
+ * change return status of where 1=0 from SQL_NO_DATA to SQL_SUCCESS. The NO_DATA return value leads to table not found errors in Dbi.  The correct thing is to find the problem in Dbi, but minos needs this to work now so consider this a band-aid
+ *
  * Revision 1.3  2004/05/04 22:41:51  dbox
  * fixed error return code for bad select statement
  *
@@ -69,7 +72,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLExecDirect(
     SQLHSTMT        StatementHandle,
@@ -78,6 +81,7 @@ SQLRETURN SQL_API SQLExecDirect(
 {
     hStmt_T *stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status;
+    SQLRETURN t_stat;
 
     if(!stmt||HANDLE_TYPE(stmt)!=SQL_HANDLE_STMT)
         return SQL_INVALID_HANDLE;
@@ -113,8 +117,11 @@ if(ENABLE_TRACE){
 
     status|=ood_driver_execute_describe(stmt);
 
-	if(stmt->stmt_type==OCI_STMT_SELECT)
-		status|=stmt->fetch_status=ood_driver_prefetch(stmt);
+	if(stmt->stmt_type==OCI_STMT_SELECT){
+		t_stat=stmt->fetch_status=ood_driver_prefetch(stmt);
+		if(t_stat==SQL_ERROR)
+			status=t_stat;
+	}
 
     ood_mutex_unlock_stmt(stmt);
 
