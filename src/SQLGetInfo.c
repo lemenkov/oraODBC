@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetInfo.c,v 1.7 2003/01/08 22:30:30 dbox Exp $
+ * $Id: SQLGetInfo.c,v 1.8 2003/02/18 19:25:23 dbox Exp $
  *
  * $Log: SQLGetInfo.c,v $
+ * Revision 1.8  2003/02/18 19:25:23  dbox
+ * fixed a bunch of return type errors
+ *
  * Revision 1.7  2003/01/08 22:30:30  dbox
  * fixed some functionality for SQLGetInfo
  *
@@ -84,7 +87,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetInfo.c,v $ $Revision: 1.7 $";
+static char const rcsid[]= "$RCSfile: SQLGetInfo.c,v $ $Revision: 1.8 $";
 
 SQLRETURN SQL_API SQLGetInfo(
 			     SQLHDBC                ConnectionHandle,
@@ -120,7 +123,7 @@ SQLRETURN SQL_API SQLGetInfo(
       break;
 
     case SQL_ALTER_DOMAIN: /* ALTER DOMAIN not supported*/
-     *(SQLUSMALLINT*)InfoValuePtr=0;
+     *(SQLUINTEGER*)InfoValuePtr=SQL_AM_NONE;
       break;
 
 
@@ -138,7 +141,15 @@ SQLRETURN SQL_API SQLGetInfo(
 
     case SQL_BATCH_ROW_COUNT: /* TODO */
     case SQL_BATCH_SUPPORT:
-      break;
+       *(SQLUINTEGER*)InfoValuePtr=0;
+       status=SQL_SUCCESS_WITH_INFO;
+
+      ood_post_diag(dbc,ERROR_ORIGIN_IM001,0,"",
+		    ERROR_MESSAGE_IM001,
+		    __LINE__,0,"",ERROR_STATE_IM001,
+		    __FILE__,__LINE__);
+
+     break;
 
     case SQL_BOOKMARK_PERSISTENCE: /* TODO :- check this */
       *(SQLUINTEGER*)InfoValuePtr=SQL_BP_OTHER_HSTMT
@@ -168,7 +179,7 @@ SQLRETURN SQL_API SQLGetInfo(
       break;
 
     case SQL_CONCAT_NULL_BEHAVIOR:
-      *(SQLUINTEGER*)InfoValuePtr=SQL_CB_NON_NULL;
+      *(SQLUSMALLINT*)InfoValuePtr=SQL_CB_NON_NULL;
       break;
 
 
@@ -578,7 +589,11 @@ SQLRETURN SQL_API SQLGetInfo(
       break;
 
     case SQL_MAX_CHAR_LITERAL_LEN: /* TODO guess */
-    case SQL_MAX_COLUMN_NAME_LEN:
+
+      *(SQLUINTEGER*)InfoValuePtr=30;
+      break;
+
+    case SQL_MAX_COLUMN_NAME_LEN:/* TODO guess */
     case SQL_MAX_SCHEMA_NAME_LEN:
     case SQL_MAX_USER_NAME_LEN:
     case SQL_MAX_TABLE_NAME_LEN:    
@@ -612,7 +627,7 @@ SQLRETURN SQL_API SQLGetInfo(
 
 
     case SQL_SCHEMA_USAGE:
-      *(SQLUSMALLINT*)InfoValuePtr=SQL_SU_DML_STATEMENTS |
+      *(SQLUINTEGER*)InfoValuePtr=SQL_SU_DML_STATEMENTS |
 	SQL_SU_PROCEDURE_INVOCATION | SQL_SU_PRIVILEGE_DEFINITION;
      break;
 
@@ -621,7 +636,7 @@ SQLRETURN SQL_API SQLGetInfo(
      break;
 
     case SQL_MAX_ROW_SIZE:
-     *(SQLUSMALLINT*)InfoValuePtr=0;
+     *(SQLUINTEGER*)InfoValuePtr=0;
      break;
 
 
@@ -649,30 +664,21 @@ SQLRETURN SQL_API SQLGetInfo(
       SQL_FN_NUM_TRUNCATE ;
      break;
 
-      /* TODO :- the rest of these! - see the ODBC 3 Book Vol2 page 791 */
-    case SQL_MAX_CONCURRENT_ACTIVITIES:
-    case SQL_MAX_DRIVER_CONNECTIONS:
+    case SQL_SUBQUERIES:
+    *(SQLUINTEGER*)InfoValuePtr=SQL_SQ_CORRELATED_SUBQUERIES |
+      SQL_SQ_COMPARISON | 
+      SQL_SQ_EXISTS | 
+      SQL_SQ_IN | 
+      SQL_SQ_QUANTIFIED ;
+    break;
+    
+    case SQL_CREATE_TRANSLATION:
     case SQL_MAX_INDEX_SIZE:
     case SQL_MAX_STATEMENT_LEN:
-    case SQL_MULT_RESULT_SETS:
-    case SQL_MULTIPLE_ACTIVE_TXN:
-    case SQL_NEED_LONG_DATA_LEN:
-    case SQL_NON_NULLABLE_COLUMNS:
-    case SQL_NULL_COLLATION:
-    case SQL_ODBC_INTERFACE_CONFORMANCE:
-    case SQL_ODBC_API_CONFORMANCE:
-    case SQL_OJ_CAPABILITIES:
-    case SQL_ORDER_BY_COLUMNS_IN_SELECT:
     case SQL_PARAM_ARRAY_ROW_COUNTS:
     case SQL_PARAM_ARRAY_SELECTS:
-    case SQL_PROCEDURE_TERM:
-    case SQL_PROCEDURES:
-    case SQL_QUOTED_IDENTIFIER_CASE:
-    case SQL_ROW_UPDATES:
+    case SQL_OJ_CAPABILITIES:
     case SQL_SCROLL_OPTIONS:
-    case SQL_SEARCH_PATTERN_ESCAPE:
-    case SQL_SERVER_NAME:
-    case SQL_SPECIAL_CHARACTERS:
     case SQL_SQL_CONFORMANCE:
     case SQL_SQL92_DATETIME_FUNCTIONS:
     case SQL_SQL92_FOREIGN_KEY_DELETE_RULE:
@@ -688,12 +694,41 @@ SQLRETURN SQL_API SQLGetInfo(
     case SQL_STATIC_CURSOR_ATTRIBUTES1:
     case SQL_STATIC_CURSOR_ATTRIBUTES2:
     case SQL_STRING_FUNCTIONS:
-    case SQL_SUBQUERIES:
-    case SQL_SYSTEM_FUNCTIONS:
     case SQL_TIMEDATE_ADD_INTERVALS:
     case SQL_TIMEDATE_DIFF_INTERVALS:
     case SQL_TIMEDATE_FUNCTIONS:
     case SQL_TXN_ISOLATION_OPTION:
+
+      *(SQLUINTEGER*)InfoValuePtr=0;
+      status=SQL_SUCCESS_WITH_INFO;
+
+      ood_post_diag(dbc,ERROR_ORIGIN_IM001,0,"",
+		    ERROR_MESSAGE_IM001,
+		    __LINE__,0,"",ERROR_STATE_IM001,
+		    __FILE__,__LINE__);
+
+      break;
+
+
+      /* TODO :- the rest of these! - see the ODBC 3 Book Vol2 page 791 */
+    case SQL_MAX_CONCURRENT_ACTIVITIES:
+    case SQL_MAX_DRIVER_CONNECTIONS:
+    case SQL_MULT_RESULT_SETS:
+    case SQL_MULTIPLE_ACTIVE_TXN:
+    case SQL_NEED_LONG_DATA_LEN:
+    case SQL_NON_NULLABLE_COLUMNS:
+    case SQL_NULL_COLLATION:
+    case SQL_ODBC_INTERFACE_CONFORMANCE:
+    case SQL_ODBC_API_CONFORMANCE:
+    case SQL_ORDER_BY_COLUMNS_IN_SELECT:
+    case SQL_PROCEDURE_TERM:
+    case SQL_PROCEDURES:
+    case SQL_QUOTED_IDENTIFIER_CASE:
+    case SQL_ROW_UPDATES:
+    case SQL_SEARCH_PATTERN_ESCAPE:
+    case SQL_SERVER_NAME:
+    case SQL_SPECIAL_CHARACTERS:
+    case SQL_SYSTEM_FUNCTIONS:
     case SQL_USER_NAME:
     case SQL_XOPEN_CLI_YEAR:
     default:
