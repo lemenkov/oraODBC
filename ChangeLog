@@ -1,0 +1,37 @@
+                    =====================================
+                    Easysoft Oracle ODBC Driver ChangeLog
+                    =====================================
+
+Wed Jul  5 12:06:05 2000 tom@easysoft.com (Tom Fosdick)
+
+    Basic block cursor implementation complete
+
+Wed Jun 14 09:31:55 2000 tom@easysoft.com (Tom Fosdick)
+
+    Fixed data type problems with catalog functions
+    Added SQLTablePrivs, SQLColumnPrivs
+    Added SQLGet/SetStmtAttr (although far from complete)
+
+Mon Jun  5 10:34:27 2000 tom@easysoft.com (Tom Fosdick)
+
+    Initial bound params implemetation finished
+
+Thu May 25 13:37:37 2000 tom@easysoft.com (Tom Fosdick)
+
+    Fixed ROWID
+    Completed first iteration of the ODBC->Oracle SQL translator
+
+Tue May 16 10:15:26 2000 tom@easysoft.com (Tom Fosdick)
+
+    Library switching changes to allow it to use both libclntsh.so.1 and
+    libclntsh.so.8
+
+Wed May 10 11:16:40 2000 tom@easysoft.com (Tom Fosdick)
+
+    SQLStatistics added
+
+
+Tue May  9 09:10:52 2000 tom@easysoft.com (Tom Fosdick)
+
+    Somewhat late start of the ChangeLog file
+
