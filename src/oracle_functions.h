@@ -18,9 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.h,v 1.4 2004/06/10 16:28:40 dbox Exp $
+ * $Id: oracle_functions.h,v 1.5 2004/08/06 20:46:10 dbox Exp $
  *
  * $Log: oracle_functions.h,v $
+ * Revision 1.5  2004/08/06 20:46:10  dbox
+ * lots of re-working of behavior for filling ir and ar descriptors when
+ * a statement handle is reused.  Fixes a crash when number of columns changes
+ * in a re-used statement handle.
+ *
  * Revision 1.4  2004/06/10 16:28:40  dbox
  * fixed some annoying behavior in SQLConnect and SQLDriverConnect where it didnt always find the server name
  *
@@ -89,7 +94,7 @@ SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar);
 SQLRETURN ood_driver_define_col(ir_T* ir);
 SQLRETURN ood_ocitype_to_sqltype(ub2 data_type);
 SQLRETURN ood_ocitype_to_sqltype_imp(hStmt_T* stmt, int colNum);
-SQLRETURN ood_alloc_col_desc(hStmt_T *,int ,hDesc_T*,hDesc_T*);
+SQLRETURN ood_alloc_col_desc(hStmt_T *, ub4, hDesc_T*, hDesc_T*);
 
 SQLRETURN ood_assign_ir(ir_T *ir,ub2 data_type, ub2 data_size, sb2 indicator,
     SQLRETURN (*default_copy)(), SQLRETURN (*to_string)());
@@ -100,7 +105,7 @@ SQLRETURN (*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
 SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
     (int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 
-SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
+SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,ub4 param_num,
 		hDesc_T *imp,hDesc_T* app);
 
 
@@ -164,7 +169,7 @@ SQLRETURN ocinul_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 #endif
 
 SQLRETURN ood_xlate_status(sword stat);
-sword ood_driver_bind_param(hStmt_T*,int);
+sword ood_driver_bind_param(hStmt_T*,ub4);
 char * oci_hdtype_name(ub4 hdtype);
 char * oci_stmt_type_name(int stmt_type);
 char * oci_status_name(sword status);

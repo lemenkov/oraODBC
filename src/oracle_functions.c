@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.28 2004/08/06 14:47:23 dbox Exp $
+ * $Id: oracle_functions.c,v 1.29 2004/08/06 20:46:10 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.28 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.29 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -505,74 +505,90 @@ SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
  */
 SQLRETURN ood_driver_execute(hStmt_T* stmt)
 {
-  sword ret=0;
+  sword ret=OCI_SUCCESS;
+
   assert(IS_VALID(stmt));
   if(stmt->current_ap->bound_col_flag)
     {
-      unsigned int i;
-      for(i=1;i<=stmt->current_ap->num_recs;i++)
+      ub4 i;
+
+      /* This is wrong: the number of allocated entries in current_ap
+	 is not necessarily equal to the number of parameters in the
+	 expression. e.g. the statement handle may be reused for a
+	 different query.
+      */
+      for(i=1;i<=stmt->current_ap->num_recs && ret==OCI_SUCCESS;i++)
 	{
-	  ret|=ood_driver_bind_param(stmt,i);
+	  ret = ood_driver_bind_param(stmt,i);
 	}
     }
-  
-  ret|=OCIAttrGet_log_stat(stmt->oci_stmt,
-			  OCI_HTYPE_STMT,
-			  (dvoid*)&stmt->stmt_type,
-			  NULL,
-			  OCI_ATTR_STMT_TYPE,
-			  stmt->dbc->oci_err,
-			  ret);
-  
-  if(stmt->stmt_type==OCI_STMT_SELECT)
+
+  if (ret == OCI_SUCCESS)
     {
-      if(stmt->row_array_size){
-	
-	ret|=OCIStmtExecute_log_stat(stmt->dbc->oci_svc , 
-				    stmt->oci_stmt , 
-				    stmt->dbc->oci_err , 
-				    stmt->row_array_size , 
-				    0,0,0,OCI_DESCRIBE_ONLY,ret );
-	
-	
-      }else{
-	ret|=OCIStmtExecute_log_stat(stmt->dbc->oci_svc ,
-				    stmt->oci_stmt ,
-				    stmt->dbc->oci_err ,
-				    0,0,0,0,OCI_DEFAULT,ret );
-      }
+      ret = OCIAttrGet_log_stat(stmt->oci_stmt,
+				OCI_HTYPE_STMT,
+				(dvoid*)&stmt->stmt_type,
+				NULL,
+				OCI_ATTR_STMT_TYPE,
+				stmt->dbc->oci_err,
+				ret);
     }
-  else
+
+  if (ret == OCI_SUCCESS)
     {
-      ub4 mode;
-      ub4 ar_size;
-      ar_size=1;
-      mode = OCI_DEFAULT;
+      if(stmt->stmt_type==OCI_STMT_SELECT)
+	{
+	  if(stmt->row_array_size)
+	    {
+	      ret = OCIStmtExecute_log_stat(stmt->dbc->oci_svc , 
+					    stmt->oci_stmt , 
+					    stmt->dbc->oci_err , 
+					    stmt->row_array_size , 
+					    0,0,0,OCI_DESCRIBE_ONLY,ret );
+	
+	
+	    }else{
+	      ret = OCIStmtExecute_log_stat(stmt->dbc->oci_svc ,
+					    stmt->oci_stmt ,
+					    stmt->dbc->oci_err ,
+					    0,0,0,0,OCI_DEFAULT,ret );
+	    }
+	}
+      else
+	{
+	  ub4 mode;
+	  ub4 ar_size;
+	  ar_size=1;
+	  mode = OCI_DEFAULT;
      
-      THREAD_MUTEX_LOCK(stmt->dbc);
-      if(stmt->dbc->autocommit==OCI_COMMIT_ON_SUCCESS)
-	mode=OCI_COMMIT_ON_SUCCESS;
-      THREAD_MUTEX_UNLOCK(stmt->dbc);
+	  THREAD_MUTEX_LOCK(stmt->dbc);
+	  if(stmt->dbc->autocommit==OCI_COMMIT_ON_SUCCESS)
+	    mode=OCI_COMMIT_ON_SUCCESS;
+	  THREAD_MUTEX_UNLOCK(stmt->dbc);
       
-      if(stmt->stmt_type==OCI_STMT_INSERT
-	 && stmt->paramset_size > 1){
-	ar_size=stmt->paramset_size;
-	mode=OCI_BATCH_ERRORS;
-      }
-     ret|=OCIStmtExecute_log_stat(stmt->dbc->oci_svc,
-				  stmt->oci_stmt,
-				  stmt->dbc->oci_err,
-				  ar_size
-				  ,0,0,0,mode,ret);
+	  if(stmt->stmt_type==OCI_STMT_INSERT
+	     && stmt->paramset_size > 1){
+	    ar_size=stmt->paramset_size;
+	    mode=OCI_BATCH_ERRORS;
+	  }
+	  ret = OCIStmtExecute_log_stat(stmt->dbc->oci_svc,
+					stmt->oci_stmt,
+					stmt->dbc->oci_err,
+					ar_size
+					,0,0,0,mode,ret);
 
 
+	}
     }
-   if(ret==OCI_NEED_DATA)
-        return SQL_NEED_DATA;
+  if(ret==OCI_NEED_DATA)
+    return SQL_NEED_DATA;
 	
-  if(ret)
+  if (ret != OCI_SUCCESS)
     {
       ood_driver_error(stmt,ret,__FILE__,__LINE__);
+#ifdef UNIX_DEBUG
+      errcheck(__FILE__,__LINE__,ret,stmt->dbc->oci_err);
+#endif
       if(ret==OCI_ERROR)
 	return SQL_ERROR;
     }
@@ -863,28 +879,30 @@ SQLRETURN ood_ocitype_to_sqltype(ub2 data_type)
 /*
  * Alloc Param Descriptors
  *
- * (re)allocate param descriptors being careful to initialise them
- * correctly
+ * Check that arrays in imp and app are large enough for the given
+ * parameter number. If not, (re)allocate and initialise.
  */
-SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
+SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,ub4 param_num,
 			       hDesc_T *imp,hDesc_T* app)
 {    
-  int floor=0;
-  if((unsigned int)rows<=imp->num_recs)
+  ub4 floor=0;
+
+  /* this fails for half the regression tests
+  assert(imp->num_recs == app->num_recs);
+  */
+
+  if(param_num<=imp->num_recs)
     {
       return SQL_SUCCESS;
     }
-  /* app->num_resc stores the number of recs we think we should have */
-  if(app->num_recs>(unsigned)rows)
-    rows=app->num_recs;
   if(imp->num_recs)
     {
       /*
        * Need to realloc 
        */
-      floor=imp->num_recs;
+      floor=imp->num_recs+1;
       imp->recs.ip=ORAREALLOC(imp->recs.ip,
-			      sizeof(ip_T)*(rows+1));
+			      sizeof(ip_T)*(param_num+1));
       if(!imp->recs.ip)
         {
 	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
@@ -894,7 +912,7 @@ SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
 	  return SQL_ERROR;
         }
         
-      app->recs.ap=ORAREALLOC(app->recs.ap, sizeof(ap_T)*(rows+1));
+      app->recs.ap=ORAREALLOC(app->recs.ap, sizeof(ap_T)*(param_num+1));
       if(!app->recs.ap)
         {
 	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
@@ -906,7 +924,7 @@ SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
     }
   else /* we can malloc */
     {
-      imp->recs.ip=ORAMALLOC(sizeof(struct ip_TAG)*(rows+1));
+      imp->recs.ip=ORAMALLOC(sizeof(struct ip_TAG)*(param_num+1));
       if(!imp->recs.ip)
         {
 	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
@@ -916,7 +934,7 @@ SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
 	  return SQL_ERROR;
         }
     
-      app->recs.ap=ORAMALLOC(sizeof(struct ap_TAG)*(rows+1));
+      app->recs.ap=ORAMALLOC(sizeof(struct ap_TAG)*(param_num+1));
       if(!app->recs.ap)
         {
 	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
@@ -927,9 +945,10 @@ SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
         }
 
     }
-  imp->num_recs=rows;
-  app->num_recs=rows;
-  while(floor<=rows)
+  imp->num_recs=param_num;
+  app->num_recs=param_num;
+
+  while(floor<=param_num)
     {
       memset(&(imp->recs.ip[floor]),0,sizeof(struct ip_TAG));
       imp->recs.ip[floor].data_type=0;
@@ -1037,15 +1056,17 @@ static void ood_setup_bookmark(ir_T *ir, ar_T* ar,void *desc)
 /*
  * Alloc Col Descriptors
  *
- * (re)allocate row descriptors being careful to initialise them
- * correctly
+ * Check that arrays in imp and app are large enough for the given
+ * column number. If not, (re)allocate and initialise.
  */
 
-SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
+SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,ub4 col_num,
 			     hDesc_T *imp,hDesc_T* app)
 {    
-  int floor=0;
-  if((unsigned int)rows<=imp->num_recs)
+  ub4 floor=0;
+
+  assert(imp->num_recs == app->num_recs);
+  if(col_num<=imp->num_recs)
     {
       return SQL_SUCCESS;
     }
@@ -1054,9 +1075,9 @@ SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
       /*
        * Need to realloc 
        */
-      floor=imp->num_recs;
+      floor=imp->num_recs+1;
       imp->recs.ir=ORAREALLOC(imp->recs.ir,
-			      sizeof(ir_T)*(rows+1));
+			      sizeof(ir_T)*(col_num+1));
       if(!imp->recs.ir)
         {
 	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
@@ -1066,7 +1087,7 @@ SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
 	  return SQL_ERROR;
         }
       app->recs.ar=ORAREALLOC(app->recs.ar,
-			      sizeof(ar_T)*(rows+1));
+			      sizeof(ar_T)*(col_num+1));
       if(!app->recs.ar)
         {
 	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
@@ -1078,7 +1099,7 @@ SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
     }
   else /* we can malloc */
     {
-      imp->recs.ir=ORAMALLOC(sizeof(struct ir_TAG)*(rows+1));
+      imp->recs.ir=ORAMALLOC(sizeof(struct ir_TAG)*(col_num+1));
       if(!imp->recs.ir)
         {
 	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
@@ -1087,7 +1108,7 @@ SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
 			__FILE__,__LINE__);
 	  return SQL_ERROR;
         }
-      app->recs.ar=ORAMALLOC(sizeof(struct ar_TAG)*(rows+1));
+      app->recs.ar=ORAMALLOC(sizeof(struct ar_TAG)*(col_num+1));
       if(!app->recs.ar)
         {
 	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
@@ -1097,9 +1118,9 @@ SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
 	  return SQL_ERROR;
         }
     }
-  imp->num_recs=rows;
-  app->num_recs=rows;
-  while(floor<=rows)
+  imp->num_recs=col_num;
+  app->num_recs=col_num;
+  while(floor<=col_num)
     {
       imp->recs.ir[floor].data_type=0;
       imp->recs.ir[floor].orig_type=0;
@@ -1147,7 +1168,7 @@ SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
       app->recs.ar[floor].un_signed=SQL_TRUE;
       app->recs.ar[floor].updateable=SQL_TRUE;
       app->recs.ap[floor].valid_flag=VALID_FLAG_DEFAULT;
-
+      
       floor++;
     }
   /*
@@ -2705,10 +2726,9 @@ SQLRETURN ocidty_sqlnts(int row,ir_T* ir ,SQLPOINTER target,SQLINTEGER buflen,
   return SQL_SUCCESS;
 }
 
-sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
+sword ood_driver_bind_param(hStmt_T *stmt, ub4 parmnum)
 {
   sword ret;
-  OCIBind *ocibind;
   ap_T* ap=&stmt->current_ap->recs.ap[parmnum];
   ip_T* ip=&stmt->current_ip->recs.ip[parmnum];
   ub4 bind_mode=OCI_DEFAULT;
@@ -2983,7 +3003,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	    ip->data_size=sizeof(OCIDate);
 	    bind_ptr=ip->data_ptr;
 	  }
-	  break;
+  break;
 	  
 	case SQL_TYPE_TIMESTAMP:
 	  {
@@ -3052,10 +3072,18 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	}
       break;
     }
-  
+  if(ap->octet_length>ap->buffer_length)
+    bind_mode=OCI_DATA_AT_EXEC;
+
+  ret=OCIBindByPos(stmt->oci_stmt,NULL,stmt->dbc->oci_err,
+		   parmnum,bind_ptr,
+		   ip->data_size , ip->data_type,
+		   &ap->bind_indicator,
+		   0,0,0,0,bind_mode);
+
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
   ood_log_message(ip->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-		  (SQLHANDLE)ip->desc->stmt,0,"siiiiiis",
+		  (SQLHANDLE)ip->desc->stmt,0,"suiiiiius",
 		  NULL,"ood_driver_bind_parm",
 		  "parmnum",parmnum,
 		  "ap->octet_length",ap->octet_length,
@@ -3063,6 +3091,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 		  "ap->concise_type",ap->concise_type,
 		  "ap->bind_target_type",ap->bind_target_type,
 		  "ip->data_type",ip->data_type,
+		  "bind_mode",bind_mode,
 		  "bind_ptr",bind_ptr
 		  );
 #endif
@@ -3070,13 +3099,6 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
     printf("ood_driver_bind_param::OCIBindByPos parm=%d size=%d type=%d %s\n",
 	   parmnum,ip->data_size,ip->data_type,oci_var_type(ip->data_type));
   }
-  if(ap->octet_length>ap->buffer_length)
-    bind_mode=OCI_DATA_AT_EXEC;
-  ret=OCIBindByPos(stmt->oci_stmt,&ocibind,stmt->dbc->oci_err,
-		   (ub4)parmnum,bind_ptr,
-		   ip->data_size , ip->data_type,
-		   /*&ap->bind_indicator*/ 0,
-		   0,0,0,0,bind_mode);
   return(ret);
 }
 char *
