@@ -88,3 +88,4 @@ liboraodbc_la_SOURCES = \
 	sqllex.l \
 	mem_functions.c
 
+CLEANFILES= .deps/*.P *.lo

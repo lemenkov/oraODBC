@@ -22,6 +22,6 @@ EXTRA_DIST = runtests
 LDFLAGS = \
 	-L${ODBCLDIR} -lodbc ../src/mem_functions.o
 
-CLEANFILES=*.*~
+CLEANFILES=*.*~ .deps/*.P
 
 

@@ -98,7 +98,7 @@ EXTRA_DIST = runtests
 LDFLAGS =  	-L${ODBCLDIR} -lodbc ../src/mem_functions.o
 
 
-CLEANFILES = *.*~
+CLEANFILES = *.*~ .deps/*.P
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 

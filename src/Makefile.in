@@ -103,6 +103,8 @@ liboraodbc_la_DEPENDENCIES =
 
 liboraodbc_la_SOURCES =  	SQLAllocHandle.c 	SQLBindCol.c 	SQLBindParameter.c 	SQLBrowseConnect.c 	SQLBulkOperations.c 	SQLCancel.c 	SQLCloseCursor.c 	SQLColAttribute.c 	SQLColumnPrivileges.c 	SQLColumns.c 	SQLConnect.c 	SQLCopyDesc.c 	SQLDescribeCol.c 	SQLDescribeParam.c 	SQLDisconnect.c 	SQLDriverConnect.c 	SQLEndTran.c 	SQLExecDirect.c 	SQLExecute.c 	SQLFetch.c 	SQLFetchScroll.c 	SQLForeignKeys.c 	SQLFreeHandle.c 	SQLFreeStmt.c 	SQLGetConnectAttr.c 	SQLGetCursorName.c 	SQLGetData.c 	SQLGetDescField.c 	SQLGetDescRec.c 	SQLGetDiagField.c 	SQLGetDiagRec.c 	SQLGetEnvAttr.c 	SQLGetFunctions.c 	SQLGetInfo.c 	SQLGetStmtAttr.c 	SQLGetTypeInfo.c 	SQLMoreResults.c 	SQLNativeSql.c 	SQLNumParams.c 	SQLNumResultCols.c 	SQLParamData.c 	SQLPrepare.c 	SQLPrimaryKeys.c 	SQLProcedureColumns.c 	SQLProcedures.c 	SQLPutData.c 	SQLRowCount.c 	SQLSetConnectAttr.c 	SQLSetCursorName.c 	SQLSetDescField.c 	SQLSetDescRec.c 	SQLSetEnvAttr.c 	SQLSetPos.c 	SQLSetStmtAttr.c 	SQLSpecialColumns.c 	SQLStatistics.c 	SQLTablePrivileges.c 	SQLTables.c 	SQLExtendedFetch.c 	diagnostics.c 	string_functions.c 	common_functions.c 	oracle_functions.c 	sqllex.l 	mem_functions.c
 
+
+CLEANFILES = .deps/*.P *.lo
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -355,6 +357,7 @@ installdirs:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-rm -f Makefile $(CONFIG_CLEAN_FILES)
