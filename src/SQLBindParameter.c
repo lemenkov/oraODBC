@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLBindParameter.c,v 1.5 2004/08/06 20:42:29 dbox Exp $
+ * $Id: SQLBindParameter.c,v 1.6 2004/08/27 19:37:11 dbox Exp $
  *
  * $Log: SQLBindParameter.c,v $
+ * Revision 1.6  2004/08/27 19:37:11  dbox
+ * change logging behavior
+ *
  * Revision 1.5  2004/08/06 20:42:29  dbox
  * 1. got rid of useless function _SQLBindParameter 2. fixed behavior of Column size for various data types to conform to ODBC standard
  *
@@ -69,7 +72,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBindParameter.c,v $ $Revision: 1.5 $";
+static char const rcsid[]= "$RCSfile: SQLBindParameter.c,v $ $Revision: 1.6 $";
 
 
 SQLRETURN SQL_API SQLBindParameter(
@@ -177,25 +180,11 @@ if(ENABLE_TRACE){
 
 
     ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-	while(ParameterNumber)
-	{
-        ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"iiii",
-			"ParameterNumber",ParameterNumber,
-			"ap->octet_length",
-			(int)stmt->current_ap->recs.ap[ParameterNumber].octet_length,
-			"ap->concise_type",
-			(int)stmt->current_ap->recs.ap[ParameterNumber].concise_type,
-			"ap->bind_target_type",
-			(int)stmt->current_ap->recs.ap[ParameterNumber].bind_target_type
-			);
-		ParameterNumber--;
-	}
 /*
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-*/
 }
+*/
     return status;
 }
