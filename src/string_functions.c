@@ -18,11 +18,15 @@
  *
  ********************************************************************************
  *
- * $Id: string_functions.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: string_functions.c,v 1.2 2003/02/10 15:43:54 dbox Exp $
  *
  * $Log: string_functions.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2003/02/10 15:43:54  dbox
+ * added unit test for SQLColumns, uppercased parameters to calls
+ * to catalog functions
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.9  2000/07/21 10:20:41  tom
  * return_to_space added
@@ -61,7 +65,7 @@
 #include "common.h"
 #include <ctype.h>
 
-static char const rcsid[]= "$RCSfile: string_functions.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: string_functions.c,v $ $Revision: 1.2 $";
 
 /*
  * xtoSQLNTS
@@ -76,6 +80,27 @@ static char const rcsid[]= "$RCSfile: string_functions.c,v $ $Revision: 1.1 $";
 char* ood_xtoSQLNTS(SQLCHAR* str,SQLINTEGER str_len)
 {
     char *local_str=NULL;
+    int i;
+    if(str_len==SQL_NTS){ 
+        if(str&&str[0])
+		for(i=0; i<strlen(str); i++)
+			str[i]=toupper(str[i]);
+        return((char*)str);
+   }
+    if(str_len>=0)
+    {
+        local_str=ORAMALLOC(str_len+1);
+        memcpy(local_str,str,str_len);
+        local_str[str_len] = '\0';
+    }
+    for(i=0; i<str_len; i++)local_str[i]=toupper(local_str[i]);
+    return(local_str);
+}
+
+
+char* ood_xtoSQLNTS_orig(SQLCHAR* str,SQLINTEGER str_len)
+{
+    char *local_str=NULL;
     if(str_len==SQL_NTS) /* Nothing to do */
         return((char*)str);
 
@@ -87,7 +112,6 @@ char* ood_xtoSQLNTS(SQLCHAR* str,SQLINTEGER str_len)
     }
     return(local_str);
 }
-
 /*
  * Fast strcat
  *

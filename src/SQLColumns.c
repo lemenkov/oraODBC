@@ -18,9 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColumns.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLColumns.c,v 1.5 2003/02/10 15:43:54 dbox Exp $
  *
  * $Log: SQLColumns.c,v $
+ * Revision 1.5  2003/02/10 15:43:54  dbox
+ * added unit test for SQLColumns, uppercased parameters to calls
+ * to catalog functions
+ *
  * Revision 1.4  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -96,7 +100,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.5 $";
 
 /*
  * Due to the fact that Oracle returns the data type as a varchar and
@@ -246,14 +250,13 @@ if(ENABLE_TRACE){
 }
     ood_clear_diag((hgeneric*)stmt);
 
-
     schema=ood_xtoSQLNTS(SchemaName,NameLength2);
     table=ood_xtoSQLNTS(TableName,NameLength3);
     column=ood_xtoSQLNTS(ColumnName,NameLength4);
 
-#ifdef UNIX_DEBUG    
-fprintf(stderr,"SQLColumns schema [%s], table [%s], column [%s]\n",schema,table,column);
-#endif
+    if(getenv("VERBOSE"))    
+	fprintf(stderr,"SQLColumns schema [%s], table [%s], column [%s]\n",
+		schema,table,column);
 
     if(schema&&*schema)
     {

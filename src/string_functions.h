@@ -18,11 +18,15 @@
  *
  ********************************************************************************
  *
- * $Id: string_functions.h,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: string_functions.h,v 1.2 2003/02/10 15:43:54 dbox Exp $
  *
  * $Log: string_functions.h,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2003/02/10 15:43:54  dbox
+ * added unit test for SQLColumns, uppercased parameters to calls
+ * to catalog functions
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.7  2000/07/21 10:19:37  tom
  * return_to_space prototype added
@@ -56,6 +60,7 @@
 #define _STRING_FUNCTIONS_H
 #include <string.h>
 char* ood_xtoSQLNTS(SQLCHAR* str,SQLINTEGER str_len);
+char* ood_xtoSQLNTS_orig(SQLCHAR* str,SQLINTEGER str_len);
 char* ood_fast_strcat(char *dest,char *src,char *endptr);
 int ood_bounded_strcpy(char *dest,char* src, int limit);
 char *ood_con_strtok(char* str);

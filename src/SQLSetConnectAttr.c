@@ -18,9 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSetConnectAttr.c,v 1.4 2002/11/14 22:28:36 dbox Exp $
+ * $Id: SQLSetConnectAttr.c,v 1.5 2003/02/10 15:43:54 dbox Exp $
  *
  * $Log: SQLSetConnectAttr.c,v $
+ * Revision 1.5  2003/02/10 15:43:54  dbox
+ * added unit test for SQLColumns, uppercased parameters to calls
+ * to catalog functions
+ *
  * Revision 1.4  2002/11/14 22:28:36  dbox
  * %$@*&%$??!
  *
@@ -73,7 +77,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetConnectAttr.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLSetConnectAttr.c,v $ $Revision: 1.5 $";
 SQLRETURN SQL_API SQLSetConnectAttr(
     SQLHDBC            ConnectionHandle,
     SQLINTEGER        Attribute,
@@ -116,7 +120,7 @@ if(ENABLE_TRACE){
         case SQL_ATTR_TRACEFILE:
         {
             SQLCHAR *tracefile;
-            tracefile=(unsigned char*)ood_xtoSQLNTS(ValuePtr,StringLength);
+            tracefile=(unsigned char*)ood_xtoSQLNTS_orig(ValuePtr,StringLength);
             THREAD_MUTEX_LOCK(dbc);
             if(!ood_bounded_strcpy((char*)dbc->tracefile,
 						(char*)tracefile,FILENAME_MAX))

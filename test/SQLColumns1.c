@@ -83,7 +83,7 @@ int main(int argc, char ** argv)
     rc = SQLBindCol(StmtHandle, 7, SQL_C_SLONG, (SQLPOINTER)
 		    &sz_i, sizeof(sz_i), NULL);
     assert(rc == SQL_SUCCESS);
-    rc = SQLBindCol(StmtHandle, 18, SQL_C_SLONG, (SQLPOINTER)
+    rc = SQLBindCol(StmtHandle, 18, SQL_C_CHAR, (SQLPOINTER)
 		    &isNullable, sizeof(isNullable), NULL);
     assert(rc == SQL_SUCCESS);
 
