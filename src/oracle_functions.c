@@ -16,10 +16,10 @@
  *
  * Contributor(s): Tom Fosdick (Easysoft) 
 		   Dennis Box (Ferm Nat Accelerator Lab)
- *
+		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.13 2002/08/13 22:41:46 dbox Exp $
+ * $Id: oracle_functions.c,v 1.14 2002/11/14 22:28:36 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -29,7 +29,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.13 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.14 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -177,18 +177,18 @@ SQLRETURN ood_driver_error(void *hH, sword ret,char *file, int line)
 		
 	      case 12154:
 		ood_post_diag(
-                    (hgeneric*)hH,ERROR_ORIGIN_08001,0,NULL,
-		    "TNS: Could not resolve TARGETDB parameter as service name",
-		    errcodep,0,server_name,ERROR_STATE_08001,
-		    file,line);
+			      (hgeneric*)hH,ERROR_ORIGIN_08001,0,NULL,
+			      "TNS: Could not resolve TARGETDB parameter as service name",
+			      errcodep,0,server_name,ERROR_STATE_08001,
+			      file,line);
 		break;
 		
 	      case 12545:
 		ood_post_diag(
-                    (hgeneric*)hH,ERROR_ORIGIN_08001,0,NULL,
-		    "TNS: Could not resolve host for given service name",
-		    errcodep,0,server_name,ERROR_STATE_08001,
-		    file,line);
+			      (hgeneric*)hH,ERROR_ORIGIN_08001,0,NULL,
+			      "TNS: Could not resolve host for given service name",
+			      errcodep,0,server_name,ERROR_STATE_08001,
+			      file,line);
 		break;
 		
 	      case 12541:
@@ -760,62 +760,62 @@ SQLRETURN ood_ocitype_to_sqltype_imp(hStmt_T* stmt, int colNum)
 SQLRETURN ood_ocitype_to_sqltype(ub2 data_type)
 {
   
-    switch(data_type)
+  switch(data_type)
     {
-        /*varchar*/
-        case SQLT_RDD:
-        case SQLT_RID:
-        case SQLT_STR:
-        case SQLT_VST:
-        return SQL_C_CHAR;
+      /*varchar*/
+    case SQLT_RDD:
+    case SQLT_RID:
+    case SQLT_STR:
+    case SQLT_VST:
+      return SQL_C_CHAR;
 
-        /* fixed char */
-        case SQLT_CHR:
-        case SQLT_AFC:
-        case SQLT_VCS:
-        case SQLT_AVC:
-        return SQL_C_CHAR;
+      /* fixed char */
+    case SQLT_CHR:
+    case SQLT_AFC:
+    case SQLT_VCS:
+    case SQLT_AVC:
+      return SQL_C_CHAR;
 
-        /* numbers*/
-        case SQLT_INT:
-        return SQL_C_SLONG;
+      /* numbers*/
+    case SQLT_INT:
+      return SQL_C_SLONG;
         
-        case SQLT_FLT:
-        return SQL_C_DOUBLE;
+    case SQLT_FLT:
+      return SQL_C_DOUBLE;
         
-        case SQLT_NUM:
-        case SQLT_VNU:
-        case SQLT_UIN:
-        return SQL_C_NUMERIC;
+    case SQLT_NUM:
+    case SQLT_VNU:
+    case SQLT_UIN:
+      return SQL_C_NUMERIC;
 
-        /* LONGs, LOBs and binaries*/
-        case SQLT_VBI:
-        case SQLT_BIN:
-        return SQL_C_BINARY;
+      /* LONGs, LOBs and binaries*/
+    case SQLT_VBI:
+    case SQLT_BIN:
+      return SQL_C_BINARY;
         
-        case SQLT_LNG:
-        case SQLT_CLOB:
-        case SQLT_LVC:
-        return SQL_LONGVARCHAR;
+    case SQLT_LNG:
+    case SQLT_CLOB:
+    case SQLT_LVC:
+      return SQL_LONGVARCHAR;
 
-        case SQLT_LVB:
-        case SQLT_BLOB:
-        case SQLT_FILE:
-        case SQLT_LBI:
-		return SQL_LONGVARBINARY;
+    case SQLT_LVB:
+    case SQLT_BLOB:
+    case SQLT_FILE:
+    case SQLT_LBI:
+      return SQL_LONGVARBINARY;
 
-        /*date*/
-        case SQLT_DAT:
-        case SQLT_ODT:
-        return SQL_C_TIMESTAMP;
+      /*date*/
+    case SQLT_DAT:
+    case SQLT_ODT:
+      return SQL_C_TIMESTAMP;
 
-        /*others*/
-        case SQLT_NTY:
-        case SQLT_REF:
-        return SQL_C_BINARY;
+      /*others*/
+    case SQLT_NTY:
+    case SQLT_REF:
+      return SQL_C_BINARY;
 
     }
-    return SQL_C_CHAR;
+  return SQL_C_CHAR;
 }
 
 /*
@@ -825,169 +825,169 @@ SQLRETURN ood_ocitype_to_sqltype(ub2 data_type)
  * correctly
  */
 SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
-		hDesc_T *imp,hDesc_T* app)
+			       hDesc_T *imp,hDesc_T* app)
 {    
-    int floor=0;
-    if((unsigned int)rows<=imp->num_recs)
+  int floor=0;
+  if((unsigned int)rows<=imp->num_recs)
     {
-        return SQL_SUCCESS;
+      return SQL_SUCCESS;
     }
-	/* app->num_resc stores the number of recs we think we should have */
-	if(app->num_recs>(unsigned)rows)
-		rows=app->num_recs;
-    if(imp->num_recs)
+  /* app->num_resc stores the number of recs we think we should have */
+  if(app->num_recs>(unsigned)rows)
+    rows=app->num_recs;
+  if(imp->num_recs)
     {
-        /*
-         * Need to realloc 
-         */
-        floor=imp->num_recs;
-        imp->recs.ip=ORAREALLOC(imp->recs.ip,
-                sizeof(ip_T)*(rows+1));
-        if(!imp->recs.ip)
+      /*
+       * Need to realloc 
+       */
+      floor=imp->num_recs;
+      imp->recs.ip=ORAREALLOC(imp->recs.ip,
+			      sizeof(ip_T)*(rows+1));
+      if(!imp->recs.ip)
         {
-            ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
-                    ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
-                    ERROR_STATE_HY001,
-                    __FILE__,__LINE__);
-            return SQL_ERROR;
+	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
+			ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
+			ERROR_STATE_HY001,
+			__FILE__,__LINE__);
+	  return SQL_ERROR;
         }
         
-        app->recs.ap=ORAREALLOC(app->recs.ap, sizeof(ap_T)*(rows+1));
-        if(!app->recs.ap)
+      app->recs.ap=ORAREALLOC(app->recs.ap, sizeof(ap_T)*(rows+1));
+      if(!app->recs.ap)
         {
-            ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
-                    ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
-                    ERROR_STATE_HY001,
-                    __FILE__,__LINE__);
-            return SQL_ERROR;
+	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
+			ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
+			ERROR_STATE_HY001,
+			__FILE__,__LINE__);
+	  return SQL_ERROR;
         }
     }
-    else /* we can malloc */
-	{
-        imp->recs.ip=ORAMALLOC(sizeof(struct ip_TAG)*(rows+1));
-        if(!imp->recs.ip)
+  else /* we can malloc */
+    {
+      imp->recs.ip=ORAMALLOC(sizeof(struct ip_TAG)*(rows+1));
+      if(!imp->recs.ip)
         {
-            ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
-                    ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
-                    ERROR_STATE_HY001,
-                    __FILE__,__LINE__);
-            return SQL_ERROR;
+	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
+			ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
+			ERROR_STATE_HY001,
+			__FILE__,__LINE__);
+	  return SQL_ERROR;
         }
     
-        app->recs.ap=ORAMALLOC(sizeof(struct ap_TAG)*(rows+1));
-        if(!app->recs.ap)
+      app->recs.ap=ORAMALLOC(sizeof(struct ap_TAG)*(rows+1));
+      if(!app->recs.ap)
         {
-            ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
-                    ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
-                    ERROR_STATE_HY001,
-                    __FILE__,__LINE__);
-            return SQL_ERROR;
+	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
+			ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
+			ERROR_STATE_HY001,
+			__FILE__,__LINE__);
+	  return SQL_ERROR;
         }
 
     }
-    imp->num_recs=rows;
-	app->num_recs=rows;
-    while(floor<=rows)
+  imp->num_recs=rows;
+  app->num_recs=rows;
+  while(floor<=rows)
     {
-        imp->recs.ip[floor].data_type=0;
-        imp->recs.ip[floor].orig_type=0;
-        imp->recs.ip[floor].data_size=0;
-        imp->recs.ip[floor].col_num=floor;
-        imp->recs.ip[floor].data_ptr=NULL;
-        imp->recs.ip[floor].default_copy=NULL;
-        imp->recs.ip[floor].to_string=NULL;
-        imp->recs.ip[floor].to_oracle=NULL;
-        imp->recs.ip[floor].desc=imp;
-        imp->recs.ip[floor].valid_flag=VALID_FLAG_DEFAULT;
+      imp->recs.ip[floor].data_type=0;
+      imp->recs.ip[floor].orig_type=0;
+      imp->recs.ip[floor].data_size=0;
+      imp->recs.ip[floor].col_num=floor;
+      imp->recs.ip[floor].data_ptr=NULL;
+      imp->recs.ip[floor].default_copy=NULL;
+      imp->recs.ip[floor].to_string=NULL;
+      imp->recs.ip[floor].to_oracle=NULL;
+      imp->recs.ip[floor].desc=imp;
+      imp->recs.ip[floor].valid_flag=VALID_FLAG_DEFAULT;
 
-        imp->recs.ir[floor].ind_arr=NULL;
-        imp->recs.ir[floor].length_arr=NULL;
-        imp->recs.ir[floor].rcode_arr=NULL;
-        imp->recs.ir[floor].valid_flag=VALID_FLAG_DEFAULT;
+      imp->recs.ir[floor].ind_arr=NULL;
+      imp->recs.ir[floor].length_arr=NULL;
+      imp->recs.ir[floor].rcode_arr=NULL;
+      imp->recs.ir[floor].valid_flag=VALID_FLAG_DEFAULT;
 
-        app->recs.ap[floor].auto_unique=0;
-        app->recs.ap[floor].base_column_name=NULL;
-        app->recs.ap[floor].base_table_name=NULL;
-        app->recs.ap[floor].case_sensitive=SQL_FALSE;
-        app->recs.ap[floor].catalog_name=NULL;
-        app->recs.ap[floor].concise_type=SQL_C_DEFAULT;
-        app->recs.ap[floor].data_ptr=NULL;
-        app->recs.ap[floor].display_size=0;
-        app->recs.ap[floor].fixed_prec_scale=0;
-        app->recs.ap[floor].bind_indicator=NULL;
-        app->recs.ap[floor].column_label=app->recs.ap[floor].column_name;
-        app->recs.ap[floor].length=0;
-        app->recs.ap[floor].literal_prefix=NULL;
-        app->recs.ap[floor].literal_suffix=NULL;
-        app->recs.ap[floor].local_type_name=NULL;
-        *app->recs.ap[floor].column_name='\0';
-        app->recs.ap[floor].nullable=SQL_TRUE;
-        app->recs.ap[floor].num_prec_radix=10;
-        app->recs.ap[floor].octet_length=0;
-        app->recs.ap[floor].precision=0;
-        app->recs.ap[floor].scale=0;
-        app->recs.ap[floor].schema_name=NULL;
-        app->recs.ap[floor].searchable=SQL_TRUE;
-        app->recs.ap[floor].table_name=NULL;
-        app->recs.ap[floor].data_type=0;
-        app->recs.ap[floor].type_name=NULL;
-        app->recs.ap[floor].un_signed=SQL_TRUE;
-        app->recs.ap[floor].updateable=SQL_TRUE;
-	app->recs.ap[floor].valid_flag=VALID_FLAG_DEFAULT;
-        floor++;
+      app->recs.ap[floor].auto_unique=0;
+      app->recs.ap[floor].base_column_name=NULL;
+      app->recs.ap[floor].base_table_name=NULL;
+      app->recs.ap[floor].case_sensitive=SQL_FALSE;
+      app->recs.ap[floor].catalog_name=NULL;
+      app->recs.ap[floor].concise_type=SQL_C_DEFAULT;
+      app->recs.ap[floor].data_ptr=NULL;
+      app->recs.ap[floor].display_size=0;
+      app->recs.ap[floor].fixed_prec_scale=0;
+      app->recs.ap[floor].bind_indicator=NULL;
+      app->recs.ap[floor].column_label=app->recs.ap[floor].column_name;
+      app->recs.ap[floor].length=0;
+      app->recs.ap[floor].literal_prefix=NULL;
+      app->recs.ap[floor].literal_suffix=NULL;
+      app->recs.ap[floor].local_type_name=NULL;
+      *app->recs.ap[floor].column_name='\0';
+      app->recs.ap[floor].nullable=SQL_TRUE;
+      app->recs.ap[floor].num_prec_radix=10;
+      app->recs.ap[floor].octet_length=0;
+      app->recs.ap[floor].precision=0;
+      app->recs.ap[floor].scale=0;
+      app->recs.ap[floor].schema_name=NULL;
+      app->recs.ap[floor].searchable=SQL_TRUE;
+      app->recs.ap[floor].table_name=NULL;
+      app->recs.ap[floor].data_type=0;
+      app->recs.ap[floor].type_name=NULL;
+      app->recs.ap[floor].un_signed=SQL_TRUE;
+      app->recs.ap[floor].updateable=SQL_TRUE;
+      app->recs.ap[floor].valid_flag=VALID_FLAG_DEFAULT;
+      floor++;
     }
-    return SQL_SUCCESS;
+  return SQL_SUCCESS;
 }
 
 static void ood_setup_bookmark(ir_T *ir, ar_T* ar,void *desc)
 {
-    ir->data_type=SQLT_RDD;
-    ir->orig_type=SQLT_RDD;
-    ir->data_size=10;
-    ir->col_num=0;
-    ir->data_ptr=NULL; /* there is no data! */
-    ir->default_copy=NULL;
-    ir->to_string=NULL;;
-    ir->to_oracle=NULL;
-    ir->desc=desc;
-    ir->ind_arr=NULL;
-    ir->length_arr=NULL;
-    ir->rcode_arr=NULL;
-    ir->locator=NULL;
-    ir->posn=1;
-    ir->valid_flag=VALID_FLAG_DEFAULT;
+  ir->data_type=SQLT_RDD;
+  ir->orig_type=SQLT_RDD;
+  ir->data_size=10;
+  ir->col_num=0;
+  ir->data_ptr=NULL; /* there is no data! */
+  ir->default_copy=NULL;
+  ir->to_string=NULL;;
+  ir->to_oracle=NULL;
+  ir->desc=desc;
+  ir->ind_arr=NULL;
+  ir->length_arr=NULL;
+  ir->rcode_arr=NULL;
+  ir->locator=NULL;
+  ir->posn=1;
+  ir->valid_flag=VALID_FLAG_DEFAULT;
 
-    ar->auto_unique=SQL_TRUE;
-    ar->base_column_name=NULL;
-    ar->base_table_name=NULL;
-    ar->case_sensitive=SQL_FALSE;
-    ar->catalog_name=NULL;
-    ar->concise_type=SQL_C_BOOKMARK;
-    ar->data_ptr=NULL;
-    ar->display_size=20;
-    ar->fixed_prec_scale=0;
-    ar->bind_indicator=NULL;
-    ar->column_label=ar->column_name;
-    ar->length=20;
-    ar->literal_prefix=NULL;
-    ar->literal_suffix=NULL;
-    ar->local_type_name=NULL;
-    strcpy((char*)ar->column_name,"ROWID");
-    ar->nullable=SQL_FALSE;
-    ar->num_prec_radix=10;
-    ar->octet_length=20;
-    ar->precision=0;
-    ar->scale=0;
-    ar->schema_name=NULL;
-    ar->searchable=SQL_TRUE;
-    ar->table_name=NULL;
-    ar->data_type=0;
-    ar->type_name=NULL;
-    ar->un_signed=SQL_TRUE;
-    ar->updateable=SQL_FALSE;	
-    ar->valid_flag=VALID_FLAG_DEFAULT;
+  ar->auto_unique=SQL_TRUE;
+  ar->base_column_name=NULL;
+  ar->base_table_name=NULL;
+  ar->case_sensitive=SQL_FALSE;
+  ar->catalog_name=NULL;
+  ar->concise_type=SQL_C_BOOKMARK;
+  ar->data_ptr=NULL;
+  ar->display_size=20;
+  ar->fixed_prec_scale=0;
+  ar->bind_indicator=NULL;
+  ar->column_label=ar->column_name;
+  ar->length=20;
+  ar->literal_prefix=NULL;
+  ar->literal_suffix=NULL;
+  ar->local_type_name=NULL;
+  strcpy((char*)ar->column_name,"ROWID");
+  ar->nullable=SQL_FALSE;
+  ar->num_prec_radix=10;
+  ar->octet_length=20;
+  ar->precision=0;
+  ar->scale=0;
+  ar->schema_name=NULL;
+  ar->searchable=SQL_TRUE;
+  ar->table_name=NULL;
+  ar->data_type=0;
+  ar->type_name=NULL;
+  ar->un_signed=SQL_TRUE;
+  ar->updateable=SQL_FALSE;	
+  ar->valid_flag=VALID_FLAG_DEFAULT;
 
-	return;
+  return;
 }
 
 /*
@@ -998,119 +998,119 @@ static void ood_setup_bookmark(ir_T *ir, ar_T* ar,void *desc)
  */
 
 SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
-		hDesc_T *imp,hDesc_T* app)
+			     hDesc_T *imp,hDesc_T* app)
 {    
-    int floor=0;
-    if((unsigned int)rows<=imp->num_recs)
+  int floor=0;
+  if((unsigned int)rows<=imp->num_recs)
     {
-        return SQL_SUCCESS;
+      return SQL_SUCCESS;
     }
-    if(imp->num_recs)
+  if(imp->num_recs)
     {
-        /*
-         * Need to realloc 
-         */
-        floor=imp->num_recs;
-        imp->recs.ir=ORAREALLOC(imp->recs.ir,
-                sizeof(ir_T)*(rows+1));
-        if(!imp->recs.ir)
+      /*
+       * Need to realloc 
+       */
+      floor=imp->num_recs;
+      imp->recs.ir=ORAREALLOC(imp->recs.ir,
+			      sizeof(ir_T)*(rows+1));
+      if(!imp->recs.ir)
         {
-            ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
-                    ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
-                    ERROR_STATE_HY001,
-                    __FILE__,__LINE__);
-            return SQL_ERROR;
+	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
+			ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
+			ERROR_STATE_HY001,
+			__FILE__,__LINE__);
+	  return SQL_ERROR;
         }
-        app->recs.ar=ORAREALLOC(app->recs.ar,
-                sizeof(ar_T)*(rows+1));
-        if(!app->recs.ar)
+      app->recs.ar=ORAREALLOC(app->recs.ar,
+			      sizeof(ar_T)*(rows+1));
+      if(!app->recs.ar)
         {
-            ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
-                    ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
-                    ERROR_STATE_HY001,
-                    __FILE__,__LINE__);
-            return SQL_ERROR;
-        }
-    }
-    else /* we can malloc */
-    {
-        imp->recs.ir=ORAMALLOC(sizeof(struct ir_TAG)*(rows+1));
-        if(!imp->recs.ir)
-        {
-            ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
-                    ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
-                    ERROR_STATE_HY001,
-                    __FILE__,__LINE__);
-            return SQL_ERROR;
-        }
-        app->recs.ar=ORAMALLOC(sizeof(struct ar_TAG)*(rows+1));
-        if(!app->recs.ar)
-        {
-            ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
-                    ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
-                    ERROR_STATE_HY001,
-                    __FILE__,__LINE__);
-            return SQL_ERROR;
+	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
+			ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
+			ERROR_STATE_HY001,
+			__FILE__,__LINE__);
+	  return SQL_ERROR;
         }
     }
-    imp->num_recs=rows;
-	app->num_recs=rows;
-    while(floor<=rows)
+  else /* we can malloc */
     {
-        imp->recs.ir[floor].data_type=0;
-        imp->recs.ir[floor].orig_type=0;
-        imp->recs.ir[floor].data_size=0;
-        imp->recs.ir[floor].col_num=floor;
-        imp->recs.ir[floor].data_ptr=NULL;
-        imp->recs.ir[floor].default_copy=NULL;
-        imp->recs.ir[floor].to_string=NULL;
-        imp->recs.ir[floor].to_oracle=NULL;
-        imp->recs.ir[floor].desc=imp;
-        imp->recs.ir[floor].ind_arr=NULL;
-        imp->recs.ir[floor].length_arr=NULL;
-        imp->recs.ir[floor].rcode_arr=NULL;
-        imp->recs.ir[floor].locator=NULL;
-        imp->recs.ir[floor].posn=1;
-	imp->recs.ir[floor].valid_flag=VALID_FLAG_DEFAULT;
+      imp->recs.ir=ORAMALLOC(sizeof(struct ir_TAG)*(rows+1));
+      if(!imp->recs.ir)
+        {
+	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
+			ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
+			ERROR_STATE_HY001,
+			__FILE__,__LINE__);
+	  return SQL_ERROR;
+        }
+      app->recs.ar=ORAMALLOC(sizeof(struct ar_TAG)*(rows+1));
+      if(!app->recs.ar)
+        {
+	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
+			ERROR_MESSAGE_HY001,__LINE__,0,stmt->dbc->DSN,
+			ERROR_STATE_HY001,
+			__FILE__,__LINE__);
+	  return SQL_ERROR;
+        }
+    }
+  imp->num_recs=rows;
+  app->num_recs=rows;
+  while(floor<=rows)
+    {
+      imp->recs.ir[floor].data_type=0;
+      imp->recs.ir[floor].orig_type=0;
+      imp->recs.ir[floor].data_size=0;
+      imp->recs.ir[floor].col_num=floor;
+      imp->recs.ir[floor].data_ptr=NULL;
+      imp->recs.ir[floor].default_copy=NULL;
+      imp->recs.ir[floor].to_string=NULL;
+      imp->recs.ir[floor].to_oracle=NULL;
+      imp->recs.ir[floor].desc=imp;
+      imp->recs.ir[floor].ind_arr=NULL;
+      imp->recs.ir[floor].length_arr=NULL;
+      imp->recs.ir[floor].rcode_arr=NULL;
+      imp->recs.ir[floor].locator=NULL;
+      imp->recs.ir[floor].posn=1;
+      imp->recs.ir[floor].valid_flag=VALID_FLAG_DEFAULT;
 
 
-        app->recs.ar[floor].auto_unique=SQL_FALSE;
-        app->recs.ar[floor].base_column_name=NULL;
-        app->recs.ar[floor].base_table_name=NULL;
-        app->recs.ar[floor].case_sensitive=SQL_FALSE;
-        app->recs.ar[floor].catalog_name=NULL;
-        app->recs.ar[floor].concise_type=SQL_C_DEFAULT;
-        app->recs.ar[floor].data_ptr=NULL;
-        app->recs.ar[floor].display_size=0;
-        app->recs.ar[floor].fixed_prec_scale=0;
-        app->recs.ar[floor].bind_indicator=NULL;
-        app->recs.ar[floor].column_label=app->recs.ar[floor].column_name;
-        app->recs.ar[floor].length=0;
-        app->recs.ar[floor].literal_prefix=NULL;
-        app->recs.ar[floor].literal_suffix=NULL;
-        app->recs.ar[floor].local_type_name=NULL;
-        *app->recs.ar[floor].column_name='\0';
-        app->recs.ar[floor].nullable=SQL_TRUE;
-        app->recs.ar[floor].num_prec_radix=10;
-        app->recs.ar[floor].octet_length=0;
-        app->recs.ar[floor].precision=0;
-        app->recs.ar[floor].scale=0;
-        app->recs.ar[floor].schema_name=NULL;
-        app->recs.ar[floor].searchable=SQL_TRUE;
-        app->recs.ar[floor].table_name=NULL;
-        app->recs.ar[floor].data_type=0;
-        app->recs.ar[floor].type_name=NULL;
-        app->recs.ar[floor].un_signed=SQL_TRUE;
-        app->recs.ar[floor].updateable=SQL_TRUE;
-	app->recs.ap[floor].valid_flag=VALID_FLAG_DEFAULT;
+      app->recs.ar[floor].auto_unique=SQL_FALSE;
+      app->recs.ar[floor].base_column_name=NULL;
+      app->recs.ar[floor].base_table_name=NULL;
+      app->recs.ar[floor].case_sensitive=SQL_FALSE;
+      app->recs.ar[floor].catalog_name=NULL;
+      app->recs.ar[floor].concise_type=SQL_C_DEFAULT;
+      app->recs.ar[floor].data_ptr=NULL;
+      app->recs.ar[floor].display_size=0;
+      app->recs.ar[floor].fixed_prec_scale=0;
+      app->recs.ar[floor].bind_indicator=NULL;
+      app->recs.ar[floor].column_label=app->recs.ar[floor].column_name;
+      app->recs.ar[floor].length=0;
+      app->recs.ar[floor].literal_prefix=NULL;
+      app->recs.ar[floor].literal_suffix=NULL;
+      app->recs.ar[floor].local_type_name=NULL;
+      *app->recs.ar[floor].column_name='\0';
+      app->recs.ar[floor].nullable=SQL_TRUE;
+      app->recs.ar[floor].num_prec_radix=10;
+      app->recs.ar[floor].octet_length=0;
+      app->recs.ar[floor].precision=0;
+      app->recs.ar[floor].scale=0;
+      app->recs.ar[floor].schema_name=NULL;
+      app->recs.ar[floor].searchable=SQL_TRUE;
+      app->recs.ar[floor].table_name=NULL;
+      app->recs.ar[floor].data_type=0;
+      app->recs.ar[floor].type_name=NULL;
+      app->recs.ar[floor].un_signed=SQL_TRUE;
+      app->recs.ar[floor].updateable=SQL_TRUE;
+      app->recs.ap[floor].valid_flag=VALID_FLAG_DEFAULT;
 
-        floor++;
+      floor++;
     }
-	/*
-	 * Set up out bookmark column
-	 */
-	ood_setup_bookmark(&imp->recs.ir[0],&app->recs.ap[0],imp);
-    return SQL_SUCCESS;
+  /*
+   * Set up out bookmark column
+   */
+  ood_setup_bookmark(&imp->recs.ir[0],&app->recs.ap[0],imp);
+  return SQL_SUCCESS;
 }
 
 /*
@@ -1121,387 +1121,387 @@ SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
  * If attributes have already been set they remain in tact.
  */
 SQLRETURN ood_assign_ir(ir_T *ir,
-    ub2 data_type,
-    ub2 data_size,
-    sb2 indicator,
-    SQLRETURN (*default_copy)(),
-    SQLRETURN (*to_string)()
-    )
+			ub2 data_type,
+			ub2 data_size,
+			sb2 indicator,
+			SQLRETURN (*default_copy)(),
+			SQLRETURN (*to_string)()
+			)
 {
-    if(!ir->data_type)
-        ir->data_type=data_type;
-    if(!ir->orig_type)
-        ir->orig_type=data_type;
-    if(!ir->data_size)
-	{
-		ir->data_size=data_size;
-	}
-    if(!ir->ind_arr)
-        ir->ind_arr=(void*)((int)indicator);
-    if(!ir->default_copy)
-        ir->default_copy=default_copy;
-    if(!ir->to_string)
-        ir->to_string=to_string;
-    return SQL_SUCCESS;
+  if(!ir->data_type)
+    ir->data_type=data_type;
+  if(!ir->orig_type)
+    ir->orig_type=data_type;
+  if(!ir->data_size)
+    {
+      ir->data_size=data_size;
+    }
+  if(!ir->ind_arr)
+    ir->ind_arr=(void*)((int)indicator);
+  if(!ir->default_copy)
+    ir->default_copy=default_copy;
+  if(!ir->to_string)
+    ir->to_string=to_string;
+  return SQL_SUCCESS;
 }
 
 SQLRETURN ood_driver_define_col(ir_T* ir)
 {
-    sword ret;
-    OCIDefine *dfn;
-    if(!ir->data_ptr)
-	{
-		if(ir->data_type==SQLT_CLOB||ir->data_type==SQLT_BLOB)
-		{
-			unsigned i;
-			ir->locator=ORAMALLOC(sizeof(OCILobLocator*)*
-					ir->desc->stmt->row_array_size);
-			ir->data_ptr=ORAMALLOC(sizeof(OCILobLocator**)*
-					ir->desc->stmt->row_array_size);
-			for(i=0;i<ir->desc->stmt->row_array_size;i++)
-			{
-			    OCIDescriptorAlloc(ir->desc->stmt->dbc->oci_env,
-				        (dvoid*)&ir->locator[i],OCI_DTYPE_LOB,0,0);
-			    ((OCILobLocator**)ir->data_ptr)[i]=ir->locator[i];
-			}
-			ir->data_size=(ub4)-1;
-			ir->desc->lob_col_flag++;
-		}
-		else
-		{
-            ir->data_ptr=ORAMALLOC(ir->data_size
-                *(ir->desc->stmt->row_array_size));
-	        if(!ir->data_ptr)
-            {
-                ood_post_diag((hgeneric*)ir->desc->stmt->current_ir,
-					ERROR_ORIGIN_HY001,0,"",
-                    ERROR_MESSAGE_HY001,__LINE__,0,ir->desc->stmt->dbc->DSN,
-                    ERROR_STATE_HY001,
-                    __FILE__,__LINE__);
-            return SQL_ERROR;
-            }
-	   }
-	}
-/*#if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)*/
-	/*ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,*/
-            /*(SQLHANDLE)ir->desc->stmt,0,"i"*/
-			/*"row_array_size",ir->desc->stmt->row_array_size);*/
-/*#endif*/
-	ir->ind_arr=ORAMALLOC(ir->desc->stmt->row_array_size*sizeof(sb2));
-	memset(ir->ind_arr,0,ir->desc->stmt->row_array_size*sizeof(sb2));
-	ir->length_arr=ORAMALLOC(ir->desc->stmt->row_array_size*sizeof(ub2));
-	ir->rcode_arr=ORAMALLOC(ir->desc->stmt->row_array_size*sizeof(ub2));
-    ret=OCIDefineByPos(ir->desc->stmt->oci_stmt,&dfn,
-            ir->desc->stmt->dbc->oci_err,ir->col_num,
-            ir->data_ptr, ir->data_size,
-            ir->data_type, ir->ind_arr, ir->length_arr,ir->rcode_arr,
-			OCI_DEFAULT);
-    if(ret)
+  sword ret;
+  OCIDefine *dfn;
+  if(!ir->data_ptr)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      if(ir->data_type==SQLT_CLOB||ir->data_type==SQLT_BLOB)
+	{
+	  unsigned i;
+	  ir->locator=ORAMALLOC(sizeof(OCILobLocator*)*
+				ir->desc->stmt->row_array_size);
+	  ir->data_ptr=ORAMALLOC(sizeof(OCILobLocator**)*
+				 ir->desc->stmt->row_array_size);
+	  for(i=0;i<ir->desc->stmt->row_array_size;i++)
+	    {
+	      OCIDescriptorAlloc(ir->desc->stmt->dbc->oci_env,
+				 (dvoid*)&ir->locator[i],OCI_DTYPE_LOB,0,0);
+	      ((OCILobLocator**)ir->data_ptr)[i]=ir->locator[i];
+	    }
+	  ir->data_size=(ub4)-1;
+	  ir->desc->lob_col_flag++;
+	}
+      else
+	{
+	  ir->data_ptr=ORAMALLOC(ir->data_size
+				 *(ir->desc->stmt->row_array_size));
+	  if(!ir->data_ptr)
+            {
+	      ood_post_diag((hgeneric*)ir->desc->stmt->current_ir,
+			    ERROR_ORIGIN_HY001,0,"",
+			    ERROR_MESSAGE_HY001,__LINE__,0,ir->desc->stmt->dbc->DSN,
+			    ERROR_STATE_HY001,
+			    __FILE__,__LINE__);
+	      return SQL_ERROR;
+            }
+	}
     }
-    return SQL_SUCCESS;
+  /*#if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)*/
+  /*ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,*/
+  /*(SQLHANDLE)ir->desc->stmt,0,"i"*/
+  /*"row_array_size",ir->desc->stmt->row_array_size);*/
+  /*#endif*/
+  ir->ind_arr=ORAMALLOC(ir->desc->stmt->row_array_size*sizeof(sb2));
+  memset(ir->ind_arr,0,ir->desc->stmt->row_array_size*sizeof(sb2));
+  ir->length_arr=ORAMALLOC(ir->desc->stmt->row_array_size*sizeof(ub2));
+  ir->rcode_arr=ORAMALLOC(ir->desc->stmt->row_array_size*sizeof(ub2));
+  ret=OCIDefineByPos(ir->desc->stmt->oci_stmt,&dfn,
+		     ir->desc->stmt->dbc->oci_err,ir->col_num,
+		     ir->data_ptr, ir->data_size,
+		     ir->data_type, ir->ind_arr, ir->length_arr,ir->rcode_arr,
+		     OCI_DEFAULT);
+  if(ret)
+    {
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
+    }
+  return SQL_SUCCESS;
 }
 
 SQLRETURN (*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
-        (int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*)
+     (int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*)
 {
-    switch(drvtype)
+  switch(drvtype)
     {
-        /*varchar*/
-        case SQLT_STR:
-        case SQLT_VST:
-        return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ocistr_sqlnts;
+      /*varchar*/
+    case SQLT_STR:
+    case SQLT_VST:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocistr_sqlnts;
 
-        /* fixed char */
-        case SQLT_CHR:
-        case SQLT_AFC:
-        case SQLT_VCS:
-        case SQLT_AVC:
-        return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ocistr_sqlnts;
+      /* fixed char */
+    case SQLT_CHR:
+    case SQLT_AFC:
+    case SQLT_VCS:
+    case SQLT_AVC:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocistr_sqlnts;
 
-        /* numbers*/
-        case SQLT_INT:
-        switch(sqltype)
+      /* numbers*/
+    case SQLT_INT:
+      switch(sqltype)
         {
-            case SQL_C_CHAR:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlnts;
+	case SQL_C_CHAR:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlnts;
 
-            case SQL_C_SLONG:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlslong;
+	case SQL_C_SLONG:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlslong;
 
-            case SQL_C_ULONG:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlulong;
+	case SQL_C_ULONG:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlulong;
 
-            case SQL_C_DOUBLE:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqldouble;
+	case SQL_C_DOUBLE:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqldouble;
 
-            case SQL_C_FLOAT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlfloat;
+	case SQL_C_FLOAT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlfloat;
 
-            case SQL_C_SSHORT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlsshort;
+	case SQL_C_SSHORT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlsshort;
 
-            case SQL_C_USHORT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlushort;
+	case SQL_C_USHORT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlushort;
 
-            case SQL_C_SBIGINT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlsbigint;
+	case SQL_C_SBIGINT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlsbigint;
 
-            case SQL_C_UBIGINT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlubigint;
+	case SQL_C_UBIGINT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlubigint;
 
-            case SQL_C_UTINYINT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlutinyint;
+	case SQL_C_UTINYINT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlutinyint;
 
-            case SQL_C_STINYINT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlstinyint;
+	case SQL_C_STINYINT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlstinyint;
 
-            default:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociint_sqlslong;
+	default:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociint_sqlslong;
         }
-        break;
+      break;
         
-        case SQLT_FLT:
-        switch(sqltype)
+    case SQLT_FLT:
+      switch(sqltype)
         {
-            case SQL_C_CHAR:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociflt_sqlnts;
+	case SQL_C_CHAR:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociflt_sqlnts;
 
-            case SQL_C_DOUBLE:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociflt_sqldouble;
+	case SQL_C_DOUBLE:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociflt_sqldouble;
 
-            case SQL_C_FLOAT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociflt_sqlfloat;
+	case SQL_C_FLOAT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociflt_sqlfloat;
 
-            case SQL_C_NUMERIC:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ociflt_sqlnumeric;
+	case SQL_C_NUMERIC:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ociflt_sqlnumeric;
         }
-        break;
+      break;
 
         
-        case SQLT_NUM:
-        case SQLT_VNU:
-        case SQLT_UIN:
-        switch(sqltype)
+    case SQLT_NUM:
+    case SQLT_VNU:
+    case SQLT_UIN:
+      switch(sqltype)
         {
-            case SQL_C_CHAR:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlnts;
+	case SQL_C_CHAR:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlnts;
 
-            case SQL_C_SLONG:
-			case SQL_C_LONG:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlslong;
+	case SQL_C_SLONG:
+	case SQL_C_LONG:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlslong;
 
-            case SQL_C_ULONG:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlulong;
+	case SQL_C_ULONG:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlulong;
 
-            case SQL_C_DOUBLE:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqldouble;
+	case SQL_C_DOUBLE:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqldouble;
 
-            case SQL_C_FLOAT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlfloat;
+	case SQL_C_FLOAT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlfloat;
 
-            case SQL_C_SSHORT:
-			case SQL_C_SHORT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlsshort;
+	case SQL_C_SSHORT:
+	case SQL_C_SHORT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlsshort;
 
-            case SQL_C_USHORT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlushort;
+	case SQL_C_USHORT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlushort;
 
-            case SQL_C_SBIGINT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlsbigint;
+	case SQL_C_SBIGINT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlsbigint;
 
-            case SQL_C_UBIGINT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlubigint;
+	case SQL_C_UBIGINT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlubigint;
 
-            case SQL_C_UTINYINT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlutinyint;
+	case SQL_C_UTINYINT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlutinyint;
 
-            case SQL_C_STINYINT:
-			case SQL_C_TINYINT:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlstinyint;
+	case SQL_C_STINYINT:
+	case SQL_C_TINYINT:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlstinyint;
 
-            case SQL_C_NUMERIC: 
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocivnu_sqlnumeric;
+	case SQL_C_NUMERIC: 
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlnumeric;
 
-            default:
-		return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-					ocivnu_sqlslong;
+	default:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocivnu_sqlslong;
         }
-        break;
+      break;
 
 
-        /*date*/
-        case SQLT_DAT:
-        case SQLT_ODT:
-        switch(sqltype)
+      /*date*/
+    case SQLT_DAT:
+    case SQLT_ODT:
+      switch(sqltype)
         {
-            case SQL_C_TIME:
-            case SQL_TYPE_TIME:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocidat_sqltime;
+	case SQL_C_TIME:
+	case SQL_TYPE_TIME:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocidat_sqltime;
 
-            case SQL_C_DATE:
-			case SQL_TYPE_DATE:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocidat_sqldate;
+	case SQL_C_DATE:
+	case SQL_TYPE_DATE:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocidat_sqldate;
             
-			case SQL_C_TIMESTAMP:
-			case SQL_TYPE_TIMESTAMP:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocidat_sqltimestamp;
+	case SQL_C_TIMESTAMP:
+	case SQL_TYPE_TIMESTAMP:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocidat_sqltimestamp;
 
-            case SQL_C_CHAR:
-			default:
-              return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocidat_sqlnts;
+	case SQL_C_CHAR:
+	default:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocidat_sqlnts;
         }
-        break;
+      break;
 
-		case SQLT_CLOB:
-          return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-	      ocilob_sqllvc;
+    case SQLT_CLOB:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocilob_sqllvc;
         
-		case SQLT_BLOB:
-           return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-		   ocilob_sqllvb;
+    case SQLT_BLOB:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocilob_sqllvb;
 
-        /* LONGs, LOBs and binaries*/
-        case SQLT_LNG:
-        case SQLT_VBI:
-        case SQLT_BIN:
-        case SQLT_LBI:
-        case SQLT_LVC:
-        case SQLT_LVB:
-        case SQLT_FILE:
-        return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ocistr_sqlnts;
+      /* LONGs, LOBs and binaries*/
+    case SQLT_LNG:
+    case SQLT_VBI:
+    case SQLT_BIN:
+    case SQLT_LBI:
+    case SQLT_LVC:
+    case SQLT_LVB:
+    case SQLT_FILE:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocistr_sqlnts;
 
-        /*others*/
-        case SQLT_RDD:
-        case SQLT_RID:
-		if(sqltype==SQL_C_CHAR)
-			return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ocistr_sqlnts;
-		else
-			return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ocistr_sqlnts;
+      /*others*/
+    case SQLT_RDD:
+    case SQLT_RID:
+      if(sqltype==SQL_C_CHAR)
+	return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	  ocistr_sqlnts;
+      else
+	return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	  ocistr_sqlnts;
 
-        case SQLT_NTY:
-        case SQLT_REF:
-        return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ocistr_sqlnts;
+    case SQLT_NTY:
+    case SQLT_REF:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocistr_sqlnts;
 
     }
-    return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ocistr_sqlnts;
+  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+    ocistr_sqlnts;
 }
 
 SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
-        (int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*)
+     (int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*)
 {
-    switch(drvtype)
+  switch(drvtype)
     {
-        /*varchar*/
-        case SQLT_STR:
-        case SQLT_VST:
-        return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ocistr_sqlnts;
+      /*varchar*/
+    case SQLT_STR:
+    case SQLT_VST:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocistr_sqlnts;
 
-        /* fixed char */
-        case SQLT_CHR:
-        case SQLT_AFC:
-        case SQLT_VCS:
-        case SQLT_AVC:
-        return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ocistr_sqlnts;
+      /* fixed char */
+    case SQLT_CHR:
+    case SQLT_AFC:
+    case SQLT_VCS:
+    case SQLT_AVC:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocistr_sqlnts;
 
-        /* numbers*/
-        case SQLT_INT:
-        return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ociint_sqlnts;
+      /* numbers*/
+    case SQLT_INT:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ociint_sqlnts;
         
-        case SQLT_FLT:
-        return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ociflt_sqlnts;
+    case SQLT_FLT:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ociflt_sqlnts;
         
-        case SQLT_NUM:
-        case SQLT_VNU:
-        case SQLT_UIN:
-        return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			ocivnu_sqlnts;
+    case SQLT_NUM:
+    case SQLT_VNU:
+    case SQLT_UIN:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocivnu_sqlnts;
 
-		case SQLT_CLOB:
-			  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocilob_sqllvc;
+    case SQLT_CLOB:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocilob_sqllvc;
 		
-		case SQLT_BLOB:
-			  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-			  ocilob_sqllvb;
+    case SQLT_BLOB:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocilob_sqllvb;
 
-			/* LONGs, LOBs and binaries*/
-			case SQLT_LNG:
-			case SQLT_VBI:
-			case SQLT_BIN:
-			case SQLT_LBI:
-			case SQLT_LVC:
-			case SQLT_LVB:
-			case SQLT_FILE:
-			return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-				ocistr_sqlnts;
+      /* LONGs, LOBs and binaries*/
+    case SQLT_LNG:
+    case SQLT_VBI:
+    case SQLT_BIN:
+    case SQLT_LBI:
+    case SQLT_LVC:
+    case SQLT_LVB:
+    case SQLT_FILE:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocistr_sqlnts;
 
-			/*date*/
-			case SQLT_DAT:
-			case SQLT_ODT:
-			return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-				ocidat_sqlnts;
+      /*date*/
+    case SQLT_DAT:
+    case SQLT_ODT:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocidat_sqlnts;
 
-			/*others*/
-			case SQLT_RDD:
-			case SQLT_NTY:
-			case SQLT_REF:
-			case SQLT_RID:
-			return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-				ocistr_sqlnts;
+      /*others*/
+    case SQLT_RDD:
+    case SQLT_NTY:
+    case SQLT_REF:
+    case SQLT_RID:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocistr_sqlnts;
 
-		}
-		return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-				ocistr_sqlnts;
-	}
+    }
+  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+    ocistr_sqlnts;
+}
 
 
-	/*
+/*
 	 * Setup Fetch Env
 	 *
 	 * This function populates the default and to_string function pointers in
@@ -1514,124 +1514,124 @@ SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
 	 * ar_T        ar           The AR descriptor to work on
 	 * ub2         ocitype      The Driver type of the data
 	 */
-	SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar)
-	{
+SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar)
+{
 		
-		switch(ir->data_type)
-		{
-			/*varchar*/
-			case SQLT_STR:
-			case SQLT_VST:
-			ir->data_type=SQLT_STR;
-			ir->data_size++;
-			ir->to_string=ocistr_sqlnts;
-			break;
-
-			/* fixed char */
-			/* TODO! :- fixed char, ATM this is translated to NTS */
-			case SQLT_CHR:
-			case SQLT_AFC:
-			case SQLT_VCS:
-			case SQLT_AVC:
-			case SQLT_LNG: /* TODO this needs implementing properly */
-			case SQLT_LVC: /* TODO this needs implementing properly */
-			ir->data_type=SQLT_STR;
-			ir->data_size++;
-			ir->to_string=ocistr_sqlnts;
-			break;
-
-			/* numbers*/
-			case SQLT_INT:
-			ir->data_type=SQLT_INT;
-			ir->data_size=sizeof(long);
-			ir->to_string=ociint_sqlslong;
-			break;
-			
-			case SQLT_FLT:
-			ir->data_type=SQLT_FLT;
-			ir->data_size=sizeof(double);
-			ir->to_string=ociflt_sqlnts;
-			break;
-			
-			/* VNU etc */
-			case SQLT_NUM:
-			case SQLT_VNU:
-			case SQLT_UIN:
-			ir->data_type=SQLT_VNU;
-			ir->data_size=1024;
-			ir->to_string=ocivnu_sqlnts;
-
-
-			break;
-
-			/* LONGs, LOBs and binaries*/
-			/* TODO everything! */
-			case SQLT_VBI:
-			case SQLT_BIN:
-			case SQLT_LBI:
-			case SQLT_LVB:
-			ir->data_type=SQLT_BIN;
-			ir->to_string=ocistr_sqlnts;
-			break;
-			
-        case SQLT_BLOB:
-        ir->data_type=SQLT_BLOB;
-        ir->data_size=0;
-        ir->to_string=ocilob_sqllvc;
-        break;
-
-		case SQLT_CLOB:
-        ir->data_type=SQLT_CLOB;
-        ir->data_size=0;
-        ir->to_string=ocilob_sqllvc;
-        break;
-
-        case SQLT_FILE:
-        ir->data_type=SQLT_FILE;
-        ir->data_size=0;
-        ir->to_string=ocistr_sqlnts;
-        break;
-
-        /*date*/
-        case SQLT_DAT:
-        case SQLT_ODT:
-        ir->data_type=SQLT_ODT;
-        ir->data_size=sizeof(OCIDate);
-        ir->to_string=ocidat_sqlnts;
-        break;
-
-        /*others*/
-        case SQLT_RDD:
-        case SQLT_NTY:
-        case SQLT_REF:
-        case SQLT_RID:
-        default:
-		ir->data_type=SQLT_STR;
-		ir->data_size=127; /* complete guess */
-        ir->to_string=ocistr_sqlnts;
-    }
-    if(!ar->data_type) /* not bound (yet) */
+  switch(ir->data_type)
     {
-        ar->data_type=ood_ocitype_to_sqltype(ir->data_type);
-	/*hack alert!! */
-	if(ar->precision==38 && ar->scale==0){
-	  ar->data_type=SQL_C_SLONG;
-	}
-	if(ar->precision==126 && ar->scale==0){
-	  ar->data_type=SQL_C_DOUBLE;
-	}
-	if(ar->precision==63 && ar->scale==0){
-	  ar->data_type=SQL_C_FLOAT;
-	}
-        ar->concise_type=ar->data_type;
-        ar->display_size=sqltype_display_size(ar->data_type,ir->data_size);
+      /*varchar*/
+    case SQLT_STR:
+    case SQLT_VST:
+      ir->data_type=SQLT_STR;
+      ir->data_size++;
+      ir->to_string=ocistr_sqlnts;
+      break;
+
+      /* fixed char */
+      /* TODO! :- fixed char, ATM this is translated to NTS */
+    case SQLT_CHR:
+    case SQLT_AFC:
+    case SQLT_VCS:
+    case SQLT_AVC:
+    case SQLT_LNG: /* TODO this needs implementing properly */
+    case SQLT_LVC: /* TODO this needs implementing properly */
+      ir->data_type=SQLT_STR;
+      ir->data_size++;
+      ir->to_string=ocistr_sqlnts;
+      break;
+
+      /* numbers*/
+    case SQLT_INT:
+      ir->data_type=SQLT_INT;
+      ir->data_size=sizeof(long);
+      ir->to_string=ociint_sqlslong;
+      break;
+			
+    case SQLT_FLT:
+      ir->data_type=SQLT_FLT;
+      ir->data_size=sizeof(double);
+      ir->to_string=ociflt_sqlnts;
+      break;
+			
+      /* VNU etc */
+    case SQLT_NUM:
+    case SQLT_VNU:
+    case SQLT_UIN:
+      ir->data_type=SQLT_VNU;
+      ir->data_size=1024;
+      ir->to_string=ocivnu_sqlnts;
+
+
+      break;
+
+      /* LONGs, LOBs and binaries*/
+      /* TODO everything! */
+    case SQLT_VBI:
+    case SQLT_BIN:
+    case SQLT_LBI:
+    case SQLT_LVB:
+      ir->data_type=SQLT_BIN;
+      ir->to_string=ocistr_sqlnts;
+      break;
+			
+    case SQLT_BLOB:
+      ir->data_type=SQLT_BLOB;
+      ir->data_size=0;
+      ir->to_string=ocilob_sqllvc;
+      break;
+
+    case SQLT_CLOB:
+      ir->data_type=SQLT_CLOB;
+      ir->data_size=0;
+      ir->to_string=ocilob_sqllvc;
+      break;
+
+    case SQLT_FILE:
+      ir->data_type=SQLT_FILE;
+      ir->data_size=0;
+      ir->to_string=ocistr_sqlnts;
+      break;
+
+      /*date*/
+    case SQLT_DAT:
+    case SQLT_ODT:
+      ir->data_type=SQLT_ODT;
+      ir->data_size=sizeof(OCIDate);
+      ir->to_string=ocidat_sqlnts;
+      break;
+
+      /*others*/
+    case SQLT_RDD:
+    case SQLT_NTY:
+    case SQLT_REF:
+    case SQLT_RID:
+    default:
+      ir->data_type=SQLT_STR;
+      ir->data_size=127; /* complete guess */
+      ir->to_string=ocistr_sqlnts;
     }
-    if(!ar->octet_length)
-        ar->octet_length=ar->length=ir->data_size;
+  if(!ar->data_type) /* not bound (yet) */
+    {
+      ar->data_type=ood_ocitype_to_sqltype(ir->data_type);
+      /*hack alert!! */
+      if(ar->precision==38 && ar->scale==0){
+	ar->data_type=SQL_C_SLONG;
+      }
+      if(ar->precision==126 && ar->scale==0){
+	ar->data_type=SQL_C_DOUBLE;
+      }
+      if(ar->precision==63 && ar->scale==0){
+	ar->data_type=SQL_C_FLOAT;
+      }
+      ar->concise_type=ar->data_type;
+      ar->display_size=sqltype_display_size(ar->data_type,ir->data_size);
+    }
+  if(!ar->octet_length)
+    ar->octet_length=ar->length=ir->data_size;
 
-    ir->default_copy=ood_fn_default_copy(ir->data_type,ar->data_type);
+  ir->default_copy=ood_fn_default_copy(ir->data_type,ar->data_type);
 
-    return ood_driver_define_col(ir);
+  return ood_driver_define_col(ir);
 }
 /*
  * ========================================================================= *
@@ -1644,50 +1644,50 @@ SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
  */
 
 SQLRETURN ocistr_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			SQLINTEGER* indi)
 {
-	int i;
-    SQLCHAR* src;
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  int i;
+  SQLCHAR* src;
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)ir->desc->stmt,0,"siihsh",
-			NULL,"ocistr_sqlnts",
-			"row",row,
-			"BufferLength",buflen,
-			"&ir->data_ptr",(long)ir->data_ptr,
-			"src",src,
-			"&Target",(long)target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
+		  (SQLHANDLE)ir->desc->stmt,0,"siihsh",
+		  NULL,"ocistr_sqlnts",
+		  "row",row,
+		  "BufferLength",buflen,
+		  "&ir->data_ptr",(long)ir->data_ptr,
+		  "src",src,
+		  "&Target",(long)target);
 #endif
-	i=strlen((const char*)src);
-    if(i<buflen)
-	{
-		strcpy((char*)target,(const char*)src);
-		if(indi)
-			indi[row]=i;
-	}
-	else
+  i=strlen((const char*)src);
+  if(i<buflen)
     {
-		for(i=0;i<buflen;i++)
-		{
-		    ((SQLCHAR*)target)[i]=src[i];
-		}
-		((SQLCHAR*)target)[i-1]='\0';
-        ood_post_diag((hgeneric*)ir->desc->stmt,ERROR_ORIGIN_01004,ir->col_num,"",
-                        ERROR_MESSAGE_01004,
+      strcpy((char*)target,(const char*)src);
+      if(indi)
+	indi[row]=i;
+    }
+  else
+    {
+      for(i=0;i<buflen;i++)
+	{
+	  ((SQLCHAR*)target)[i]=src[i];
+	}
+      ((SQLCHAR*)target)[i-1]='\0';
+      ood_post_diag((hgeneric*)ir->desc->stmt,ERROR_ORIGIN_01004,ir->col_num,"",
+		    ERROR_MESSAGE_01004,
                     __LINE__,0,"",ERROR_STATE_01004,
                     __FILE__,__LINE__);
-        if(indi)
-            indi[row]=buflen;
-        return SQL_SUCCESS_WITH_INFO;
+      if(indi)
+	indi[row]=buflen;
+      return SQL_SUCCESS_WITH_INFO;
     }
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)ir->desc->stmt,SQL_SUCCESS,"ss",
-			NULL,"ocistr_sqlnts",
-			"Target",target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ir->desc->stmt,SQL_SUCCESS,"ss",
+		  NULL,"ocistr_sqlnts",
+		  "Target",target);
 #endif
-    return SQL_SUCCESS;
+  return SQL_SUCCESS;
 }
 
 /*
@@ -1695,805 +1695,805 @@ SQLRETURN ocistr_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
  */
  
 SQLRETURN ocivnu_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			SQLINTEGER* indi)
 {
-/*    return ocistr_sqlnts(ir,target,buflen,indi);*/
-    sword ret;
-	ub4 len=64;
-	char txt[64];
-	/*
-	SQLCHAR *src;
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
-	*/
-	/*
-	 * For some reason, OCINumberToText seems to want >48 <64 chars to
-	 * play with
-	 *
-	 * In other news, the 8.0.5 version of the Oracle client doesn't have
-	 * the "text minimum" number conversion.
-	 */
+  /*    return ocistr_sqlnts(ir,target,buflen,indi);*/
+  sword ret;
+  ub4 len=64;
+  char txt[64];
+  /*
+    SQLCHAR *src;
+    src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  */
+  /*
+   * For some reason, OCINumberToText seems to want >48 <64 chars to
+   * play with
+   *
+   * In other news, the 8.0.5 version of the Oracle client doesn't have
+   * the "text minimum" number conversion.
+   */
 #ifdef LIBCLNTSH8
-    ret=OCINumberToText(ir->desc->dbc->oci_err,
-                (OCINumber*)src,(unsigned char*)"TM",
-                2,(unsigned char*)"",0,&len,(unsigned char*)txt);
+  ret=OCINumberToText(ir->desc->dbc->oci_err,
+		      (OCINumber*)src,(unsigned char*)"TM",
+		      2,(unsigned char*)"",0,&len,(unsigned char*)txt);
 #else
-    ret=OCINumberToText(ir->desc->dbc->oci_err,
-                (OCINumber*)ir->data_ptr,
-				(unsigned char*)"9999999999999999990.99999999999",
-                30,(unsigned char*)"",0,&len,(unsigned char*)txt);
+  ret=OCINumberToText(ir->desc->dbc->oci_err,
+		      (OCINumber*)ir->data_ptr,
+		      (unsigned char*)"9999999999999999990.99999999999",
+		      30,(unsigned char*)"",0,&len,(unsigned char*)txt);
 #endif
 #ifdef UNIX_DEBUG
-    errcheck(__FILE__,__LINE__,ret,ir->desc->dbc->oci_err);
+  errcheck(__FILE__,__LINE__,ret,ir->desc->dbc->oci_err);
 #endif
-	if(indi)
-	{
-		*indi=len;
-	}
-    if(ret)
+  if(indi)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      *indi=len;
     }
-    ood_bounded_strcpy(target,txt,buflen);
+  if(ret)
+    {
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
+    }
+  ood_bounded_strcpy(target,txt,buflen);
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)ir->desc->stmt,0,"sis",
-			NULL,"ocivnu_sqlnts",
-			"BufferLength",buflen,
-			"Target",target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ir->desc->stmt,0,"sis",
+		  NULL,"ocivnu_sqlnts",
+		  "BufferLength",buflen,
+		  "Target",target);
 #endif
-    return SQL_SUCCESS;
+  return SQL_SUCCESS;
 }
 /*
  *  gcivnu_sqlslong
  */
 SQLRETURN ocivnu_sqlslong(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			  SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-    sword ret;
+  SQLCHAR *src;
+  sword ret;
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)ir->desc->stmt,0,"si",
-			NULL,"ocivnu_sqlslong",
-			"BufferLength",buflen);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
+		  (SQLHANDLE)ir->desc->stmt,0,"si",
+		  NULL,"ocivnu_sqlslong",
+		  "BufferLength",buflen);
 #endif
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-	ret=OCINumberToInt(ir->desc->dbc->oci_err,
-            (OCINumber*)src,sizeof(long),OCI_NUMBER_SIGNED,
-            target);
-    if(ret)
+  ret=OCINumberToInt(ir->desc->dbc->oci_err,
+		     (OCINumber*)src,sizeof(long),OCI_NUMBER_SIGNED,
+		     target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=sizeof(long);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=sizeof(long);
+  return SQL_SUCCESS;
 }
 /*
  *  ocivnu_sqlulong
  */
 SQLRETURN ocivnu_sqlulong(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			  SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	sword ret;
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  SQLCHAR *src;
+  sword ret;
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    ret=OCINumberToInt(ir->desc->dbc->oci_err,
-            (OCINumber*)src,sizeof(long),OCI_NUMBER_UNSIGNED,
-            target);
-    if(ret)
+  ret=OCINumberToInt(ir->desc->dbc->oci_err,
+		     (OCINumber*)src,sizeof(long),OCI_NUMBER_UNSIGNED,
+		     target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=sizeof(long);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=sizeof(long);
+  return SQL_SUCCESS;
 }
 /*
  *  ocivnu_sqldouble
  */
 SQLRETURN ocivnu_sqldouble(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			   SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	sword ret;
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  SQLCHAR *src;
+  sword ret;
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    ret=OCINumberToReal(ir->desc->dbc->oci_err,
-            (OCINumber*)src,sizeof(double),
-            target);
-    if(ret)
+  ret=OCINumberToReal(ir->desc->dbc->oci_err,
+		      (OCINumber*)src,sizeof(double),
+		      target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=sizeof(double);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=sizeof(double);
+  return SQL_SUCCESS;
 }
 /*
  *  ocivnu_sqlfloat
  */
 SQLRETURN ocivnu_sqlfloat(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			  SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	sword ret;
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
-    ret=OCINumberToReal(ir->desc->dbc->oci_err,
-            (OCINumber*)src,sizeof(float),
-            target);
-    if(ret)
+  SQLCHAR *src;
+  sword ret;
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  ret=OCINumberToReal(ir->desc->dbc->oci_err,
+		      (OCINumber*)src,sizeof(float),
+		      target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=sizeof(float);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=sizeof(float);
+  return SQL_SUCCESS;
 }
 
 /*
  *  ocivnu_sqlsshort
  */
 SQLRETURN ocivnu_sqlsshort(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			   SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	sword ret;
+  SQLCHAR *src;
+  sword ret;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-	ret=OCINumberToInt(ir->desc->dbc->oci_err,
-            (OCINumber*)src,sizeof(short),OCI_NUMBER_SIGNED,
-            target);
-    if(ret)
+  ret=OCINumberToInt(ir->desc->dbc->oci_err,
+		     (OCINumber*)src,sizeof(short),OCI_NUMBER_SIGNED,
+		     target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=sizeof(short);
+  if(indi)
+    *indi=sizeof(short);
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)ir->desc->stmt,0,"sii",
-			NULL,"ocivnu_sqlshort",
-			"BufferLength",buflen,
-			"Target",target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ir->desc->stmt,0,"sii",
+		  NULL,"ocivnu_sqlshort",
+		  "BufferLength",buflen,
+		  "Target",target);
 #endif
-    return SQL_SUCCESS;
+  return SQL_SUCCESS;
 }
 /*
  *  ocivnu_sqlushort
  */
 SQLRETURN ocivnu_sqlushort(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			   SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	sword ret;
+  SQLCHAR *src;
+  sword ret;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    ret=OCINumberToInt(ir->desc->dbc->oci_err,
-            (OCINumber*)src,sizeof(unsigned short),OCI_NUMBER_UNSIGNED,
-            target);
-    if(ret)
+  ret=OCINumberToInt(ir->desc->dbc->oci_err,
+		     (OCINumber*)src,sizeof(unsigned short),OCI_NUMBER_UNSIGNED,
+		     target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=sizeof(unsigned short);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=sizeof(unsigned short);
+  return SQL_SUCCESS;
 }
 /*
  *  ocivnu_sqlsbigint
  */
 SQLRETURN ocivnu_sqlsbigint(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			    SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	sword ret;
+  SQLCHAR *src;
+  sword ret;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    ret=OCINumberToInt(ir->desc->dbc->oci_err,
-            (OCINumber*)src,sizeof(int64_t),OCI_NUMBER_SIGNED,
-            target);
-    if(ret)
+  ret=OCINumberToInt(ir->desc->dbc->oci_err,
+		     (OCINumber*)src,sizeof(int64_t),OCI_NUMBER_SIGNED,
+		     target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=sizeof(int64_t);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=sizeof(int64_t);
+  return SQL_SUCCESS;
 }
 /*
  *  ocivnu_sqlubigint
  */
 SQLRETURN ocivnu_sqlubigint(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			    SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	sword ret;
+  SQLCHAR *src;
+  sword ret;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
-    ret=OCINumberToInt(ir->desc->dbc->oci_err,
-            (OCINumber*)src,sizeof(int64_t),OCI_NUMBER_UNSIGNED,
-            target);
-    if(ret)
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  ret=OCINumberToInt(ir->desc->dbc->oci_err,
+		     (OCINumber*)src,sizeof(int64_t),OCI_NUMBER_UNSIGNED,
+		     target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=sizeof(int64_t);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=sizeof(int64_t);
+  return SQL_SUCCESS;
 }
 
 /*
  *  ocivnu_sqlutinyint
  */
 SQLRETURN ocivnu_sqlutinyint(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			     SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	sword ret;
+  SQLCHAR *src;
+  sword ret;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    ret=OCINumberToInt(ir->desc->dbc->oci_err,
-            (OCINumber*)src,sizeof(char),OCI_NUMBER_UNSIGNED,
-            target);
-    if(ret)
+  ret=OCINumberToInt(ir->desc->dbc->oci_err,
+		     (OCINumber*)src,sizeof(char),OCI_NUMBER_UNSIGNED,
+		     target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=sizeof(char);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=sizeof(char);
+  return SQL_SUCCESS;
 }
 
 /*
  *  ocivnu_sqlstinyint
  */
 SQLRETURN ocivnu_sqlstinyint(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			     SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	/*
-	SQLCHAR *src;
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
-	*/
-	sword ret;
+  /*
+    SQLCHAR *src;
+    src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  */
+  sword ret;
 
-    ret=OCINumberToInt(ir->desc->dbc->oci_err,
-            (OCINumber*)ir->data_ptr,sizeof(char),OCI_NUMBER_SIGNED,
-            target);
-    if(ret)
+  ret=OCINumberToInt(ir->desc->dbc->oci_err,
+		     (OCINumber*)ir->data_ptr,sizeof(char),OCI_NUMBER_SIGNED,
+		     target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=sizeof(char);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=sizeof(char);
+  return SQL_SUCCESS;
 }
 
 /*
  *  ocivnu_sqlnumeric
  */
 SQLRETURN ocivnu_sqlnumeric(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			    SQLINTEGER buflen, SQLINTEGER* indi)
 {
-    /* 
-     * There is no nice, clean easy way of doing this conversion.
-	 *
-	 * This way works but is not particularly fast. 
-	 * If anyone would like to write some assembler for their platform...
-	 * The spec for Oracle VARNUM can be found in 
-	 * http://technet.oracle.com/doc/server.815/a67846/datatype.htm
-     */
-	unsigned char *src;
-	SQL_NUMERIC_STRUCT *num=(SQL_NUMERIC_STRUCT*)target;
-    unsigned char *tval,*sval,*end_ptr;
-    register unsigned char posn,carry;
-    register unsigned char num_length;
+  /* 
+   * There is no nice, clean easy way of doing this conversion.
+   *
+   * This way works but is not particularly fast. 
+   * If anyone would like to write some assembler for their platform...
+   * The spec for Oracle VARNUM can be found in 
+   * http://technet.oracle.com/doc/server.815/a67846/datatype.htm
+   */
+  unsigned char *src;
+  SQL_NUMERIC_STRUCT *num=(SQL_NUMERIC_STRUCT*)target;
+  unsigned char *tval,*sval,*end_ptr;
+  register unsigned char posn,carry;
+  register unsigned char num_length;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    memset(num,0,sizeof(SQL_NUMERIC_STRUCT));
+  memset(num,0,sizeof(SQL_NUMERIC_STRUCT));
 
-    /* Byte 1 is the length... precision (roughly)*/
-    num_length=*((unsigned char*)src++);
-	/*printf("num_length [%d]\n",num_length);*/
-    if(num_length<=1)
+  /* Byte 1 is the length... precision (roughly)*/
+  num_length=*((unsigned char*)src++);
+  /*printf("num_length [%d]\n",num_length);*/
+  if(num_length<=1)
     {
-        num->scale=0;
-        num->sign=1;
-        num->precision=0;
-        return(SQL_SUCCESS);
-   }
-
-    /* Byte 2 bit 1 (high) is the sign, which is 1 for positive */
-    num->sign=(SQLSCHAR)(*((char*)src)&0x80)>>7;
-
-    /* The lower 7 bits of byte 2 are the exponent */
-    num->scale=(SQLSCHAR)*(char*)src&0x7F;
-    src++;
-    num->scale-=64;
-
-    /* Set the tval pointer to be the lowest order byte of the */ 
-    /* numeric */
-    tval=num->val;
-
-    sval=(unsigned char*)src;
-    if(num->sign)
-    {
-        num_length--;
-        num->precision=num_length*2;
-        end_ptr=((unsigned char*)src)+num_length;
-        while(sval<end_ptr)
-        { 
-            *sval=*sval-1;
-            sval++;
-        }
-        num->scale*=-1;
-    }
-    else
-    {
-        num_length-=2;
-        num->precision=num_length*2;
-        num->scale++;
-        end_ptr=((unsigned char*)src)+num_length;
-        while(sval<end_ptr)
-        { 
-            *sval=101-*sval;
-            sval++;
-        }
+      num->scale=0;
+      num->sign=1;
+      num->precision=0;
+      return(SQL_SUCCESS);
     }
 
-    /* Scale needs massaging */
-    num->scale+=(num_length);
-    num->scale*=2;
+  /* Byte 2 bit 1 (high) is the sign, which is 1 for positive */
+  num->sign=(SQLSCHAR)(*((char*)src)&0x80)>>7;
 
-    /* Time to spill the beans and own up to what's going on */
-    /* The way this conversion is done is to successively */
-    /* divide the Oracle number by two, taking note of the carry */
-    /* at the end of each division. For each successive division the */
-    /* value of the carry is power 2 of the previous... so we can mask */
-    /* these into to sql_numeric... fun eh? */
+  /* The lower 7 bits of byte 2 are the exponent */
+  num->scale=(SQLSCHAR)*(char*)src&0x7F;
+  src++;
+  num->scale-=64;
 
-    while(src<end_ptr)
+  /* Set the tval pointer to be the lowest order byte of the */ 
+  /* numeric */
+  tval=num->val;
+
+  sval=(unsigned char*)src;
+  if(num->sign)
     {
-        *tval=0;
-        for(posn=0;posn<8;posn++)
+      num_length--;
+      num->precision=num_length*2;
+      end_ptr=((unsigned char*)src)+num_length;
+      while(sval<end_ptr)
+        { 
+	  *sval=*sval-1;
+	  sval++;
+        }
+      num->scale*=-1;
+    }
+  else
+    {
+      num_length-=2;
+      num->precision=num_length*2;
+      num->scale++;
+      end_ptr=((unsigned char*)src)+num_length;
+      while(sval<end_ptr)
+        { 
+	  *sval=101-*sval;
+	  sval++;
+        }
+    }
+
+  /* Scale needs massaging */
+  num->scale+=(num_length);
+  num->scale*=2;
+
+  /* Time to spill the beans and own up to what's going on */
+  /* The way this conversion is done is to successively */
+  /* divide the Oracle number by two, taking note of the carry */
+  /* at the end of each division. For each successive division the */
+  /* value of the carry is power 2 of the previous... so we can mask */
+  /* these into to sql_numeric... fun eh? */
+
+  while(src<end_ptr)
+    {
+      *tval=0;
+      for(posn=0;posn<8;posn++)
         {
-            carry=0;
-            for(sval=src;end_ptr>sval;sval++)
+	  carry=0;
+	  for(sval=src;end_ptr>sval;sval++)
             { 
-                if(carry)
-                    (*sval)+=100;
-                carry=(*sval)&0x01;
-                (*sval)=(*sval)>>1;
+	      if(carry)
+		(*sval)+=100;
+	      carry=(*sval)&0x01;
+	      (*sval)=(*sval)>>1;
             }
-            if(end_ptr>src)
-			{
-                if(!*(unsigned char*)src)
-                    src++;
-			}
-            *tval|=(carry<<posn);
+	  if(end_ptr>src)
+	    {
+	      if(!*(unsigned char*)src)
+		src++;
+	    }
+	  *tval|=(carry<<posn);
         }
-        tval++;
+      tval++;
     }
-    return(SQL_SUCCESS);
+  return(SQL_SUCCESS);
 }
 
 /*
  *  ociint_sqlnts
  */
 SQLRETURN ociint_sqlnts(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
-    if(buflen<2)
+  SQLCHAR *src;
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  if(buflen<2)
     {
-        ood_post_diag((hgeneric*)ir->desc->stmt,ERROR_ORIGIN_22003,
-                ir->col_num,"", ERROR_MESSAGE_22003,
-              __LINE__,0,"",ERROR_STATE_22003, __FILE__,__LINE__);
-        return SQL_ERROR;
+      ood_post_diag((hgeneric*)ir->desc->stmt,ERROR_ORIGIN_22003,
+		    ir->col_num,"", ERROR_MESSAGE_22003,
+		    __LINE__,0,"",ERROR_STATE_22003, __FILE__,__LINE__);
+      return SQL_ERROR;
     }
-    sprintf( ((char*)target),"%d",*((int*)src));
-    if(indi)
-        *indi=strlen(target); /* XXX needs to be set properly */
+  sprintf( ((char*)target),"%d",*((int*)src));
+  if(indi)
+    *indi=strlen(target); /* XXX needs to be set properly */
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)ir->desc->stmt,0,"sii",
-			NULL,"ocivnu_sqlshort",
-			"BufferLength",buflen,
-			"Target",target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ir->desc->stmt,0,"sii",
+		  NULL,"ocivnu_sqlshort",
+		  "BufferLength",buflen,
+		  "Target",target);
 #endif
-    return SQL_SUCCESS;
+  return SQL_SUCCESS;
 }
 
 /*
  *  ociint_sqlslong
  */
 SQLRETURN ociint_sqlslong(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			  SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
+  SQLCHAR *src;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    *((long*)target)=*((int*)src);
-    if(indi)
-        *indi=sizeof(long);
-    return SQL_SUCCESS;
+  *((long*)target)=*((int*)src);
+  if(indi)
+    *indi=sizeof(long);
+  return SQL_SUCCESS;
 }
 /*
  *  ociint_sqlulong
  */
 SQLRETURN ociint_sqlulong(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			  SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
+  SQLCHAR *src;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    *((unsigned long*)target)=*((int*)src);
-    if(indi)
-        *indi=sizeof(unsigned long);
-    return SQL_SUCCESS;
+  *((unsigned long*)target)=*((int*)src);
+  if(indi)
+    *indi=sizeof(unsigned long);
+  return SQL_SUCCESS;
 }
 /*
  *  ociint_sqldouble
  */
 SQLRETURN ociint_sqldouble(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			   SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
+  SQLCHAR *src;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    *((double*)target)=*((int*)src);
-    if(indi)
-        *indi=sizeof(double);
-    return SQL_SUCCESS;
+  *((double*)target)=*((int*)src);
+  if(indi)
+    *indi=sizeof(double);
+  return SQL_SUCCESS;
 }
 /*
  *  ociint_sqlfloat
  */
 SQLRETURN ociint_sqlfloat(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			  SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
+  SQLCHAR *src;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    *((float*)target)=(float)*((int*)src);
-    if(indi)
-        *indi=sizeof(float);
-    return SQL_SUCCESS;
+  *((float*)target)=(float)*((int*)src);
+  if(indi)
+    *indi=sizeof(float);
+  return SQL_SUCCESS;
 }
 /*
  *  ociint_sqlsshort
  */
 SQLRETURN ociint_sqlsshort(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			   SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
+  SQLCHAR *src;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    *((short*)target)=*((int*)src);
-    if(indi)
-        *indi=sizeof(short);
-    return SQL_SUCCESS;
+  *((short*)target)=*((int*)src);
+  if(indi)
+    *indi=sizeof(short);
+  return SQL_SUCCESS;
 }
 /*
  *  ociint_sqlushort
  */
 SQLRETURN ociint_sqlushort(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			   SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  SQLCHAR *src;
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    *((unsigned short*)target)=*((int*)src);
-    if(indi)
-        *indi=sizeof(unsigned short);
+  *((unsigned short*)target)=*((int*)src);
+  if(indi)
+    *indi=sizeof(unsigned short);
 
-    return SQL_SUCCESS;
+  return SQL_SUCCESS;
 }
 /*
  *  ociint_sqlsbigint
  */
 SQLRETURN ociint_sqlsbigint(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			    SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
+  SQLCHAR *src;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    *((int64_t*)target)=*((int64_t*)src);
-    if(indi)
-        *indi=sizeof(int64_t);
-    return SQL_SUCCESS;
+  *((int64_t*)target)=*((int64_t*)src);
+  if(indi)
+    *indi=sizeof(int64_t);
+  return SQL_SUCCESS;
 }
 /*
  *  ociint_sqlubigint
  */
 SQLRETURN ociint_sqlubigint(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			    SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
+  SQLCHAR *src;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    *((u_int64_t*)target)=*((u_int64_t*)src);
-    if(indi)
-        *indi=sizeof(u_int64_t);
-    return SQL_SUCCESS;
+  *((u_int64_t*)target)=*((u_int64_t*)src);
+  if(indi)
+    *indi=sizeof(u_int64_t);
+  return SQL_SUCCESS;
 }
 /*
  *  ociint_sqlutinyint
  */
 SQLRETURN ociint_sqlutinyint(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			     SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
-    *((unsigned char*)target)=*((unsigned char*)src);
-    if(indi)
-        *indi=sizeof(unsigned char);
-    return SQL_SUCCESS;
+  SQLCHAR *src;
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  *((unsigned char*)target)=*((unsigned char*)src);
+  if(indi)
+    *indi=sizeof(unsigned char);
+  return SQL_SUCCESS;
 }
 /*
  *  ociint_sqlstinyint
  */
 SQLRETURN ociint_sqlstinyint(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			     SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
+  SQLCHAR *src;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    *((signed char*)target)=*((signed char*)src);
-    if(indi)
-        *indi=sizeof(signed char);
-    return SQL_SUCCESS;
+  *((signed char*)target)=*((signed char*)src);
+  if(indi)
+    *indi=sizeof(signed char);
+  return SQL_SUCCESS;
 }
 /*
  *  ociflt_sqlnts
  */
 SQLRETURN ociflt_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
-    sprintf(((char*)target),"%f",*((double*)src));
-    if(indi)
-        *indi=strlen(target);
-    return SQL_SUCCESS;
+  SQLCHAR *src;
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  sprintf(((char*)target),"%f",*((double*)src));
+  if(indi)
+    *indi=strlen(target);
+  return SQL_SUCCESS;
 }
 /*
  *  ociflt_sqldouble
  */
 SQLRETURN ociflt_sqldouble(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			   SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
+  SQLCHAR *src;
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    *((double*)target)=*((double*)src);
-    if(indi)
-        *indi=sizeof(double);
-    return SQL_SUCCESS;
+  *((double*)target)=*((double*)src);
+  if(indi)
+    *indi=sizeof(double);
+  return SQL_SUCCESS;
 }
 
 /*
  *  ociflt_sqlfloat
  */
 SQLRETURN ociflt_sqlfloat(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			  SQLINTEGER* indi)
 {
-    *((float**)target)[row]=(float)*((double**)ir->data_ptr)[row];
-    if(indi)
-        *indi=sizeof(float);
-    return SQL_SUCCESS;
+  *((float**)target)[row]=(float)*((double**)ir->data_ptr)[row];
+  if(indi)
+    *indi=sizeof(float);
+  return SQL_SUCCESS;
 }
 
 /*
  *  ociflt_sqlnumeric
  */
 SQLRETURN ociflt_sqlnumeric(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			    SQLINTEGER buflen, SQLINTEGER* indi)
 {
-    SQL_NUMERIC_STRUCT *num=(SQL_NUMERIC_STRUCT*)target;
-    int length, i;
-    double tmp,*val=(double*)ir->data_ptr+(ir->data_size*row);
+  SQL_NUMERIC_STRUCT *num=(SQL_NUMERIC_STRUCT*)target;
+  int length, i;
+  double tmp,*val=(double*)ir->data_ptr+(ir->data_size*row);
 	
-    num->precision=15;
-    num->scale=0;
-    if(*val<(double)0.0)
-	{
-		num->sign=0;
-        *val=-*val;
-	}
-	else
-	{
-		num->sign=1;
-	}
-    for(i=0;i<SQL_MAX_NUMERIC_LEN;num->val[i++]=0);
-    length=0;
-    while(*val>0.0)
+  num->precision=15;
+  num->scale=0;
+  if(*val<(double)0.0)
     {
-        tmp=fmod(*val,256.0);
-        modf(tmp,&tmp);
-        *val=*val/256.0;
-        modf(*val,val);
-        num->val[length++]=(SQLCHAR)tmp;
+      num->sign=0;
+      *val=-*val;
+    }
+  else
+    {
+      num->sign=1;
+    }
+  for(i=0;i<SQL_MAX_NUMERIC_LEN;num->val[i++]=0);
+  length=0;
+  while(*val>0.0)
+    {
+      tmp=fmod(*val,256.0);
+      modf(tmp,&tmp);
+      *val=*val/256.0;
+      modf(*val,val);
+      num->val[length++]=(SQLCHAR)tmp;
     }
 
-    if(indi)
-        *indi=sizeof(SQL_NUMERIC_STRUCT);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=sizeof(SQL_NUMERIC_STRUCT);
+  return SQL_SUCCESS;
 }
 
 /*
  *  ocidat_sqlnts
  */
 SQLRETURN ocidat_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-    sword ret;
-    ub4 buf_siz=(ub4)buflen;
+  SQLCHAR *src;
+  sword ret;
+  ub4 buf_siz=(ub4)buflen;
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)ir->desc->stmt,0,"sih",
-			NULL,"ocidat_sqlnts",
-			"BufferLength",buflen,
-			"&Target",(long)target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ir->desc->stmt,0,"sih",
+		  NULL,"ocidat_sqlnts",
+		  "BufferLength",buflen,
+		  "&Target",(long)target);
 #endif
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    ret=OCIDateToText(ir->desc->dbc->oci_err,((OCIDate*)src),
-            (unsigned char*)"YYYY-MM-DD HH24:MI:SS",
-			21,NULL,0,&buf_siz,target);
-    if(ret)
+  ret=OCIDateToText(ir->desc->dbc->oci_err,((OCIDate*)src),
+		    (unsigned char*)"YYYY-MM-DD HH24:MI:SS",
+		    21,NULL,0,&buf_siz,target);
+  if(ret)
     {
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        if(indi)
-            *indi=SQL_NULL_DATA;
-        return SQL_ERROR;
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      if(indi)
+	*indi=SQL_NULL_DATA;
+      return SQL_ERROR;
     }
-    if(indi)
-        *indi=strlen(target);
-    return SQL_SUCCESS;
+  if(indi)
+    *indi=strlen(target);
+  return SQL_SUCCESS;
 }
 
 /*
  *  ocidat_sqltimestamp
  */
 SQLRETURN ocidat_sqltimestamp(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			      SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-    /*typedef struct tagTIMESTAMP_STRUCT*/
-    /*{*/
-        /*SQLSMALLINT    year;*/
-        /*SQLUSMALLINT   month;*/
-        /*SQLUSMALLINT   day;*/
-        /*SQLUSMALLINT   hour;*/
-        /*SQLUSMALLINT   minute;*/
-        /*SQLUSMALLINT   second;*/
-        /*SQLUINTEGER    fraction;*/
-    /*} TIMESTAMP_STRUCT;*/
-    SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)target;
-	ub1 h,m,s;
+  SQLCHAR *src;
+  /*typedef struct tagTIMESTAMP_STRUCT*/
+  /*{*/
+  /*SQLSMALLINT    year;*/
+  /*SQLUSMALLINT   month;*/
+  /*SQLUSMALLINT   day;*/
+  /*SQLUSMALLINT   hour;*/
+  /*SQLUSMALLINT   minute;*/
+  /*SQLUSMALLINT   second;*/
+  /*SQLUINTEGER    fraction;*/
+  /*} TIMESTAMP_STRUCT;*/
+  SQL_TIMESTAMP_STRUCT *ts=(SQL_TIMESTAMP_STRUCT*)target;
+  ub1 h,m,s;
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)ir->desc->stmt,0,"sih",
-			NULL,"ocidat_sqltimestamp",
-			"BufferLength",buflen,
-			"&Target",(long)target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ir->desc->stmt,0,"sih",
+		  NULL,"ocidat_sqltimestamp",
+		  "BufferLength",buflen,
+		  "&Target",(long)target);
 #endif
 
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    OCIDateGetDate((OCIDate*)src,(sb2*)&ts->year,
-            (ub1*)&m,(ub1*)&s);
-	ts->month=(SQLUSMALLINT)m;
-	ts->day=(SQLUSMALLINT)s;
-    OCIDateGetTime((OCIDate*)ir->data_ptr,
-            (ub1*)&h,(ub1*)&m,(ub1*)&s);
-	ts->hour=(SQLUSMALLINT)h;
-	ts->minute=(SQLUSMALLINT)m;
-	ts->second=(SQLUSMALLINT)s;
+  OCIDateGetDate((OCIDate*)src,(sb2*)&ts->year,
+		 (ub1*)&m,(ub1*)&s);
+  ts->month=(SQLUSMALLINT)m;
+  ts->day=(SQLUSMALLINT)s;
+  OCIDateGetTime((OCIDate*)ir->data_ptr,
+		 (ub1*)&h,(ub1*)&m,(ub1*)&s);
+  ts->hour=(SQLUSMALLINT)h;
+  ts->minute=(SQLUSMALLINT)m;
+  ts->second=(SQLUSMALLINT)s;
 
-    ts->fraction=0;
-    if(indi)
-        *indi=sizeof(SQL_TIMESTAMP_STRUCT);
-    return SQL_SUCCESS;
+  ts->fraction=0;
+  if(indi)
+    *indi=sizeof(SQL_TIMESTAMP_STRUCT);
+  return SQL_SUCCESS;
 }
 
 /*
  *  ocidat_sqltime
  */
 SQLRETURN ocidat_sqltime(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			 SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
-    /*typedef struct tagTIME_STRUCT*/
-    /*{*/
-        /*SQLUSMALLINT   hour;*/
-        /*SQLUSMALLINT   minute;*/
-        /*SQLUSMALLINT   second;*/
-    /*} TIME_STRUCT;*/
-    SQL_TIME_STRUCT *ts=(SQL_TIME_STRUCT*)target;
-	ub1 h,m,s;
+  SQLCHAR *src;
+  /*typedef struct tagTIME_STRUCT*/
+  /*{*/
+  /*SQLUSMALLINT   hour;*/
+  /*SQLUSMALLINT   minute;*/
+  /*SQLUSMALLINT   second;*/
+  /*} TIME_STRUCT;*/
+  SQL_TIME_STRUCT *ts=(SQL_TIME_STRUCT*)target;
+  ub1 h,m,s;
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)ir->desc->stmt,0,"sih",
-			NULL,"ocidat_sqltime",
-			"BufferLength",buflen,
-			"&Target",(long)target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ir->desc->stmt,0,"sih",
+		  NULL,"ocidat_sqltime",
+		  "BufferLength",buflen,
+		  "&Target",(long)target);
 #endif
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    OCIDateGetTime((OCIDate*)src,
-            (ub1*)&h,(ub1*)&m,(ub1*)&s);
-	ts->hour=(SQLUSMALLINT)h;
-	ts->minute=(SQLUSMALLINT)m;
-	ts->second=(SQLUSMALLINT)s;
-    if(indi)
-        *indi=sizeof(SQL_TIME_STRUCT);
-    return SQL_SUCCESS;
+  OCIDateGetTime((OCIDate*)src,
+		 (ub1*)&h,(ub1*)&m,(ub1*)&s);
+  ts->hour=(SQLUSMALLINT)h;
+  ts->minute=(SQLUSMALLINT)m;
+  ts->second=(SQLUSMALLINT)s;
+  if(indi)
+    *indi=sizeof(SQL_TIME_STRUCT);
+  return SQL_SUCCESS;
 }
 
 /*
  *  ocidat_sqldate
  */
 SQLRETURN ocidat_sqldate(int row,ir_T* ir,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			 SQLINTEGER buflen, SQLINTEGER* indi)
 {
-/*	SQLCHAR *src; */
-    /*typedef struct tagDATE_STRUCT*/
-    /*{*/
-        /*SQLSMALLINT    year;*/
-        /*SQLUSMALLINT   month;*/
-        /*SQLUSMALLINT   day;*/
-    /*} DATE_STRUCT;*/
-    SQL_DATE_STRUCT *ts=(SQL_DATE_STRUCT*)target;
-	ub1 month;
-	ub1 day;
+  /*	SQLCHAR *src; */
+  /*typedef struct tagDATE_STRUCT*/
+  /*{*/
+  /*SQLSMALLINT    year;*/
+  /*SQLUSMALLINT   month;*/
+  /*SQLUSMALLINT   day;*/
+  /*} DATE_STRUCT;*/
+  SQL_DATE_STRUCT *ts=(SQL_DATE_STRUCT*)target;
+  ub1 month;
+  ub1 day;
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)ir->desc->stmt,0,"sih",
-			NULL,"ocidat_sqldate",
-			"BufferLength",buflen,
-			"&Target",(long)target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ir->desc->stmt,0,"sih",
+		  NULL,"ocidat_sqldate",
+		  "BufferLength",buflen,
+		  "&Target",(long)target);
 #endif
-	/*src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);*/
+  /*src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);*/
 
-    OCIDateGetDate((OCIDate*)ir->data_ptr,(sb2*)&ts->year,
-            (ub1*)&month,(ub1*)&day);
-	ts->month=(SQLUSMALLINT)month;
-	ts->day=(SQLUSMALLINT)day;
-    if(indi)
-        *indi=sizeof(SQL_DATE_STRUCT);
-    return SQL_SUCCESS;
+  OCIDateGetDate((OCIDate*)ir->data_ptr,(sb2*)&ts->year,
+		 (ub1*)&month,(ub1*)&day);
+  ts->month=(SQLUSMALLINT)month;
+  ts->day=(SQLUSMALLINT)day;
+  if(indi)
+    *indi=sizeof(SQL_DATE_STRUCT);
+  return SQL_SUCCESS;
 }
 /*
  * ocilob_sqllvc
@@ -2501,63 +2501,63 @@ SQLRETURN ocidat_sqldate(int row,ir_T* ir,SQLPOINTER target,
  * Converts a CLOB to a SQL_LONGVARCHAR (or anything it gets passed actually)
  */
 SQLRETURN ocilob_sqllvc(int row,ir_T* ir ,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	sword ret;
-	ub4 amtp;
+  sword ret;
+  ub4 amtp;
 
-	memset(target,'\0',buflen);
+  memset(target,'\0',buflen);
 	
-	OCILobGetLength(ir->desc->stmt->dbc->oci_svc,ir->desc->stmt->dbc->oci_err,
-			ir->locator[row],&ir->lobsiz);
+  OCILobGetLength(ir->desc->stmt->dbc->oci_svc,ir->desc->stmt->dbc->oci_err,
+		  ir->locator[row],&ir->lobsiz);
 
-	amtp=ir->lobsiz-ir->posn;
-	if(amtp>(unsigned)buflen)
-		amtp=(unsigned)buflen;
+  amtp=ir->lobsiz-ir->posn;
+  if(amtp>(unsigned)buflen)
+    amtp=(unsigned)buflen;
 
-	ret=OCILobRead(ir->desc->stmt->dbc->oci_svc,ir->desc->stmt->dbc->oci_err,
-			ir->locator[row],&amtp,ir->posn,target,
-			(ub4)ir->lobsiz,
-			NULL,NULL,0,
-			SQLCS_IMPLICIT);
-	if(ret==OCI_ERROR)
-	{
-        ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-        if(indi)
-            *indi=SQL_NULL_DATA;
-        return SQL_ERROR;
-	}
-	ir->posn+=amtp;
-	if(indi)
-		*indi=amtp;
+  ret=OCILobRead(ir->desc->stmt->dbc->oci_svc,ir->desc->stmt->dbc->oci_err,
+		 ir->locator[row],&amtp,ir->posn,target,
+		 (ub4)ir->lobsiz,
+		 NULL,NULL,0,
+		 SQLCS_IMPLICIT);
+  if(ret==OCI_ERROR)
+    {
+      ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+      if(indi)
+	*indi=SQL_NULL_DATA;
+      return SQL_ERROR;
+    }
+  ir->posn+=amtp;
+  if(indi)
+    *indi=amtp;
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)ir->desc->stmt,SQL_SUCCESS,"ss",
-			NULL,"ocilob_sqllvc",
-			"Target",target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		  (SQLHANDLE)ir->desc->stmt,SQL_SUCCESS,"ss",
+		  NULL,"ocilob_sqllvc",
+		  "Target",target);
 #endif
-	if(ret!=OCI_ERROR)
+  if(ret!=OCI_ERROR)
+    {
+      if(ir->posn<ir->lobsiz)
 	{
-	    if(ir->posn<ir->lobsiz)
-		{
-            ood_post_diag((hgeneric*)ir->desc->stmt,ERROR_ORIGIN_01004,0,"",
-					ERROR_MESSAGE_01004,
-                    __LINE__,0,"",ERROR_STATE_01004,
-                    __FILE__,__LINE__);
+	  ood_post_diag((hgeneric*)ir->desc->stmt,ERROR_ORIGIN_01004,0,"",
+			ERROR_MESSAGE_01004,
+			__LINE__,0,"",ERROR_STATE_01004,
+			__FILE__,__LINE__);
 
-			return SQL_SUCCESS_WITH_INFO;
-		}
-		else
-			return SQL_SUCCESS;
+	  return SQL_SUCCESS_WITH_INFO;
 	}
-	else
-		return SQL_ERROR;
+      else
+	return SQL_SUCCESS;
+    }
+  else
+    return SQL_ERROR;
 }
 
 SQLRETURN ocilob_sqllvb(int row,ir_T* ir ,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	return(ocilob_sqllvc(row,ir,target,buflen,indi));
+  return(ocilob_sqllvc(row,ir,target,buflen,indi));
 }
 /*
  * ocidty_sqlint
@@ -2565,51 +2565,51 @@ SQLRETURN ocilob_sqllvb(int row,ir_T* ir ,SQLPOINTER target,
  * Converts an oracle type string into a SQL data type... see SQLColumns.c
  */
 SQLRETURN ocidty_sqlint(int row,ir_T* ir ,SQLPOINTER target,
-		SQLINTEGER buflen, SQLINTEGER* indi)
+			SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *str;
+  SQLCHAR *str;
 #if defined(UNIX_DEBUG) && defined (ENABLE_TRACE)
-	ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)ir->desc->stmt,0,"sihsh",
-			NULL,"ocidty_sqlint",
-			"BufferLength",buflen,
-			"&ir->data_ptr",(long)ir->data_ptr,
-			"ir->data_ptr",ir->data_ptr,
-			"&Target",(long)target);
+  ood_log_message(ir->desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
+		  (SQLHANDLE)ir->desc->stmt,0,"sihsh",
+		  NULL,"ocidty_sqlint",
+		  "BufferLength",buflen,
+		  "&ir->data_ptr",(long)ir->data_ptr,
+		  "ir->data_ptr",ir->data_ptr,
+		  "&Target",(long)target);
 #endif
 
-	str=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+  str=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
 
-    if(!strncmp((char*)str,"VARCHAR2",8))
-	{
-        *((int*)target)=SQL_C_CHAR;
-	    return SQL_SUCCESS;
-	}
-    if(!strncmp((char*)str,"CHAR",4))
-	{
-        *((int*)target)=SQL_C_CHAR;
-        return SQL_SUCCESS;
-	}
-	if(!strncmp((char*)str,"CLOB",4)||!strncmp((char*)str,"LONG ",5))
-	{
-		*((int*)target)=SQL_LONGVARCHAR;
-		return SQL_SUCCESS;
-	}
-	if(!strncmp((char*)str,"NUMBER",6))
-	{
-        *((int*)target)=SQL_C_NUMERIC;
-        return SQL_SUCCESS;
-	}
-	if(!strncmp((char*)str,"DATE",4))
-	{
-        *((int*)target)=SQL_TYPE_TIMESTAMP;
-        return SQL_SUCCESS;
-	}
+  if(!strncmp((char*)str,"VARCHAR2",8))
+    {
+      *((int*)target)=SQL_C_CHAR;
+      return SQL_SUCCESS;
+    }
+  if(!strncmp((char*)str,"CHAR",4))
+    {
+      *((int*)target)=SQL_C_CHAR;
+      return SQL_SUCCESS;
+    }
+  if(!strncmp((char*)str,"CLOB",4)||!strncmp((char*)str,"LONG ",5))
+    {
+      *((int*)target)=SQL_LONGVARCHAR;
+      return SQL_SUCCESS;
+    }
+  if(!strncmp((char*)str,"NUMBER",6))
+    {
+      *((int*)target)=SQL_C_NUMERIC;
+      return SQL_SUCCESS;
+    }
+  if(!strncmp((char*)str,"DATE",4))
+    {
+      *((int*)target)=SQL_TYPE_TIMESTAMP;
+      return SQL_SUCCESS;
+    }
             
-    *((int*)target)=SQL_C_CHAR;
-    if(indi)
-        *indi=30; /* XXX needs to be set properly... */
-    return SQL_SUCCESS;
+  *((int*)target)=SQL_C_CHAR;
+  if(indi)
+    *indi=30; /* XXX needs to be set properly... */
+  return SQL_SUCCESS;
 }
 /*
  * ...and to string
@@ -2618,14 +2618,14 @@ SQLRETURN ocidty_sqlint(int row,ir_T* ir ,SQLPOINTER target,
  *  ocidty_sqlnts
  */
 SQLRETURN ocidty_sqlnts(int row,ir_T* ir ,SQLPOINTER target,SQLINTEGER buflen,
-        SQLINTEGER* indi)
+			SQLINTEGER* indi)
 {
-    int i;
-    ocidty_sqlint(row,ir,&i,sizeof(int),indi);
-    sprintf( ((char*)target)+(buflen*row),"%d",i);
-    if(indi)
-        *indi=30; /* XXX needs to be set properly... */
-    return SQL_SUCCESS;
+  int i;
+  ocidty_sqlint(row,ir,&i,sizeof(int),indi);
+  sprintf( ((char*)target)+(buflen*row),"%d",i);
+  if(indi)
+    *indi=30; /* XXX needs to be set properly... */
+  return SQL_SUCCESS;
 }
 
 sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
@@ -2660,7 +2660,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
       ip->data_type=SQLT_INT;
       ip->data_ptr=NULL; /* not malloc'd, we use APD directly */
       bind_ptr=ap->data_ptr;
-			break;
+      break;
     case SQL_INTEGER:
     case SQL_C_ULONG:
     case SQL_C_SLONG:
@@ -2849,10 +2849,10 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	    else
 	      {
 		ret=OCIDateFromText(
-		      stmt->dbc->oci_err,
-		      (text*)ip->data_ptr,10,
-		      (text*)"YYYY-MM-DD",10,
-		      (text*)"",0,(OCIDate*)ip->data_ptr);
+				    stmt->dbc->oci_err,
+				    (text*)ip->data_ptr,10,
+				    (text*)"YYYY-MM-DD",10,
+				    (text*)"",0,(OCIDate*)ip->data_ptr);
 		if(ret)
 		  {
 		    ood_driver_error(stmt,ret,__FILE__,__LINE__);
@@ -2891,10 +2891,10 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	    else
 	      {
 		ret=OCIDateFromText(
-			      stmt->dbc->oci_err,
-			      (text*)ip->data_ptr,8,
-			      (text*)"HH24:MI:SS",10,
-			      (text*)"",0,(OCIDate*)ip->data_ptr);
+				    stmt->dbc->oci_err,
+				    (text*)ip->data_ptr,8,
+				    (text*)"HH24:MI:SS",10,
+				    (text*)"",0,(OCIDate*)ip->data_ptr);
 		if(ret)
 		  {
 		    ood_driver_error(stmt,ret,__FILE__,__LINE__);
@@ -2921,10 +2921,10 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 		char *date_start=strchr(ap->data_ptr,'\'');
 		date_start++;
 		ret=OCIDateFromText(
-		       stmt->dbc->oci_err,
-		       (text*)date_start,19,
-		       (text*)"YYYY-MM-DD HH24:MI:SS",21,
-		       (text*)"",0,(OCIDate*)ip->data_ptr);
+				    stmt->dbc->oci_err,
+				    (text*)date_start,19,
+				    (text*)"YYYY-MM-DD HH24:MI:SS",21,
+				    (text*)"",0,(OCIDate*)ip->data_ptr);
 		if(ret)
 		  {
 		    ood_driver_error(stmt,ret,__FILE__,__LINE__);
@@ -2935,10 +2935,10 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	    else
 	      {
 		ret=OCIDateFromText(
-                           stmt->dbc->oci_err,
-			   (text*)ip->data_ptr,19,
-			   (text*)"YYYY-MM-DD HH24:MI:SS",21,
-			   (text*)"",0,(OCIDate*)ip->data_ptr);
+				    stmt->dbc->oci_err,
+				    (text*)ip->data_ptr,19,
+				    (text*)"YYYY-MM-DD HH24:MI:SS",21,
+				    (text*)"",0,(OCIDate*)ip->data_ptr);
 		if(ret)
 		  {
 		    ood_driver_error(stmt,ret,__FILE__,__LINE__);
@@ -2952,7 +2952,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	  break;
 	  
 	default:
-				/*case SQL_INTEGER:*/
+	  /*case SQL_INTEGER:*/
 	case SQL_DECIMAL:
 	case SQL_NUMERIC:
 	case SQL_SMALLINT:
@@ -3043,29 +3043,29 @@ char *
 oci_hdtype_name(ub4 hdtype)
 {
     
-    switch (hdtype) {
+  switch (hdtype) {
     /* Handles */
-    case OCI_HTYPE_ENV:                 return "OCI_HTYPE_ENV";
-    case OCI_HTYPE_ERROR:               return "OCI_HTYPE_ERROR";
-    case OCI_HTYPE_SVCCTX:              return "OCI_HTYPE_SVCCTX";
-    case OCI_HTYPE_STMT:                return "OCI_HTYPE_STMT";
-    case OCI_HTYPE_BIND:                return "OCI_HTYPE_BIND";
-    case OCI_HTYPE_DEFINE:              return "OCI_HTYPE_DEFINE";
-    case OCI_HTYPE_DESCRIBE:            return "OCI_HTYPE_DESCRIBE";
-    case OCI_HTYPE_SERVER:              return "OCI_HTYPE_SERVER";
-    case OCI_HTYPE_SESSION:             return "OCI_HTYPE_SESSION";
-    case OCI_HTYPE_TRANS:               return "OCI_HTYPE_TRANS";
-    case OCI_HTYPE_COMPLEXOBJECT:       return "OCI_HTYPE_COMPLEXOBJECT";
-    case OCI_HTYPE_SECURITY:            return "OCI_HTYPE_SECURITY";
+  case OCI_HTYPE_ENV:                 return "OCI_HTYPE_ENV";
+  case OCI_HTYPE_ERROR:               return "OCI_HTYPE_ERROR";
+  case OCI_HTYPE_SVCCTX:              return "OCI_HTYPE_SVCCTX";
+  case OCI_HTYPE_STMT:                return "OCI_HTYPE_STMT";
+  case OCI_HTYPE_BIND:                return "OCI_HTYPE_BIND";
+  case OCI_HTYPE_DEFINE:              return "OCI_HTYPE_DEFINE";
+  case OCI_HTYPE_DESCRIBE:            return "OCI_HTYPE_DESCRIBE";
+  case OCI_HTYPE_SERVER:              return "OCI_HTYPE_SERVER";
+  case OCI_HTYPE_SESSION:             return "OCI_HTYPE_SESSION";
+  case OCI_HTYPE_TRANS:               return "OCI_HTYPE_TRANS";
+  case OCI_HTYPE_COMPLEXOBJECT:       return "OCI_HTYPE_COMPLEXOBJECT";
+  case OCI_HTYPE_SECURITY:            return "OCI_HTYPE_SECURITY";
     
     /* Descriptors */
-    case OCI_DTYPE_LOB:			return "OCI_DTYPE_LOB";
-    case OCI_DTYPE_SNAP:		return "OCI_DTYPE_SNAP";
-    case OCI_DTYPE_RSET:		return "OCI_DTYPE_RSET";
-    case OCI_DTYPE_PARAM:		return "OCI_DTYPE_PARAM";
-    case OCI_DTYPE_ROWID:		return "OCI_DTYPE_ROWID";
-    case OCI_DTYPE_COMPLEXOBJECTCOMP:	return "OCI_DTYPE_COMPLEXOBJECTCOMP";
-    case OCI_DTYPE_FILE:		return "OCI_DTYPE_FILE";
-    }
-    return "UNKNOWN HD TYPE";
+  case OCI_DTYPE_LOB:			return "OCI_DTYPE_LOB";
+  case OCI_DTYPE_SNAP:		return "OCI_DTYPE_SNAP";
+  case OCI_DTYPE_RSET:		return "OCI_DTYPE_RSET";
+  case OCI_DTYPE_PARAM:		return "OCI_DTYPE_PARAM";
+  case OCI_DTYPE_ROWID:		return "OCI_DTYPE_ROWID";
+  case OCI_DTYPE_COMPLEXOBJECTCOMP:	return "OCI_DTYPE_COMPLEXOBJECTCOMP";
+  case OCI_DTYPE_FILE:		return "OCI_DTYPE_FILE";
+  }
+  return "UNKNOWN HD TYPE";
 }

@@ -19,11 +19,11 @@
  *
  *******************************************************************************
  *
- * $Id: common_functions.c,v 1.5 2002/08/13 22:41:46 dbox Exp $
+ * $Id: common_functions.c,v 1.6 2002/11/14 22:28:36 dbox Exp $
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.5 $";
+static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.6 $";
 
 /*
  * SQL type display size
@@ -600,7 +600,6 @@ sword ood_alt_fetch_no_data(hStmt_T* stmt)
 	return OCI_NO_DATA;
 }
 
-
 /*
  * _log_message
  *
@@ -611,6 +610,7 @@ static void _log_message_imp(char *tracefilename,char *file,int line,
 {
     FILE *tracefile=stderr;
     char *left; /*left hand side of each format pair */
+    return;
     /*
     if(NULL==(tracefile=fopen(tracefilename,"a")))
     {
@@ -743,7 +743,7 @@ static void _log_message_imp(char *tracefilename,char *file,int line,
 
               case 'U':            /* a unsigned short */
               {
-              unsigned short i = va_arg( ap, unsigned short );
+              unsigned short i = (unsigned short) va_arg( ap, short );
 
                 fprintf(tracefile, "%u\n", i );
                 break;
@@ -829,5 +829,4 @@ void ood_log_message(hDbc_T* dbc,char *file,int line, int mask, SQLHANDLE handle
     THREAD_MUTEX_UNLOCK(dbc);
     return;
 }
-
 

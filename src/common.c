@@ -1,9 +1,10 @@
 #include "common.h"
-
+/* $Id: common.c,v 1.3 2002/11/14 22:28:36 dbox Exp $*/
 #define IS_VALID(x) (x->valid_flag==VALID_FLAG_DEFAULT)
 SQLRETURN not_implemented()
 {
-  fprintf(stderr,"you have followed a pointer to an unimplemented function!\n");
+  fprintf(stderr,
+	  "you have followed a pointer to an unimplemented function!\n");
   return SQL_ERROR;
 }
 

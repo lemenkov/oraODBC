@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetConnectAttr.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLGetConnectAttr.c,v 1.4 2002/11/14 22:28:36 dbox Exp $
  *
  * $Log: SQLGetConnectAttr.c,v $
+ * Revision 1.4  2002/11/14 22:28:36  dbox
+ * %$@*&%$??!
+ *
  * Revision 1.3  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -69,7 +72,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetConnectAttr.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLGetConnectAttr.c,v $ $Revision: 1.4 $";
 SQLRETURN SQL_API SQLGetConnectAttr(
     SQLHDBC                ConnectionHandle,
     SQLINTEGER            Attribute,
@@ -138,7 +141,7 @@ if(ENABLE_TRACE){
                 ERROR_MESSAGE_IM001,
                 __LINE__,0,"",ERROR_STATE_IM001,
                 __FILE__,__LINE__);
-        status=SQL_ERROR;
+        status=SQL_SUCCESS_WITH_INFO;
     }
 if(ENABLE_TRACE){
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,

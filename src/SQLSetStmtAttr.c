@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSetStmtAttr.c,v 1.3 2002/08/13 22:41:46 dbox Exp $
+ * $Id: SQLSetStmtAttr.c,v 1.4 2002/11/14 22:28:36 dbox Exp $
  *
  * $Log: SQLSetStmtAttr.c,v $
+ * Revision 1.4  2002/11/14 22:28:36  dbox
+ * %$@*&%$??!
+ *
  * Revision 1.3  2002/08/13 22:41:46  dbox
  * fixed the array insert test
  *
@@ -72,7 +75,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetStmtAttr.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLSetStmtAttr.c,v $ $Revision: 1.4 $";
 
 
 SQLRETURN SQL_API SQLSetStmtAttr(
@@ -149,7 +152,7 @@ SQLRETURN SQL_API SQLSetStmtAttr(
 			  ERROR_MESSAGE_IM001,
 			  __LINE__,0,"",ERROR_STATE_IM001,
 			  "-"__FILE__,__LINE__);
-	    status=SQL_ERROR;
+	    status=SQL_SUCCESS_WITH_INFO;
 	  }
 	break;
 	
