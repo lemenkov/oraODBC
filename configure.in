@@ -104,7 +104,7 @@ fi
 
 orandir=""
 AC_MSG_CHECKING(for nzt.h)
-for d in $oraclehome/network/public $oraclehome/oci/include /usr/include /usr/local/include $oraclehome/public
+for d in $oraclehome/network/public $oraclehome/oci/include /usr/include /usr/local/include $oraclehome/public $oraclehome/rdbms/public
 do
 if test -f $d/nzt.h
 then
