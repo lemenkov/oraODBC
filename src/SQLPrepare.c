@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLPrepare.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLPrepare.c,v 1.4 2004/08/06 20:43:51 dbox Exp $
  *
  * $Log: SQLPrepare.c,v $
+ * Revision 1.4  2004/08/06 20:43:51  dbox
+ * change variable type from int to ub4
+ *
  * Revision 1.3  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -73,14 +76,14 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLPrepare.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLPrepare.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLPrepare(
     SQLHSTMT        StatementHandle,
     SQLCHAR            *StatementText,
     SQLINTEGER        TextLength )
 {
-  int i;
+  ub4 i;
     hStmt_T *stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status=SQL_SUCCESS;
 
