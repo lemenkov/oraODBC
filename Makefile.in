@@ -93,7 +93,7 @@ EXTRA_DIST = \
 
 SUBDIRS = src  test
 
-CLEANFILES = *.*~
+CLEANFILES = *.*~ core core.*
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h

@@ -66,7 +66,7 @@
 	  OciTp, (void*)th,oci_hdtype_name(ht),(void*)(ah),ul_t(s1),ul_t(a),(void*)eh,	\
 	  oci_status_name(stat)),stat : stat
 
-#define OCIBindByName_log_stat(sh,bp,eh,p1,pl,v,vs,dt,in,al,rc,mx,cu,md,stat)  \
+#define OCIBindByName_log_stat(sh,bp,eh,p1,pl,v,vs,dt,in,al,rc,mx,cu,md,stat)\
 	stat=OCIBindByName(sh,bp,eh,p1,pl,v,vs,dt,in,al,rc,mx,cu,md);	\
 	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,			\
 	  "%sBindByName(%p,%p,%p,\"%s\",%ld,%p,%ld,%u,%p,%p,%p,%lu,%p,%lu)=%s\n",\
@@ -218,11 +218,14 @@
 	  OciTp, (void*)sh,(void*)eh,s1,ul_t(sl),ul_t(l),ul_t(m),	\
 	  oci_status_name(stat)),stat : stat
 
-#define OCIServerDetach_log_stat(sh,eh,md,stat)                        \
-	stat=OCIServerDetach(sh,eh,md);					\
-	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,			\
-	  "%sServerDetach(%p,%p,%lu)=%s\n",				\
-	  OciTp, (void*)sh,(void*)eh,ul_t(md),				\
+
+
+
+#define OCIServerDetach_log_stat(sh,eh,md,stat)                  \
+	stat=OCIServerDetach(sh,eh,md);		    		\
+	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,	       	\
+	  "%sServerDetach(%p,%p,%lu)=%s\n",		       	\
+	  OciTp, (void*)sh,(void*)eh,ul_t(md),		       	\
 	  oci_status_name(stat)),stat : stat
 
 #define OCISessionBegin_log_stat(sh,eh,uh,cr,md,stat)                  \
@@ -268,4 +271,28 @@
 #define OCINumberToInt_log_stat OCINumberToInt
 #define OCINumberToText_log_stat OCINumberToText
 #define OCINumberToReal_log_stat OCINumberToReal
+
+#define OCIStmtGetPieceInfo_log_stat(sh, eh, hp, ht, io, it, id, p, stat) \
+        stat=OCIStmtGetPieceInfo(sh, eh, hp, ht, io, it, id, p); \
+	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,\
+	  "%sStmtGetPieceInfo(%p,%p,%p,%s,%s,%lu, %lu, %s )=%s\n",\
+          OciTp, (void*)sh,(void*)eh,(void*)hp,typep(ht),in_outp(io),it,\
+          id,piecep(p), oci_status_name(stat)),stat : stat
+
+
+
+#define OCIStmtSetPieceInfo_log_stat (s, t, e, b, l, p, i, r, stat ) \
+        stat=OCIStmtSetPieceInfo_log_stat (s, t, e, b, l, p, i, r ); \
+	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,\
+	  "%sStmtSetPieceInfo(%p,%s,%p,%p,%lu,%s, %p, %lu )=%s\n",\
+				    OciTp,(void*)s, typep(t), (void*)e, \
+				    b, l, piecep(p), i, r, \
+				    oci_status_name(stat)),stat : stat
+
+	
+char* typep(unsigned char ivar);
+char* in_outp(unsigned char  ivar);
+char* piecep(unsigned char  ivar);
+
+
 #endif /* OCI_TRACE_H */

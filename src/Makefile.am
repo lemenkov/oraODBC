@@ -88,6 +88,7 @@ liboraodbc_la_SOURCES = \
 	oracle_functions.c \
 	sqllex.l \
 	mem_functions.c \
-	common.c
+	common.c \
+	ocitrace.c
 
-CLEANFILES= .deps/*.P* *.lo
+CLEANFILES= .deps/*.P* *.lo core core.* *~

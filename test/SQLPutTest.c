@@ -4,6 +4,7 @@
 #include <sqlext.h>
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -15,7 +16,7 @@ SQLRETURN SendLongData(void)
 {
     // Declare The Local Memory Variables
    
-    SQLPOINTER  Value;
+    SQLPOINTER  Value ;
     SQLCHAR     Buffer[20]; 
     SQLCHAR     InputParam[] = "Special Instructions";
     size_t      DataSize = 0;
@@ -25,7 +26,7 @@ SQLRETURN SendLongData(void)
     // Start The Data-At-Execution Sequence By Calling 
     // SQLParamData()
     rc = SQLParamData(StmtHandle, (SQLPOINTER *) &Value);
-
+    printf("returned a value of  %s, goddammit\n",(const char*)Value);
     // Examine The Contents Of Value (Returned By SQLParamData())
     // To Determine Which Data-At-Execution Parameter Currently
     // Needs Data
@@ -123,9 +124,15 @@ int main()
   sprintf(SQLStmt,"drop table blob_test");
   rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
   
-  sprintf(SQLStmt,"create table blob_test (an_int integer primary key, ");
-  strcat(SQLStmt," a_blob text  ) ");
-  
+  sprintf(SQLStmt,"create table blob_test (an_int integer primary key,  a_blob");
+
+  if(strstr(dsn,"DSN=psql"))
+     strcat(SQLStmt," bytea  ) ");
+  else if(strstr(dsn,"DSN=mysql"))
+     strcat(SQLStmt," blob  ) ");
+  else
+     strcat(SQLStmt," long raw  ) ");
+
   rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
   
   //if(rc == SQL_SUCCESS)

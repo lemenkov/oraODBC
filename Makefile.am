@@ -3,4 +3,4 @@ EXTRA_DIST = \
 
 SUBDIRS= src  test
  
-CLEANFILES=*.*~
+CLEANFILES=*.*~ core core.*

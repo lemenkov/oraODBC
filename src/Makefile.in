@@ -179,10 +179,11 @@ liboraodbc_la_SOURCES = \
 	oracle_functions.c \
 	sqllex.l \
 	mem_functions.c \
-	common.c
+	common.c \
+	ocitrace.c
 
 
-CLEANFILES = .deps/*.P* *.lo
+CLEANFILES = .deps/*.P* *.lo core core.* *~
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -211,7 +212,7 @@ SQLSetDescRec.lo SQLSetEnvAttr.lo SQLSetPos.lo SQLSetStmtAttr.lo \
 SQLSpecialColumns.lo SQLStatistics.lo SQLTablePrivileges.lo \
 SQLTables.lo SQLExtendedFetch.lo diagnostics.lo string_functions.lo \
 common_functions.lo oracle_functions.lo sqllex.lo mem_functions.lo \
-common.lo
+common.lo ocitrace.lo
 LEX_OUTPUT_ROOT = @LEX_OUTPUT_ROOT@
 LEXLIB = @LEXLIB@
 CFLAGS = @CFLAGS@
@@ -248,8 +249,8 @@ DEP_FILES =  .deps/SQLAllocHandle.P .deps/SQLBindCol.P \
 .deps/SQLSetPos.P .deps/SQLSetStmtAttr.P .deps/SQLSpecialColumns.P \
 .deps/SQLStatistics.P .deps/SQLTablePrivileges.P .deps/SQLTables.P \
 .deps/common.P .deps/common_functions.P .deps/diagnostics.P \
-.deps/mem_functions.P .deps/oracle_functions.P .deps/sqllex.P \
-.deps/string_functions.P
+.deps/mem_functions.P .deps/ocitrace.P .deps/oracle_functions.P \
+.deps/sqllex.P .deps/string_functions.P
 SOURCES = $(liboraodbc_la_SOURCES)
 OBJECTS = $(liboraodbc_la_OBJECTS)
 

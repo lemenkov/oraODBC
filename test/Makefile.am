@@ -1,5 +1,5 @@
 
-# $Id: Makefile.am,v 1.17 2003/08/05 19:40:43 dbox Exp $
+# $Id: Makefile.am,v 1.18 2003/10/20 23:37:13 dbox Exp $
 check_PROGRAMS=\
 connect1 \
 connect2 \
@@ -33,6 +33,6 @@ TESTS = check_oracle_environment $(check_PROGRAMS)
 
 LDFLAGS =     -L${ODBCLDIR} -lodbc -L../src/.libs -loraodbc ../src/mem_functions.o ../src/common.o ../src/common_functions.o
 
-CLEANFILES=*.*~ .deps/*.P
+CLEANFILES=*.*~ .deps/*.P core core.*
 
 

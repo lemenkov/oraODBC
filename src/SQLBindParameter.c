@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLBindParameter.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLBindParameter.c,v 1.4 2003/10/20 23:37:13 dbox Exp $
  *
  * $Log: SQLBindParameter.c,v $
+ * Revision 1.4  2003/10/20 23:37:13  dbox
+ * various changes to handle blob i/o
+ *
  * Revision 1.3  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -63,7 +66,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBindParameter.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLBindParameter.c,v $ $Revision: 1.4 $";
 
 SQLRETURN _SQLBindParameter(
     SQLHSTMT            StatementHandle,
@@ -114,9 +117,12 @@ if(ENABLE_TRACE){
 				stmt->current_ap->recs.ap[ParameterNumber].data_type=ValueType;
             stmt->current_ap->recs.ap[ParameterNumber].bind_indicator=
 				StrLen_or_IndPtr;
-            stmt->current_ap->recs.ap[ParameterNumber].buffer_length=
-                stmt->current_ap->recs.ap[ParameterNumber].octet_length=
-				BufferLength;
+            stmt->current_ap->recs.ap[ParameterNumber].buffer_length=	BufferLength;
+	    if(ColumnSize >= BufferLength)
+	      stmt->current_ap->recs.ap[ParameterNumber].octet_length= ColumnSize;
+	    else
+	      stmt->current_ap->recs.ap[ParameterNumber].octet_length= BufferLength;
+	      
             stmt->current_ap->recs.ap[ParameterNumber].data_ptr=
 				ParameterValuePtr;
 			stmt->current_ap->recs.ap[ParameterNumber].bind_target_type=

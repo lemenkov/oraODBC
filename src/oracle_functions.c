@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.24 2003/02/11 21:37:55 dbox Exp $
+ * $Id: oracle_functions.c,v 1.25 2003/10/20 23:37:13 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.24 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.25 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -279,6 +279,9 @@ SQLRETURN ood_driver_error(void *hH, sword ret,char *file, int line)
       
     case OCI_SUCCESS:
       return SQL_SUCCESS;
+
+    case OCI_NEED_DATA:
+      return SQL_NEED_DATA;
       
     default:
       return 0;
@@ -507,7 +510,7 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
 	}
     }
   
-  ret=OCIAttrGet_log_stat(stmt->oci_stmt,
+  ret|=OCIAttrGet_log_stat(stmt->oci_stmt,
 			  OCI_HTYPE_STMT,
 			  (dvoid*)&stmt->stmt_type,
 			  NULL,
@@ -519,7 +522,7 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
     {
       if(stmt->row_array_size){
 	
-	ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc , 
+	ret|=OCIStmtExecute_log_stat(stmt->dbc->oci_svc , 
 				    stmt->oci_stmt , 
 				    stmt->dbc->oci_err , 
 				    stmt->row_array_size , 
@@ -527,7 +530,7 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
 	
 	
       }else{
-	ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc ,
+	ret|=OCIStmtExecute_log_stat(stmt->dbc->oci_svc ,
 				    stmt->oci_stmt ,
 				    stmt->dbc->oci_err ,
 				    0,0,0,0,OCI_DEFAULT,ret );
@@ -550,7 +553,7 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
 	ar_size=stmt->paramset_size;
 	mode=OCI_BATCH_ERRORS;
       }
-     ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc,
+     ret|=OCIStmtExecute_log_stat(stmt->dbc->oci_svc,
 				  stmt->oci_stmt,
 				  stmt->dbc->oci_err,
 				  ar_size
@@ -558,6 +561,9 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
 
 
     }
+   if(ret==OCI_NEED_DATA)
+        return SQL_NEED_DATA;
+	
   if(ret)
     {
       ood_driver_error(stmt,ret,__FILE__,__LINE__);
@@ -2698,6 +2704,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
   OCIBind *ocibind;
   ap_T* ap=&stmt->current_ap->recs.ap[parmnum];
   ip_T* ip=&stmt->current_ip->recs.ip[parmnum];
+  ub4 bind_mode=OCI_DEFAULT;
   void* bind_ptr;
   
   assert(IS_VALID(stmt));
@@ -3056,11 +3063,13 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
     printf("ood_driver_bind_param::OCIBindByPos parm=%d size=%d type=%d %s\n",
 	   parmnum,ip->data_size,ip->data_type,oci_var_type(ip->data_type));
   }
+  if(ap->octet_length>ap->buffer_length)
+    bind_mode=OCI_DATA_AT_EXEC;
   ret=OCIBindByPos(stmt->oci_stmt,&ocibind,stmt->dbc->oci_err,
 		   (ub4)parmnum,bind_ptr,
 		   ip->data_size , ip->data_type,
 		   /*&ap->bind_indicator*/ 0,
-		   0,0,0,0,OCI_DEFAULT);
+		   0,0,0,0,bind_mode);
   return(ret);
 }
 char *

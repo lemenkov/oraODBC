@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLPutData.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLPutData.c,v 1.4 2003/10/20 23:37:13 dbox Exp $
  *
  * $Log: SQLPutData.c,v $
+ * Revision 1.4  2003/10/20 23:37:13  dbox
+ * various changes to handle blob i/o
+ *
  * Revision 1.3  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -64,7 +67,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLPutData.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLPutData.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLPutData( 
     SQLHSTMT              StatementHandle,
@@ -73,19 +76,23 @@ SQLRETURN SQL_API SQLPutData(
 {
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status=SQL_SUCCESS;
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"s"
-			"SQLPutData","FIXME This function is not yet implemented");
-}
-    ood_clear_diag((hgeneric*)stmt);
-    ood_mutex_lock_stmt(stmt);
-
-    ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
+    status |= ood_driver_execute(stmt);
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
-    return SQL_SUCCESS;
+		    (SQLHANDLE)NULL,status,"");
+
+    /*
+      if(ENABLE_TRACE){
+      ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
+      (SQLHANDLE)stmt,0,"s"
+      "SQLPutData","FIXME This function is under development");
+      }
+      ood_clear_diag((hgeneric*)stmt);
+      ood_mutex_lock_stmt(stmt);
+      
+      ood_mutex_unlock_stmt(stmt);
+      if(ENABLE_TRACE){
+
+      fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
+      return SQL_SUCCESS;
+*/
 }
