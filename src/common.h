@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.8 2003/02/11 21:37:55 dbox Exp $
+ * $Id: common.h,v 1.9 2004/08/06 20:44:33 dbox Exp $
  *
  * $Log: common.h,v $
+ * Revision 1.9  2004/08/06 20:44:33  dbox
+ * move and change some variable types
+ *
  * Revision 1.8  2003/02/11 21:37:55  dbox
  * fixed a problem with array inserts, SQLSetStmtAttr and SQLGetStmtAttr
  * for parameters SQL_ATTR_PARAMSET_SIZE and SQL_ATTR_PARAM_BIND_TYPE
@@ -209,7 +212,6 @@ typedef uint64_t u_int64_t;
 #include <sqlext.h>
 
 struct hgeneric_TAG;
-static  int g_Debug_Oracle_ODBC;
 
 #define IS_VALID(x) (x !=NULL && x->valid_flag==VALID_FLAG_DEFAULT)
 #include "diagnostics.h"
@@ -369,7 +371,7 @@ struct ir_TAG
   ub2 data_type;
   ub2 orig_type;
   ub2 data_size;
-  int col_num;
+  ub4 col_num;
   SQLRETURN (*default_copy)();
   SQLRETURN (*to_string)();
   SQLRETURN (*to_oracle)();

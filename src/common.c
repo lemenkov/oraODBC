@@ -1,6 +1,11 @@
 #include "common.h"
-/* $Id: common.c,v 1.6 2003/02/11 21:37:55 dbox Exp $*/
+/* $Id: common.c,v 1.7 2004/08/06 20:44:33 dbox Exp $*/
+
 #define IS_VALID(x) (x->valid_flag==VALID_FLAG_DEFAULT)
+
+static  int g_Debug_Oracle_ODBC;
+
+
 SQLRETURN not_implemented()
 {
   fprintf(stderr,
