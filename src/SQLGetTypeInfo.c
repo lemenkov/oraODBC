@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetTypeInfo.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLGetTypeInfo.c,v 1.3 2004/08/06 20:43:23 dbox Exp $
  *
  * $Log: SQLGetTypeInfo.c,v $
+ * Revision 1.3  2004/08/06 20:43:23  dbox
+ * comment out line stmt->current_ir->num_recs=0;
+ *
  * Revision 1.2  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -78,7 +81,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetTypeInfo.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLGetTypeInfo.c,v $ $Revision: 1.3 $";
 
 /*
  * The information required for this isn't stored in Oracle, so
@@ -385,8 +388,10 @@ if(ENABLE_TRACE){
 }
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
-
-	stmt->current_ir->num_recs=0;
+    /*ghouston@intellecthr.com removed this line, I will leave it
+      commented out while I look at more code but check in change
+    stmt->current_ir->num_recs=0;
+    */
 	if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,19,stmt->current_ir,
 				stmt->current_ar))
     {
