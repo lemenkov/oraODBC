@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLExecDirect.c,v 1.5 2004/08/06 20:42:56 dbox Exp $
+ * $Id: SQLExecDirect.c,v 1.6 2004/08/27 19:40:40 dbox Exp $
  *
  * $Log: SQLExecDirect.c,v $
+ * Revision 1.6  2004/08/27 19:40:40  dbox
+ * change error handling
+ *
  * Revision 1.5  2004/08/06 20:42:56  dbox
  * changes to work more correctly with ood_lex_parse
  *
@@ -75,7 +78,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.5 $";
+static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.6 $";
 
 SQLRETURN SQL_API SQLExecDirect(
     SQLHSTMT        StatementHandle,
@@ -84,7 +87,6 @@ SQLRETURN SQL_API SQLExecDirect(
 {
     hStmt_T *stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status;
-    SQLRETURN t_stat;
     int param_no = 1; /* used in ood_lex_parse to assign oracle parameter
 			 names. value returned is one greater than the final
 			 parameter number. */
@@ -128,26 +130,44 @@ SQLRETURN SQL_API SQLExecDirect(
 			"Status Report",stmt->sql);
 #endif
 
-    status|=ood_driver_execute(stmt);
+    if (status == SQL_SUCCESS || status == SQL_SUCCESS_WITH_INFO)
+      {
+	SQLRETURN result = ood_driver_execute(stmt);
+
 #if defined(ENABLE_TRACE) && defined (UNIX_DEBUG)
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)stmt,status,"",
+	ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+			(SQLHANDLE)stmt,status,"",
 			"Status Report",stmt->sql);
 #endif
+	if (result != SQL_SUCCESS)
+	  status = result;
+      }
 
-    status|=ood_driver_execute_describe(stmt);
+    if (status == SQL_SUCCESS || status == SQL_SUCCESS_WITH_INFO)
+      {
+	SQLRETURN result = ood_driver_execute_describe(stmt);
 
-	if(stmt->stmt_type==OCI_STMT_SELECT){
-		t_stat=stmt->fetch_status=ood_driver_prefetch(stmt);
-		if(t_stat==SQL_ERROR)
-			status=t_stat;
-	}
+	if (result != SQL_SUCCESS)
+	  status = result;
+      }
+    if (stmt->stmt_type==OCI_STMT_SELECT
+	&& (status == SQL_SUCCESS || status == SQL_SUCCESS_WITH_INFO))
+      {
+	stmt->fetch_status=ood_driver_prefetch(stmt);
 
+	if (stmt->fetch_status != SQL_SUCCESS
+	    && stmt->fetch_status != SQL_SUCCESS_WITH_INFO
+	    && stmt->fetch_status != SQL_NO_DATA)
+	  {
+	    status = stmt->fetch_status;
+	  }
+      }
     ood_mutex_unlock_stmt(stmt);
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
+    if(ENABLE_TRACE)
+      {
+	ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+			(SQLHANDLE)NULL,status,"");
+      }
     return status;
 }
