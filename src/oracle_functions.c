@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.21 2003/02/03 22:44:33 dbox Exp $
+ * $Id: oracle_functions.c,v 1.22 2003/02/03 23:52:23 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.21 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.22 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -2608,6 +2608,26 @@ SQLRETURN ocidty_sqlint(int row,ir_T* ir ,SQLPOINTER target,
       *((int*)target)=SQL_VARCHAR;
       return SQL_SUCCESS;
     }
+
+  if(!strncmp((char*)str,"UNDEFINED",9))
+    {
+      *((int*)target)=SQL_UNKNOWN_TYPE;
+      return SQL_SUCCESS;
+    }
+  
+  if(!strncmp((char*)str,"ROWID",5))
+    {
+      *((int*)target)=SQL_UNKNOWN_TYPE;
+      return SQL_SUCCESS;
+    }
+  
+   if(!strncmp((char*)str,"BLOB",4)||!strncmp((char*)str,"LONG RAW",9))
+    {
+      *((int*)target)=SQL_LONGVARBINARY ;
+      return SQL_SUCCESS;
+    }
+   
+
   if(!strncmp((char*)str,"FLOAT",5))
     {
       *((int*)target)=SQL_REAL;
@@ -2618,7 +2638,7 @@ SQLRETURN ocidty_sqlint(int row,ir_T* ir ,SQLPOINTER target,
       *((int*)target)=SQL_CHAR;
       return SQL_SUCCESS;
     }
-  if(!strncmp((char*)str,"CLOB",4)||!strncmp((char*)str,"LONG ",5))
+  if(!strncmp((char*)str,"CLOB",4)||!strncmp((char*)str,"LONG",4))
     {
       *((int*)target)=SQL_LONGVARCHAR;
       return SQL_SUCCESS;
