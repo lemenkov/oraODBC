@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColAttribute.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLColAttribute.c,v 1.2 2002/02/23 00:23:12 dbox Exp $
  *
  * $Log: SQLColAttribute.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/02/23 00:23:12  dbox
+ * added some missing cases to the switch statement
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.15  2000/07/10 08:24:35  tom
  * tweaks for less tolerant compilers
@@ -77,7 +80,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: SQLColAttribute.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLColAttribute.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLColAttribute(
     SQLHSTMT            StatementHandle,
@@ -110,236 +113,259 @@ SQLRETURN SQL_API SQLColAttribute(
     {
         case SQL_DESC_AUTO_UNIQUE_VALUE:
             *((SQLINTEGER*)NumericAttributePtr)=ar->auto_unique;
+//#define UNIX_DEBUG
 #ifdef UNIX_DEBUG
 fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAttributePtr),__FILE__,__LINE__);
 #endif
-        break;
-        
-        case SQL_DESC_BASE_COLUMN_NAME:
-        case SQL_DESC_NAME:
-        case SQL_COLUMN_LABEL:
-		case SQL_COLUMN_NAME:
+ break;
+    
+    case SQL_DESC_LABEL:
+    case SQL_DESC_BASE_COLUMN_NAME:
+    case SQL_DESC_NAME:
+      //case SQL_COLUMN_LABEL: //this is same as SQL_DESC_LABEL
+    case SQL_COLUMN_NAME:
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_COLUMN_NAME %s %d\n",__FILE__,__LINE__);
+      fprintf(stderr,"SQL_COLUMN_NAME %s %d\n",__FILE__,__LINE__);
 #endif
-            if(!ood_bounded_strcpy(CharacterAttributePtr,
-                        (char*)ar->column_name,BufferLength))
-            {
-                ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_01004,ColumnNumber,"",
+      if(!ood_bounded_strcpy(CharacterAttributePtr,
+			     (char*)ar->column_name,BufferLength))
+	{
+	  ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_01004,ColumnNumber,"",
                         ERROR_MESSAGE_01004,
-                    __LINE__,0,"",ERROR_STATE_01004,
-                    __FILE__,__LINE__);
-                status=SQL_SUCCESS_WITH_INFO;
-                if(StringLengthPtr)
-                    *StringLengthPtr=BufferLength;
-            }
-            else
-                if(StringLengthPtr)
-                    *StringLengthPtr=strlen((const char*)ar->column_name);
+			__LINE__,0,"",ERROR_STATE_01004,
+			__FILE__,__LINE__);
+	  status=SQL_SUCCESS_WITH_INFO;
+	  if(StringLengthPtr)
+	    *StringLengthPtr=BufferLength;
+	}
+      else
+	if(StringLengthPtr)
+	  *StringLengthPtr=strlen((const char*)ar->column_name);
 #ifdef UNIX_DEBUG
-			fprintf(stderr,"%s %d %d name [%s]\n",
-                __FILE__,__LINE__,ColumnNumber,
-				((SQLCHAR*)CharacterAttributePtr));
+      fprintf(stderr,"%s %d %d name [%s]\n",
+	      __FILE__,__LINE__,ColumnNumber,
+	      ((SQLCHAR*)CharacterAttributePtr));
 #endif
-        break;
-            
-        case SQL_DESC_BASE_TABLE_NAME:
-#ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_BASE_TABLE_NAME %s %d\n",__FILE__,__LINE__);
-#endif
-            *((SQLCHAR*)CharacterAttributePtr)='\0';
-            if(StringLengthPtr)
-                *StringLengthPtr=0;
-        break;
+      break;
 
-        case SQL_DESC_CASE_SENSITIVE:
+    case SQL_DESC_TABLE_NAME:     
+    case SQL_DESC_BASE_TABLE_NAME:
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_CASE_SENSITIVE %s %d\n",__FILE__,__LINE__);
+      fprintf(stderr,"SQL_DESC_BASE_TABLE_NAME %s %d\n",__FILE__,__LINE__);
 #endif
-            *((SQLINTEGER*)NumericAttributePtr)=ar->case_sensitive;
-        break;
+      *((SQLCHAR*)CharacterAttributePtr)='\0';
+      if(StringLengthPtr)
+	*StringLengthPtr=0;
+      break;
+      
+    case SQL_DESC_CASE_SENSITIVE:
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"SQL_DESC_CASE_SENSITIVE %s %d\n",__FILE__,__LINE__);
+#endif
+      *((SQLINTEGER*)NumericAttributePtr)=ar->case_sensitive;
+      break;
+      
+    case SQL_DESC_CATALOG_NAME:
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"SQL_DESC_CATALOG_NAME %s %d\n",__FILE__,__LINE__);
+#endif
+      *((SQLCHAR*)CharacterAttributePtr)='\0';
+      if(StringLengthPtr)
+	*StringLengthPtr=0;
+      break;
+      
+    case SQL_DESC_CONCISE_TYPE:
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"SQL_DESC_CONCISE_TYPE %s %d\n",__FILE__,__LINE__);
+#endif
+      *((SQLINTEGER*)NumericAttributePtr)=ood_ocitype_to_sqltype(
+								 stmt->current_ir->recs.ir[ColumnNumber].orig_type);
+      break;
+      
+    case SQL_DESC_COUNT:
+    case SQL_COLUMN_COUNT:
+      *((SQLINTEGER*)NumericAttributePtr)=
+	(SQLINTEGER)stmt->current_ir->num_recs;
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"%s %d %d SQL_DESC_COUNT %d\n",
+	      __FILE__,__LINE__,ColumnNumber,
+	      *((SQLINTEGER*)NumericAttributePtr));
+#endif
+      break;
+      
+    case SQL_DESC_DISPLAY_SIZE:
+      *((SQLINTEGER*)NumericAttributePtr)=ar->display_size;
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"%s %d %d display size %d\n",
+	      __FILE__,__LINE__,ColumnNumber,
+	      *((SQLINTEGER*)NumericAttributePtr));
+#endif
+      break;
+      
+    case SQL_DESC_OCTET_LENGTH:
+    case SQL_DESC_LENGTH:
+    case SQL_COLUMN_LENGTH:
+      *((SQLINTEGER*)NumericAttributePtr)=ar->octet_length;
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"%s %d %d octet length %d\n",
+	      __FILE__,__LINE__,ColumnNumber,
+	      *((SQLINTEGER*)NumericAttributePtr));
+#endif
+      break;
+      
+    case SQL_DESC_FIXED_PREC_SCALE:
+      *((SQLINTEGER*)NumericAttributePtr)=ar->fixed_prec_scale;
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"SQL_DESC_FIXED_PREC_SCALE=%d %s %d\n",*((SQLINTEGER*)NumericAttributePtr),__FILE__,__LINE__);
+#endif
+      break;
+      
+    case SQL_DESC_LITERAL_PREFIX:
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"SQL_DESC_LITERAL_PREFIX %s %d\n",__FILE__,__LINE__);
+#endif
+      ood_bounded_strcpy(CharacterAttributePtr,
+			 (char*)ar->literal_prefix,BufferLength);
+      if(StringLengthPtr)
+	*StringLengthPtr=strlen((const char*)ar->literal_prefix);
+      break;
+      
+    case SQL_DESC_LITERAL_SUFFIX:
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"SQL_DESC_LITERAL_SUFFIX %s %d\n",__FILE__,__LINE__);
+#endif
+      ood_bounded_strcpy(CharacterAttributePtr,
+			 (char*)ar->literal_suffix,BufferLength);
+      if(StringLengthPtr)
+	*StringLengthPtr=strlen((const char*)ar->literal_suffix);
+      break;
+      
+    case SQL_DESC_LOCAL_TYPE_NAME:
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"SQL_DESC_LOCAL_TYPE_NAME %s %d\n",__FILE__,__LINE__);
+#endif
+      if(ar->local_type_name)
+	{
+	  ood_bounded_strcpy(CharacterAttributePtr,
+			     (char*)ar->local_type_name,BufferLength);
+	  if(StringLengthPtr)
+	    *StringLengthPtr=strlen((const char*)ar->local_type_name);
+	}
+      else
+	{
+	  strcpy(CharacterAttributePtr,"");
+	  if(StringLengthPtr)
+	    *StringLengthPtr=0;
+	}
+      break;
+      
+    case SQL_DESC_NULLABLE:
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"SQL_DESC_NULLABLE %s %d\n",__FILE__,__LINE__);
+#endif
+      *((SQLINTEGER*)NumericAttributePtr)=ar->nullable;
+      break;
+      
+    case SQL_DESC_NUM_PREC_RADIX:
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"SQL_DESC_NUM_PREC_RADIX %s %d\n",__FILE__,__LINE__);
+#endif
+      *((SQLINTEGER*)NumericAttributePtr)=ar->num_prec_radix;
+      break;
+      
+    case SQL_DESC_PRECISION:
+#ifdef UNIX_DEBUG
+      fprintf(stderr,"SQL_DESC_PRECISION %s %d\n",__FILE__,__LINE__);
+#endif
+      *((SQLINTEGER*)NumericAttributePtr)=ar->precision;
 
-        case SQL_DESC_CATALOG_NAME:
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_CATALOG_NAME %s %d\n",__FILE__,__LINE__);
+      fprintf(stderr,"SQL_DESC_PRECISION = %d\n",
+	      *((SQLINTEGER*)NumericAttributePtr));
 #endif
-            *((SQLCHAR*)CharacterAttributePtr)='\0';
-            if(StringLengthPtr)
-                *StringLengthPtr=0;
-        break;
 
-        case SQL_DESC_CONCISE_TYPE:
-#ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_CONCISE_TYPE %s %d\n",__FILE__,__LINE__);
-#endif
-            *((SQLINTEGER*)NumericAttributePtr)=ood_ocitype_to_sqltype(
-                    stmt->current_ir->recs.ir[ColumnNumber].orig_type);
-        break;
+      break;
 
-        case SQL_DESC_COUNT:
-		case SQL_COLUMN_COUNT:
-            *((SQLINTEGER*)NumericAttributePtr)=
-                (SQLINTEGER)stmt->current_ir->num_recs;
-#ifdef UNIX_DEBUG
-			fprintf(stderr,"%s %d %d SQL_DESC_COUNT %d\n",
-                __FILE__,__LINE__,ColumnNumber,
-				*((SQLINTEGER*)NumericAttributePtr));
-#endif
-        break;
-        
-        case SQL_DESC_DISPLAY_SIZE:
-            *((SQLINTEGER*)NumericAttributePtr)=ar->display_size;
-#ifdef UNIX_DEBUG
-			fprintf(stderr,"%s %d %d display size %d\n",
-                __FILE__,__LINE__,ColumnNumber,
-				*((SQLINTEGER*)NumericAttributePtr));
-#endif
-        break;
 
-        case SQL_DESC_OCTET_LENGTH:
-        case SQL_DESC_LENGTH:
-		case SQL_COLUMN_LENGTH:
-            *((SQLINTEGER*)NumericAttributePtr)=ar->octet_length;
+    case SQL_DESC_SCALE:
 #ifdef UNIX_DEBUG
-			fprintf(stderr,"%s %d %d octet length %d\n",
-                __FILE__,__LINE__,ColumnNumber,
-				*((SQLINTEGER*)NumericAttributePtr));
+      fprintf(stderr,"SQL_DESC_SCALE %s %d\n",__FILE__,__LINE__);
 #endif
-        break;
+      *((SQLINTEGER*)NumericAttributePtr)=ar->scale;
 
-		case SQL_DESC_FIXED_PREC_SCALE:
-			*((SQLINTEGER*)NumericAttributePtr)=ar->fixed_prec_scale;
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_FIXED_PREC_SCALE=%d %s %d\n",*((SQLINTEGER*)NumericAttributePtr),__FILE__,__LINE__);
+      fprintf(stderr,"SQL_DESC_SCALE = %d\n",
+	      *((SQLINTEGER*)NumericAttributePtr));
 #endif
-		break;
 
-		case SQL_DESC_LITERAL_PREFIX:
+      break;
+      
+    case SQL_DESC_SCHEMA_NAME:
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_LITERAL_PREFIX %s %d\n",__FILE__,__LINE__);
+      fprintf(stderr,"SQL_DESC_SCHEMA_NAME %s %d\n",__FILE__,__LINE__);
 #endif
-			ood_bounded_strcpy(CharacterAttributePtr,
-					(char*)ar->literal_prefix,BufferLength);
-			if(StringLengthPtr)
-				*StringLengthPtr=strlen((const char*)ar->literal_prefix);
-		break;
-
-		case SQL_DESC_LITERAL_SUFFIX:
+      ood_bounded_strcpy(CharacterAttributePtr,
+			 NULL,BufferLength);
+      if(StringLengthPtr)
+	*StringLengthPtr=0;
+      break;
+      
+    case SQL_DESC_SEARCHABLE:
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_LITERAL_SUFFIX %s %d\n",__FILE__,__LINE__);
+      fprintf(stderr,"SQL_DESC_SEARCHABLE %s %d\n",__FILE__,__LINE__);
 #endif
-			ood_bounded_strcpy(CharacterAttributePtr,
-					(char*)ar->literal_suffix,BufferLength);
-			if(StringLengthPtr)
-				*StringLengthPtr=strlen((const char*)ar->literal_suffix);
-		break;
-
-		case SQL_DESC_LOCAL_TYPE_NAME:
+      *((SQLINTEGER*)NumericAttributePtr)=ar->searchable;
+      break;
+      
+    case SQL_DESC_TYPE:
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_LOCAL_TYPE_NAME %s %d\n",__FILE__,__LINE__);
+      fprintf(stderr,"SQL_DESC_TYPE %s %d\n",__FILE__,__LINE__);
 #endif
-            if(ar->local_type_name)
-			{
-			    ood_bounded_strcpy(CharacterAttributePtr,
-					(char*)ar->local_type_name,BufferLength);
-			    if(StringLengthPtr)
-				    *StringLengthPtr=strlen((const char*)ar->local_type_name);
-			}
-			else
-			{
-				strcpy(CharacterAttributePtr,"");
-				if(StringLengthPtr)
-					*StringLengthPtr=0;
-			}
-		break;
-
-		case SQL_DESC_NULLABLE:
+      *((SQLINTEGER*)NumericAttributePtr)=ar->data_type;
+      break;
+      
+    case SQL_DESC_TYPE_NAME:
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_NULLABLE %s %d\n",__FILE__,__LINE__);
+      fprintf(stderr,"SQL_DESC_TYPE_NAME %s %d\n",__FILE__,__LINE__);
 #endif
-			*((SQLINTEGER*)NumericAttributePtr)=ar->nullable;
-		break;
-
-		case SQL_DESC_NUM_PREC_RADIX:
+      if(ar->type_name)
+	{
+	  ood_bounded_strcpy(CharacterAttributePtr,
+			     (char*)ar->type_name,BufferLength);
+	  if(StringLengthPtr)
+	    *StringLengthPtr=strlen((const char*)ar->type_name);
+	}
+      else
+	{
+	  strcpy(CharacterAttributePtr,"");
+	  if(StringLengthPtr)
+	    *StringLengthPtr=0;
+	}
+      break;
+      
+    case SQL_DESC_UNNAMED:
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_NUM_PREC_RADIX %s %d\n",__FILE__,__LINE__);
+      fprintf(stderr,"SQL_DESC_UNNAMED %s %d\n",__FILE__,__LINE__);
 #endif
-			*((SQLINTEGER*)NumericAttributePtr)=ar->num_prec_radix;
-		break;
-
-		case SQL_DESC_PRECISION:
+      *((SQLINTEGER*)NumericAttributePtr)=SQL_NAMED;
+      break;
+      
+    case SQL_DESC_UNSIGNED:
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_PRECISION %s %d\n",__FILE__,__LINE__);
+      fprintf(stderr,"SQL_DESC_UNSIGNED %s %d\n",__FILE__,__LINE__);
 #endif
-			*((SQLINTEGER*)NumericAttributePtr)=ar->precision;
-		break;
-
-		case SQL_DESC_SCHEMA_NAME:
+      *((SQLINTEGER*)NumericAttributePtr)=ar->un_signed;
+      break;
+      
+    case SQL_DESC_UPDATABLE:
+      *((SQLINTEGER*)NumericAttributePtr)=ar->updateable;
 #ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_SCHEMA_NAME %s %d\n",__FILE__,__LINE__);
+      fprintf(stderr,"SQL_DESC_UPDATABLE=%d %s %d\n",*((SQLINTEGER*)NumericAttributePtr),__FILE__,__LINE__);
 #endif
-			ood_bounded_strcpy(CharacterAttributePtr,
-					NULL,BufferLength);
-			if(StringLengthPtr)
-				*StringLengthPtr=0;
-		break;
-
-		case SQL_DESC_SEARCHABLE:
-#ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_SEARCHABLE %s %d\n",__FILE__,__LINE__);
-#endif
-			*((SQLINTEGER*)NumericAttributePtr)=ar->searchable;
-		break;
-
-		case SQL_DESC_TYPE:
-#ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_TYPE %s %d\n",__FILE__,__LINE__);
-#endif
-			*((SQLINTEGER*)NumericAttributePtr)=ar->data_type;
-		break;
-
-		case SQL_DESC_TYPE_NAME:
-#ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_TYPE_NAME %s %d\n",__FILE__,__LINE__);
-#endif
-            if(ar->type_name)
-			{
-			    ood_bounded_strcpy(CharacterAttributePtr,
-					(char*)ar->type_name,BufferLength);
-			    if(StringLengthPtr)
-				    *StringLengthPtr=strlen((const char*)ar->type_name);
-			}
-			else
-			{
-				strcpy(CharacterAttributePtr,"");
-				if(StringLengthPtr)
-					*StringLengthPtr=0;
-			}
-		break;
-
-		case SQL_DESC_UNNAMED:
-#ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_UNNAMED %s %d\n",__FILE__,__LINE__);
-#endif
-			*((SQLINTEGER*)NumericAttributePtr)=SQL_NAMED;
-		break;
-
-		case SQL_DESC_UNSIGNED:
-#ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_UNSIGNED %s %d\n",__FILE__,__LINE__);
-#endif
-			*((SQLINTEGER*)NumericAttributePtr)=ar->un_signed;
-		break;
-
-		case SQL_DESC_UPDATABLE:
-			*((SQLINTEGER*)NumericAttributePtr)=ar->updateable;
-#ifdef UNIX_DEBUG
-fprintf(stderr,"SQL_DESC_UPDATABLE=%d %s %d\n",*((SQLINTEGER*)NumericAttributePtr),__FILE__,__LINE__);
-#endif
-		break;
-
-		default:
-		status=SQL_ERROR;
+      break;
+      
+    default:
+      status=SQL_ERROR;
     }
     ood_mutex_unlock_stmt(stmt);
 #if defined(UNIX_DEBUG) && defined (FRED)
@@ -365,6 +391,7 @@ fprintf(stderr,"SQL_DESC_UPDATABLE=%d %s %d\n",*((SQLINTEGER*)NumericAttributePt
 			"FieldIdentifier",FieldIdentifier,
 			"ColumnNnumber",ColumnNumber,
 			"*NumericAttributePtr",*(SQLINTEGER*)NumericAttributePtr);
+//#undef  UNIX_DEBUG
 #endif
     return status;
 }
