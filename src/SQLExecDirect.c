@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLExecDirect.c,v 1.4 2004/05/05 18:08:39 dbox Exp $
+ * $Id: SQLExecDirect.c,v 1.5 2004/08/06 20:42:56 dbox Exp $
  *
  * $Log: SQLExecDirect.c,v $
+ * Revision 1.5  2004/08/06 20:42:56  dbox
+ * changes to work more correctly with ood_lex_parse
+ *
  * Revision 1.4  2004/05/05 18:08:39  dbox
  * change return status of where 1=0 from SQL_NO_DATA to SQL_SUCCESS. The NO_DATA return value leads to table not found errors in Dbi.  The correct thing is to find the problem in Dbi, but minos needs this to work now so consider this a band-aid
  *
@@ -72,7 +75,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.5 $";
 
 SQLRETURN SQL_API SQLExecDirect(
     SQLHSTMT        StatementHandle,
@@ -82,25 +85,42 @@ SQLRETURN SQL_API SQLExecDirect(
     hStmt_T *stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status;
     SQLRETURN t_stat;
+    int param_no = 1; /* used in ood_lex_parse to assign oracle parameter
+			 names. value returned is one greater than the final
+			 parameter number. */
 
     if(!stmt||HANDLE_TYPE(stmt)!=SQL_HANDLE_STMT)
         return SQL_INVALID_HANDLE;
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"si",
-			"SQL",StatementText,
-			"Length",TextLength);
-}
+    if(ENABLE_TRACE){
+      ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
+		      (SQLHANDLE)stmt,0,"si",
+		      "SQL",StatementText,
+		      "Length",TextLength);
+    }
 
     ood_clear_diag((hgeneric*)stmt);
 
-	stmt->sql=ood_lex_parse((char*)StatementText,
-			TextLength,(int*)&stmt->current_ap->num_recs);
+    /* This replaces the '?' parameter placeholders with OCI-style
+       :Pn, where n is the parameter number and Pn becomes the oracle
+       parmeter name.  */
+    stmt->sql=ood_lex_parse((char*)StatementText,
+			    TextLength,&param_no);
+    if (param_no - 1 > stmt->current_ap->num_recs)
+      {
+	/* this check is inadequate, since maybe not all the allocated
+	   parameters in current_ap are bound.  */
+	ood_post_diag((hgeneric*)stmt->dbc,ERROR_ORIGIN_07002,0,"",
+		      ERROR_MESSAGE_07002,
+		      __LINE__,0,"",ERROR_STATE_07002,
+		      __FILE__,__LINE__);
+	return SQL_ERROR;
+      }
 
     ood_mutex_lock_stmt(stmt);
 
     status=ood_driver_prepare(stmt,(unsigned char*)stmt->sql);
+
 
 #if defined(ENABLE_TRACE) && defined (UNIX_DEBUG)
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
