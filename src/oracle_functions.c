@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.26 2003/12/16 01:22:06 dbox Exp $
+ * $Id: oracle_functions.c,v 1.27 2004/06/11 20:10:43 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.26 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.27 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -1292,6 +1292,7 @@ SQLRETURN (*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
 	    ociint_sqlfloat;
 
 	case SQL_C_SSHORT:
+	case SQL_SMALLINT:
 	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
 	    ociint_sqlsshort;
 

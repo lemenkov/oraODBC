@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColumns.c,v 1.5 2003/02/10 15:43:54 dbox Exp $
+ * $Id: SQLColumns.c,v 1.6 2004/06/11 20:10:43 dbox Exp $
  *
  * $Log: SQLColumns.c,v $
+ * Revision 1.6  2004/06/11 20:10:43  dbox
+ * fix to SQLColumns and friends
+ *
  * Revision 1.5  2003/02/10 15:43:54  dbox
  * added unit test for SQLColumns, uppercased parameters to calls
  * to catalog functions
@@ -100,7 +103,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.5 $";
+static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.6 $";
 
 /*
  * Due to the fact that Oracle returns the data type as a varchar and
@@ -448,7 +451,7 @@ if(ENABLE_TRACE){
      * Col 5 is data type, SQL_SMALLINT
      */
     status|=ood_assign_ir(ir,SQLT_STR,31,0,
-            ociint_sqlslong,ociint_sqlnts);
+            ociint_sqlsshort,ociint_sqlnts);
     ar->data_type=ar->concise_type=SQL_C_LONG;
     ar->display_size=14;
     ar->octet_length=ar->length=sizeof(int);
@@ -512,7 +515,7 @@ if(ENABLE_TRACE){
      * Col 9 is DECIMAL_DIGITS, integer
      */
     status|=ood_assign_ir(ir,SQLT_VNU,22,0,
-            ocivnu_sqlslong,ocivnu_sqlnts);
+            ocivnu_sqlsshort,ocivnu_sqlnts);
     ar->data_type=ar->concise_type=SQL_C_LONG;
     ar->display_size=14;
     ar->octet_length=ar->length=sizeof(SQLINTEGER);
@@ -526,7 +529,7 @@ if(ENABLE_TRACE){
      * Col 10 is NUM_PREC_RADIX
      */
     status|=ood_assign_ir(ir,SQLT_INT,sizeof(int),0,
-            ociint_sqlslong,ociint_sqlnts);
+            ociint_sqlsshort,ociint_sqlnts);
     ar->data_type=ar->concise_type=SQL_C_LONG;
     ar->display_size=14;
     ar->octet_length=ar->length=sizeof(int);
@@ -584,7 +587,7 @@ if(ENABLE_TRACE){
      * Col 14 is SQL_DATA_TYPE, it's the same as col 5
      */
     status|=ood_assign_ir(ir,SQLT_STR,31,0,
-            ociint_sqlslong,ociint_sqlnts);
+            ociint_sqlsshort,ociint_sqlnts);
     ar->data_type=ar->concise_type=SQL_C_LONG;
     ar->display_size=14;
     ar->octet_length=ar->length=sizeof(int);
