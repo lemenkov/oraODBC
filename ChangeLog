@@ -7,6 +7,9 @@ http://home.fnal.gov/~dbox/oracle/odbc/devlog.html
 
 begin dbox@fnal.gov (and contributers)  changes:
 
+2004/8/2
+     Unit tests modified to exercise SQLCancel, SQLColumns, SQLGetStmtAttr,
+     SQLParamData, SQLPutData
 
 2004/6/11 Changes contributed by Steven Reynolds , sreynolds@bradmark.com
 

@@ -4,7 +4,9 @@ SQLAllocHandle
 SQLAllocStmt
 SQLBindCol
 SQLBindParameter
+SQLCancel
 SQLColAttribute
+SQLColumns
 SQLConnect
 SQLDescribeCol
 SQLDescribeParam
@@ -17,10 +19,12 @@ SQLFetch
 SQLFreeHandle
 SQLGetData
 SQLGetInfo
+SQLGetStmtAttr
 SQLNumParams
 SQLNumResultCols
-SQLParamOptions
+SQLParamData
 SQLPrepare
+SQLPutData
 SQLSetEnvAttr
 SQLSetStmtAttr
 
