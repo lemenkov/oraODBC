@@ -87,7 +87,7 @@ PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 
-check_PROGRAMS =  connect1 connect2 insert1 insert2 direct_exec1 read1 read2 malloctest 
+check_PROGRAMS =  connect1 connect2 insert1 insert2 direct_exec1 read1 read2 malloctest insert3 direct_exec2 read3
 
 
 INCLUDES = -I${ODBCIDIR} -I../src
@@ -143,6 +143,21 @@ malloctest_OBJECTS =  malloctest.o
 malloctest_LDADD = $(LDADD)
 malloctest_DEPENDENCIES = 
 malloctest_LDFLAGS = 
+insert3_SOURCES = insert3.c
+insert3_OBJECTS =  insert3.o
+insert3_LDADD = $(LDADD)
+insert3_DEPENDENCIES = 
+insert3_LDFLAGS = 
+direct_exec2_SOURCES = direct_exec2.c
+direct_exec2_OBJECTS =  direct_exec2.o
+direct_exec2_LDADD = $(LDADD)
+direct_exec2_DEPENDENCIES = 
+direct_exec2_LDFLAGS = 
+read3_SOURCES = read3.c
+read3_OBJECTS =  read3.o
+read3_LDADD = $(LDADD)
+read3_DEPENDENCIES = 
+read3_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -156,10 +171,10 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = gtar
 GZIP_ENV = --best
 DEP_FILES =  .deps/connect1.P .deps/connect2.P .deps/direct_exec1.P \
-.deps/insert1.P .deps/insert2.P .deps/malloctest.P .deps/read1.P \
-.deps/read2.P
-SOURCES = connect1.c connect2.c insert1.c insert2.c direct_exec1.c read1.c read2.c malloctest.c
-OBJECTS = connect1.o connect2.o insert1.o insert2.o direct_exec1.o read1.o read2.o malloctest.o
+.deps/direct_exec2.P .deps/insert1.P .deps/insert2.P .deps/insert3.P \
+.deps/malloctest.P .deps/read1.P .deps/read2.P .deps/read3.P
+SOURCES = connect1.c connect2.c insert1.c insert2.c direct_exec1.c read1.c read2.c malloctest.c insert3.c direct_exec2.c read3.c
+OBJECTS = connect1.o connect2.o insert1.o insert2.o direct_exec1.o read1.o read2.o malloctest.o insert3.o direct_exec2.o read3.o
 
 all: all-redirect
 .SUFFIXES:
@@ -244,6 +259,18 @@ read2: $(read2_OBJECTS) $(read2_DEPENDENCIES)
 malloctest: $(malloctest_OBJECTS) $(malloctest_DEPENDENCIES)
 	@rm -f malloctest
 	$(LINK) $(malloctest_LDFLAGS) $(malloctest_OBJECTS) $(malloctest_LDADD) $(LIBS)
+
+insert3: $(insert3_OBJECTS) $(insert3_DEPENDENCIES)
+	@rm -f insert3
+	$(LINK) $(insert3_LDFLAGS) $(insert3_OBJECTS) $(insert3_LDADD) $(LIBS)
+
+direct_exec2: $(direct_exec2_OBJECTS) $(direct_exec2_DEPENDENCIES)
+	@rm -f direct_exec2
+	$(LINK) $(direct_exec2_LDFLAGS) $(direct_exec2_OBJECTS) $(direct_exec2_LDADD) $(LIBS)
+
+read3: $(read3_OBJECTS) $(read3_DEPENDENCIES)
+	@rm -f read3
+	$(LINK) $(read3_LDFLAGS) $(read3_OBJECTS) $(read3_LDADD) $(LIBS)
 
 tags: TAGS
 

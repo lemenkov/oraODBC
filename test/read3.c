@@ -7,6 +7,7 @@
 /*              SQLConnect()                                       */      
 /*              SQLDisconnect()                                    */
 /*              SQLExecDirect()                                    */
+/*              SQLGetData()                                       */
 /*              SQLFreeHandle()                                    */
 /*              SQLNumResultCols()                                 */
 /*              SQLNumDescribeCol()                                */
@@ -51,6 +52,7 @@ int main()
     SQLSMALLINT scale;
     SQLSMALLINT can_null;
 
+    
 
     
     if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_LEN)
@@ -90,7 +92,8 @@ int main()
     assert(rc == SQL_SUCCESS);
 
  
-    sprintf(SQLStmt,"select an_int, a_float, a_string from some_types");
+    sprintf(SQLStmt,"select anInteger,anInt,aSmallInt,aDecimal83,\
+                     aNumeric94,aFloat,aFloat9,aReal from some_numeric_types");
   
     VERBOSE("executing %s\n",SQLStmt);
   
@@ -99,7 +102,7 @@ int main()
 
     rc = SQLNumResultCols(StmtHandle,&num_cols);
     assert(rc==SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
-    assert(num_cols==3);
+    assert(num_cols==8);
 
 
     for(col=1; col<=num_cols; col++)
@@ -109,45 +112,54 @@ int main()
 
 	assert(rc==SQL_SUCCESS);
 
-	
 	VERBOSE("col=%d name:%s len=%d type=%d size=%d scale=%d nullable=%d\n"
 		,col,buf1,col_len,type,sz,scale,can_null);
 
-	if(col==1)assert(type==SQL_C_SLONG);
-	if(col==2)assert(type==SQL_C_DOUBLE);
-	if(col==3)assert(type==SQL_C_CHAR);
+	if(col<3) assert(type==SQL_C_SLONG);
+	if(col==6)assert(type==SQL_C_DOUBLE);
+	if(col==8)assert(type==SQL_C_FLOAT);
+	if(col==4||col==5||col==7)  assert(type==SQL_C_NUMERIC);
 	
+
 	rc = SQLColAttribute(StmtHandle, col, SQL_DESC_NAME,
 			      buf2, sizeof(buf2), &type, NULL);
 
 	assert(rc==SQL_SUCCESS);
 	assert(strcmp(buf1,buf2)==0);
 
+	type=0;
+	rc = SQLColAttribute(StmtHandle, col, SQL_DESC_TYPE,
+			      NULL, NULL,NULL,(SQLPOINTER)&type);
+	assert(rc==SQL_SUCCESS);
+	if(col<3) assert(type==SQL_C_SLONG);
+	if(col==6)assert(type==SQL_C_DOUBLE);
+	if(col==8)assert(type==SQL_C_FLOAT);
+	if(col==4||col==5||col==7)  assert(type==SQL_C_NUMERIC);
 
       }
 
 
+#if 0
 
-    rc = SQLBindCol(StmtHandle, 1, SQL_C_SLONG, 
-             &an_int, sizeof(an_int), NULL);
-    assert(rc == SQL_SUCCESS);
+    while(SQLFetch(StmtHandle)==SQL_SUCCESS){
 
-    rc = SQLBindCol(StmtHandle, 2, SQL_C_FLOAT, 
-             &a_float, sizeof(a_float), NULL);
-    assert(rc == SQL_SUCCESS);
+      rc = SQLGetData(StmtHandle, 1, SQL_C_SLONG, 
+                     &an_int, sizeof(an_int), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
 
-    rc = SQLBindCol(StmtHandle, 3, SQL_C_CHAR, 
-            (SQLPOINTER) buf1, sizeof(buf1), NULL);
-    assert(rc == SQL_SUCCESS);
+      rc = SQLGetData(StmtHandle, 2, SQL_C_FLOAT, 
+                     &a_float, sizeof(a_float), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
 
+      rc = SQLGetData(StmtHandle, 3, SQL_C_CHAR, 
+                    (SQLPOINTER) buf1, sizeof(buf1), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
 
-    do{
-      rc = SQLFetch(StmtHandle);
-      VERBOSE("an_int=%d a_float=%f a_string=%s\n",an_int,a_float,buf1);
-    }while(rc==SQL_SUCCESS);
+     VERBOSE("an_int=%d a_float=%f a_string=%s\n",an_int,a_float,buf1);
 
-    assert(rc==SQL_NO_DATA);
+    }
 
+#endif
     rc = SQLDisconnect(ConHandle);
     assert(rc == SQL_SUCCESS);
     VERBOSE("disconnected from  database\n");
