@@ -1,5 +1,5 @@
 
-# $Id: Makefile.am,v 1.18 2003/10/20 23:37:13 dbox Exp $
+# $Id: Makefile.am,v 1.19 2004/08/27 23:10:59 dbox Exp $
 check_PROGRAMS=\
 connect1 \
 connect2 \
@@ -21,6 +21,7 @@ insert5 \
 insert6 \
 insert7 \
 read4 \
+readchars \
 SQLColumns1 \
 SQLPutTest
 

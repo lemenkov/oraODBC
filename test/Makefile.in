@@ -10,7 +10,7 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
-# $Id: Makefile.in,v 1.23 2003/10/20 23:37:13 dbox Exp $
+# $Id: Makefile.in,v 1.24 2004/08/27 23:10:59 dbox Exp $
 
 
 SHELL = @SHELL@
@@ -110,6 +110,7 @@ insert5 \
 insert6 \
 insert7 \
 read4 \
+readchars \
 SQLColumns1 \
 SQLPutTest
 
@@ -231,6 +232,11 @@ read4_OBJECTS =  read4.o
 read4_LDADD = $(LDADD)
 read4_DEPENDENCIES = 
 read4_LDFLAGS = 
+readchars_SOURCES = readchars.c
+readchars_OBJECTS =  readchars.o
+readchars_LDADD = $(LDADD)
+readchars_DEPENDENCIES = 
+readchars_LDFLAGS = 
 SQLColumns1_SOURCES = SQLColumns1.c
 SQLColumns1_OBJECTS =  SQLColumns1.o
 SQLColumns1_LDADD = $(LDADD)
@@ -258,9 +264,10 @@ DEP_FILES =  .deps/SQLColumns1.P .deps/SQLPutTest.P .deps/commit1.P \
 .deps/direct_exec2.P .deps/getinfo1.P .deps/insert1.P .deps/insert2.P \
 .deps/insert3.P .deps/insert4.P .deps/insert5.P .deps/insert6.P \
 .deps/insert7.P .deps/lowlevel.P .deps/malloctest.P .deps/read1.P \
-.deps/read2.P .deps/read3.P .deps/read4.P .deps/rollback1.P
-SOURCES = connect1.c connect2.c direct_exec1.c direct_exec2.c insert1.c insert3.c read1.c read2.c read3.c malloctest.c rollback1.c commit1.c insert2.c insert4.c lowlevel.c getinfo1.c insert5.c insert6.c insert7.c read4.c SQLColumns1.c SQLPutTest.c
-OBJECTS = connect1.o connect2.o direct_exec1.o direct_exec2.o insert1.o insert3.o read1.o read2.o read3.o malloctest.o rollback1.o commit1.o insert2.o insert4.o lowlevel.o getinfo1.o insert5.o insert6.o insert7.o read4.o SQLColumns1.o SQLPutTest.o
+.deps/read2.P .deps/read3.P .deps/read4.P .deps/readchars.P \
+.deps/rollback1.P
+SOURCES = connect1.c connect2.c direct_exec1.c direct_exec2.c insert1.c insert3.c read1.c read2.c read3.c malloctest.c rollback1.c commit1.c insert2.c insert4.c lowlevel.c getinfo1.c insert5.c insert6.c insert7.c read4.c readchars.c SQLColumns1.c SQLPutTest.c
+OBJECTS = connect1.o connect2.o direct_exec1.o direct_exec2.o insert1.o insert3.o read1.o read2.o read3.o malloctest.o rollback1.o commit1.o insert2.o insert4.o lowlevel.o getinfo1.o insert5.o insert6.o insert7.o read4.o readchars.o SQLColumns1.o SQLPutTest.o
 
 all: all-redirect
 .SUFFIXES:
@@ -393,6 +400,10 @@ insert7: $(insert7_OBJECTS) $(insert7_DEPENDENCIES)
 read4: $(read4_OBJECTS) $(read4_DEPENDENCIES)
 	@rm -f read4
 	$(LINK) $(read4_LDFLAGS) $(read4_OBJECTS) $(read4_LDADD) $(LIBS)
+
+readchars: $(readchars_OBJECTS) $(readchars_DEPENDENCIES)
+	@rm -f readchars
+	$(LINK) $(readchars_LDFLAGS) $(readchars_OBJECTS) $(readchars_LDADD) $(LIBS)
 
 SQLColumns1: $(SQLColumns1_OBJECTS) $(SQLColumns1_DEPENDENCIES)
 	@rm -f SQLColumns1

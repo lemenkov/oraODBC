@@ -1,11 +1,13 @@
 
 
 
-/* test array inserts, claims it works but database disagrees*/
-/* last 2 of 3 char arrays dont insert... */
-/* see SQLSetStmtAttr.c */
+/* test array inserts, claims it works but database disagrees  */
+/* for some reason 3rd row does not insert, no error message   */
+/* bad bad bad, should amend test to make sure it gets out what*/
+/* it put in with the array insert                             */
+/* see SQLSetStmtAttr.c                                        */
 /* author: Dennis Box, dbox@fnal.gov
- * $Id: insert2.c,v 1.10 2004/08/27 19:53:49 dbox Exp $
+ * $Id: insert2.c,v 1.11 2004/08/27 23:10:59 dbox Exp $
  */
 
 
@@ -96,7 +98,8 @@ int main()
   /*Tell The Driver That There Are 3 Values For Each Parameter
     (By Setting The SQL_ATTR_PARAMSET_SIZE Statement
       Attribute*/
-  rc = SQLSetStmtAttr(StmtHandle, SQL_ATTR_PARAMSET_SIZE,  ARRAY_LEN, 0);
+  rc = SQLSetStmtAttr(StmtHandle,  SQL_ATTR_PARAMSET_SIZE,
+		  (SQLPOINTER*) ARRAY_LEN,  NULL);
   assert(rc==SQL_SUCCESS);
   
   rc = SQLGetStmtAttr(StmtHandle, SQL_ATTR_PARAMSET_SIZE,  
