@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.4 2002/03/08 22:07:19 dbox Exp $
+ * $Id: oracle_functions.c,v 1.5 2002/05/02 15:39:48 dbox Exp $
  *
  * $Log: oracle_functions.c,v $
+ * Revision 1.5  2002/05/02 15:39:48  dbox
+ * fixed unused var warnings found by insure++
+ *
  * Revision 1.4  2002/03/08 22:07:19  dbox
  * added commit/rollback, more tests for SQLColAttribute
  *
@@ -120,7 +123,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.5 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -1751,8 +1754,10 @@ SQLRETURN ocivnu_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
     sword ret;
 	ub4 len=64;
 	char txt[64];
+	/*
 	SQLCHAR *src;
 	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+	*/
 	/*
 	 * For some reason, OCINumberToText seems to want >48 <64 chars to
 	 * play with
@@ -2015,10 +2020,11 @@ SQLRETURN ocivnu_sqlutinyint(int row,ir_T* ir,SQLPOINTER target,
 SQLRETURN ocivnu_sqlstinyint(int row,ir_T* ir,SQLPOINTER target,
 		SQLINTEGER buflen, SQLINTEGER* indi)
 {
+	/*
 	SQLCHAR *src;
-	sword ret;
-
 	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+	*/
+	sword ret;
 
     ret=OCINumberToInt(ir->desc->dbc->oci_err,
             (OCINumber*)ir->data_ptr,sizeof(char),OCI_NUMBER_SIGNED,
@@ -2515,7 +2521,7 @@ SQLRETURN ocidat_sqltime(int row,ir_T* ir,SQLPOINTER target,
 SQLRETURN ocidat_sqldate(int row,ir_T* ir,SQLPOINTER target,
 		SQLINTEGER buflen, SQLINTEGER* indi)
 {
-	SQLCHAR *src;
+/*	SQLCHAR *src; */
     /*typedef struct tagDATE_STRUCT*/
     /*{*/
         /*SQLSMALLINT    year;*/
@@ -2532,7 +2538,7 @@ SQLRETURN ocidat_sqldate(int row,ir_T* ir,SQLPOINTER target,
 			"BufferLength",buflen,
 			"&Target",(long)target);
 #endif
-	src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);
+	/*src=((SQLCHAR*)ir->data_ptr)+(row*ir->data_size);*/
 
     OCIDateGetDate((OCIDate*)ir->data_ptr,(sb2*)&ts->year,
             (ub1*)&month,(ub1*)&day);

@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLBindCol.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLBindCol.c,v 1.2 2002/05/02 15:39:48 dbox Exp $
  *
  * $Log: SQLBindCol.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/02 15:39:48  dbox
+ * fixed unused var warnings found by insure++
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.15  2000/07/21 10:01:54  tom
  * Added LOB flag
@@ -81,7 +84,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBindCol.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLBindCol.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLBindCol(
     SQLHSTMT        StatementHandle,
@@ -143,5 +146,5 @@ SQLRETURN SQL_API SQLBindCol(
                 (long)stmt->current_ir->recs.ir[ColumnNumber].default_copy);
     }
 #endif
-    return SQL_SUCCESS;
+    return status;
 }

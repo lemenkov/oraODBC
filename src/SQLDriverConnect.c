@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLDriverConnect.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLDriverConnect.c,v 1.2 2002/05/02 15:39:48 dbox Exp $
  *
  * $Log: SQLDriverConnect.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/02 15:39:48  dbox
+ * fixed unused var warnings found by insure++
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.14  2000/07/10 08:24:35  tom
  * tweaks for less tolerant compilers
@@ -68,7 +71,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDriverConnect.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLDriverConnect.c,v $ $Revision: 1.2 $";
 
 SQLRETURN ood_SQLDriverConnect(
     SQLHDBC                ConnectionHandle,
@@ -165,12 +168,12 @@ SQLRETURN ood_SQLDriverConnect(
     if(OutConnectionString&&BufferLength)
     {
         char OutTmp[512+FILENAME_MAX]; /* should be long enough */ 
-        SQLSMALLINT strlentmp;
+        /*SQLSMALLINT strlentmp;*/
 
         sprintf(OutTmp,"DSN=%s;DB=%s;UID=%s;PWD=%s;",
                 dbc->DSN,dbc->DB,dbc->UID,dbc->PWD);
         ood_bounded_strcpy((char*)OutConnectionString,OutTmp,BufferLength);
-        strlentmp=(SQLSMALLINT)strlen(OutTmp);
+        /*strlentmp=(SQLSMALLINT)strlen(OutTmp);*/
         /**StringLength2Ptr=strlentmp>BufferLength?BufferLength:strlentmp;*/
     }
 

@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLCloseCursor.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLCloseCursor.c,v 1.2 2002/05/02 15:39:48 dbox Exp $
  *
  * $Log: SQLCloseCursor.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/02 15:39:48  dbox
+ * fixed unused var warnings found by insure++
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.8  2000/05/08 16:21:00  tom
  * General tidyness mods and clean up
@@ -57,7 +60,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLCloseCursor.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLCloseCursor.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLCloseCursor(
     SQLHSTMT            StatementHandle )
@@ -77,5 +80,5 @@ SQLRETURN SQL_API SQLCloseCursor(
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
 #endif
-    return SQL_SUCCESS;
+    return status;
 }

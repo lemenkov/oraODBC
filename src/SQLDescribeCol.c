@@ -18,11 +18,14 @@
  *
  ******************************************************************************
  *
- * $Id: SQLDescribeCol.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLDescribeCol.c,v 1.2 2002/05/02 15:39:48 dbox Exp $
  *
  * $Log: SQLDescribeCol.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/02 15:39:48  dbox
+ * fixed unused var warnings found by insure++
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.11  2000/07/21 10:05:06  tom
  * Casting made explicit
@@ -59,7 +62,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDescribeCol.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLDescribeCol.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLDescribeCol(
     SQLHSTMT            StatementHandle,
@@ -130,5 +133,5 @@ SQLRETURN SQL_API SQLDescribeCol(
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,SQL_SUCCESS,"");
 #endif
-    return SQL_SUCCESS;
+    return status;
 }

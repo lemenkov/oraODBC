@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSetPos.c,v 1.2 2002/02/20 03:09:06 dbox Exp $
+ * $Id: SQLSetPos.c,v 1.3 2002/05/02 15:39:48 dbox Exp $
  *
  * $Log: SQLSetPos.c,v $
+ * Revision 1.3  2002/05/02 15:39:48  dbox
+ * fixed unused var warnings found by insure++
+ *
  * Revision 1.2  2002/02/20 03:09:06  dbox
  * changed error reporting for stubbed out functions.  Added function calls
  * to 'test' subdirectory programs
@@ -54,7 +57,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetPos.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLSetPos.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLSetPos( 
     SQLHSTMT            StatementHandle,
@@ -63,8 +66,8 @@ SQLRETURN SQL_API SQLSetPos(
     SQLUSMALLINT        LockType )
 {
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
+    SQLRETURN status=SQL_ERROR;
 #ifdef ENABLE_TRACE
-    SQLRETURN status=SQL_SUCCESS;
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
 #endif
@@ -76,6 +79,6 @@ SQLRETURN SQL_API SQLSetPos(
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
 #endif
-    fprintf(stderr,"called stubbed function line %d file %s %d file %s\n",__LINE__,__FILE__);
-    return SQL_SUCCESS;
+    fprintf(stderr,"called stubbed function line %d file %s \n",__LINE__,__FILE__);
+    return status;
 }
