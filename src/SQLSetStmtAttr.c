@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSetStmtAttr.c,v 1.6 2004/11/17 03:02:59 dbox Exp $
+ * $Id: SQLSetStmtAttr.c,v 1.7 2004/12/01 01:00:25 dbox Exp $
  *
  * $Log: SQLSetStmtAttr.c,v $
+ * Revision 1.7  2004/12/01 01:00:25  dbox
+ * reset bookmark flag when stmt is reset to have retrieved 0 rows
+ *
  * Revision 1.6  2004/11/17 03:02:59  dbox
  * changed some bind/fetch internals, better ood_log behavior
  *
@@ -83,7 +86,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetStmtAttr.c,v $ $Revision: 1.6 $";
+static char const rcsid[]= "$RCSfile: SQLSetStmtAttr.c,v $ $Revision: 1.7 $";
 
 
 SQLRETURN SQL_API SQLSetStmtAttr(
@@ -170,6 +173,8 @@ SQLRETURN SQL_API SQLSetStmtAttr(
 	
       case SQL_ATTR_ROWS_FETCHED_PTR:
         stmt->rows_fetched_ptr=(SQLUINTEGER*)ValuePtr;
+        if(stmt->rows_fetched_ptr==0)
+		stmt->bookmark=0;
 	break;
       case SQL_ATTR_PARAM_BIND_TYPE:
         stmt->param_bind_type=(SQLINTEGER)ValuePtr;
