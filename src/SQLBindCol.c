@@ -18,9 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: SQLBindCol.c,v 1.4 2004/11/17 03:02:59 dbox Exp $
+ * $Id: SQLBindCol.c,v 1.5 2004/11/23 23:26:00 dbox Exp $
  *
  * $Log: SQLBindCol.c,v $
+ * Revision 1.5  2004/11/23 23:26:00  dbox
+ * StrLen_or_IndPtr can come in as SQL_NULL_DATA but should not set ar or ir
+ * internals, these are read later if the bound column is actually null
+ *
  * Revision 1.4  2004/11/17 03:02:59  dbox
  * changed some bind/fetch internals, better ood_log behavior
  *
@@ -94,7 +98,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBindCol.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLBindCol.c,v $ $Revision: 1.5 $";
 
 SQLRETURN SQL_API SQLBindCol(
     SQLHSTMT        StatementHandle,
@@ -108,63 +112,75 @@ SQLRETURN SQL_API SQLBindCol(
     SQLRETURN status=SQL_SUCCESS;
     SQLINTEGER *tmp;
 
-if(ENABLE_TRACE){
+
   tmp=0;
   if (StrLen_or_IndPtr && *StrLen_or_IndPtr) 
     tmp=StrLen_or_IndPtr;
   else{
     tmp=(SQLINTEGER*)ORAMALLOC(sizeof(SQLINTEGER));
-    *tmp=NULL;
+    *tmp=0;
   }
+  if(*tmp==SQL_NULL_DATA)
+    *tmp=0;
+
+  if(ENABLE_TRACE)
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)StatementHandle,0,"iiii",
-			"ColumnNumber",ColumnNumber,
-			"TargetType", TargetType,
-		    "BufferLength",BufferLength,
-		    "LenOrIndPtr",tmp
-		    );
-}
-    ood_clear_diag((hgeneric*)(hgeneric*)stmt);
-    ood_mutex_lock_stmt(stmt);
+		  (SQLHANDLE)StatementHandle,0,"iiii",
+		  "ColumnNumber",ColumnNumber,
+		  "TargetType", TargetType,
+		  "BufferLength",BufferLength,
+		  "LenOrIndPtr",tmp
+		  );
 
-    /*
-     * We may not have allocated our row descriptors yet... so make sure
-     */
-    if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,ColumnNumber,
-                stmt->current_ir,stmt->current_ar))
-    {
-        status=SQL_ERROR;
-    }
-    else
-    {
+ ood_clear_diag((hgeneric*)(hgeneric*)stmt);
+ ood_mutex_lock_stmt(stmt);
+ 
+ /*
+  * We may not have allocated our row descriptors yet... so make sure
+  */
+ if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,ColumnNumber,
+				    stmt->current_ir,stmt->current_ar))
+   {
+     status=SQL_ERROR;
+   }
+ else
+   {
+     
+     /*
+      * Common stuff
+      *
+      * people who write statements like the next one should be 
+      * brought back every 3-4 years and tortured until they confess to
+      * what the statement actually does (not what they think it does)
+      */
+     stmt->current_ar->recs.ar[ColumnNumber].concise_type
+       =stmt->current_ar->recs.ar[ColumnNumber].data_type
+       =TargetType==SQL_C_DEFAULT?SQL_C_CHAR:TargetType;
 
-        /*
-         * Common stuff
-         */
-        stmt->current_ar->recs.ar[ColumnNumber].concise_type=stmt->current_ar->recs.ar[ColumnNumber].data_type=TargetType==SQL_C_DEFAULT?SQL_C_CHAR:TargetType;
-        stmt->current_ar->recs.ar[ColumnNumber].bind_indicator=tmp;
-        stmt->current_ar->recs.ar[ColumnNumber].buffer_length=BufferLength;
-        stmt->current_ar->recs.ar[ColumnNumber].data_ptr=TargetValuePtr;
-        stmt->current_ir->recs.ir[ColumnNumber].default_copy=
-			ood_fn_default_copy(
-					stmt->current_ir->recs.ir[ColumnNumber].data_type,
-					TargetType);
-        stmt->current_ar->bound_col_flag++;
-        stmt->current_ar->lob_col_flag++;
-    }
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    ood_mutex_unlock_stmt(stmt);
+
+     stmt->current_ar->recs.ar[ColumnNumber].bind_indicator=tmp;
+     stmt->current_ar->recs.ar[ColumnNumber].buffer_length=BufferLength;
+     stmt->current_ar->recs.ar[ColumnNumber].data_ptr=TargetValuePtr;
+     stmt->current_ir->recs.ir[ColumnNumber].default_copy=
+       ood_fn_default_copy(
+			   stmt->current_ir->recs.ir[ColumnNumber].data_type,
+			   TargetType);
+     stmt->current_ar->bound_col_flag++;
+     stmt->current_ar->lob_col_flag++;
+   }
+ if(ENABLE_TRACE){
+   ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		   (SQLHANDLE)NULL,status,"");
+ }
+ ood_mutex_unlock_stmt(stmt);
 #ifdef UNIX_DEBUG
-    for(ColumnNumber=1;ColumnNumber<=stmt->current_ir->num_recs;ColumnNumber++)
-    {
-        fprintf(stderr,"%s %d col num [%d] fn[%.8lx]\n",
-                __FILE__,__LINE__,
-                stmt->current_ir->recs.ir[ColumnNumber].col_num,
-                (long)stmt->current_ir->recs.ir[ColumnNumber].default_copy);
-    }
+ for(ColumnNumber=1;ColumnNumber<=stmt->current_ir->num_recs;ColumnNumber++)
+   {
+     fprintf(stderr,"%s %d col num [%d] fn[%.8lx]\n",
+	     __FILE__,__LINE__,
+	     stmt->current_ir->recs.ir[ColumnNumber].col_num,
+	     (long)stmt->current_ir->recs.ir[ColumnNumber].default_copy);
+   }
 #endif
-    return status;
+ return status;
 }
