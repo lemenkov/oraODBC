@@ -10,7 +10,7 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
-# $Id: Makefile.in,v 1.15 2002/09/27 17:01:25 dbox Exp $
+# $Id: Makefile.in,v 1.16 2002/09/27 19:12:01 dbox Exp $
 
 
 SHELL = @SHELL@
@@ -89,7 +89,7 @@ PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 
-check_PROGRAMS =  connect1 connect2 direct_exec1 direct_exec2 insert1 insert3 read1 read2 read3 malloctest rollback1 commit1 insert2 insert4 lowlevel getinfo1 insert5 insert6 insert7
+check_PROGRAMS =  connect1 connect2 direct_exec1 direct_exec2 insert1 insert3 read1 read2 read3 malloctest rollback1 commit1 insert2 insert4 lowlevel getinfo1 insert5 insert6 insert7 read4
 
 
 INCLUDES = -I${ODBCIDIR} -I../src  -I${ODBCIDIR} -I${ORAIDIR} -I${ORANDIR} -I${ORAPDIR}
@@ -203,6 +203,11 @@ insert7_OBJECTS =  insert7.o
 insert7_LDADD = $(LDADD)
 insert7_DEPENDENCIES = 
 insert7_LDFLAGS = 
+read4_SOURCES = read4.c
+read4_OBJECTS =  read4.o
+read4_LDADD = $(LDADD)
+read4_DEPENDENCIES = 
+read4_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -220,9 +225,9 @@ DEP_FILES =  .deps/commit1.P .deps/connect1.P .deps/connect2.P \
 .deps/insert1.P .deps/insert2.P .deps/insert3.P .deps/insert4.P \
 .deps/insert5.P .deps/insert6.P .deps/insert7.P .deps/lowlevel.P \
 .deps/malloctest.P .deps/read1.P .deps/read2.P .deps/read3.P \
-.deps/rollback1.P
-SOURCES = connect1.c connect2.c direct_exec1.c direct_exec2.c insert1.c insert3.c read1.c read2.c read3.c malloctest.c rollback1.c commit1.c insert2.c insert4.c lowlevel.c getinfo1.c insert5.c insert6.c insert7.c
-OBJECTS = connect1.o connect2.o direct_exec1.o direct_exec2.o insert1.o insert3.o read1.o read2.o read3.o malloctest.o rollback1.o commit1.o insert2.o insert4.o lowlevel.o getinfo1.o insert5.o insert6.o insert7.o
+.deps/read4.P .deps/rollback1.P
+SOURCES = connect1.c connect2.c direct_exec1.c direct_exec2.c insert1.c insert3.c read1.c read2.c read3.c malloctest.c rollback1.c commit1.c insert2.c insert4.c lowlevel.c getinfo1.c insert5.c insert6.c insert7.c read4.c
+OBJECTS = connect1.o connect2.o direct_exec1.o direct_exec2.o insert1.o insert3.o read1.o read2.o read3.o malloctest.o rollback1.o commit1.o insert2.o insert4.o lowlevel.o getinfo1.o insert5.o insert6.o insert7.o read4.o
 
 all: all-redirect
 .SUFFIXES:
@@ -351,6 +356,10 @@ insert6: $(insert6_OBJECTS) $(insert6_DEPENDENCIES)
 insert7: $(insert7_OBJECTS) $(insert7_DEPENDENCIES)
 	@rm -f insert7
 	$(LINK) $(insert7_LDFLAGS) $(insert7_OBJECTS) $(insert7_LDADD) $(LIBS)
+
+read4: $(read4_OBJECTS) $(read4_DEPENDENCIES)
+	@rm -f read4
+	$(LINK) $(read4_LDFLAGS) $(read4_OBJECTS) $(read4_LDADD) $(LIBS)
 
 tags: TAGS
 
