@@ -33,12 +33,11 @@
  *
  *******************************************************************************
  *
- * $Id: config.h,v 1.2 2002/02/20 03:09:05 dbox Exp $
+ * $Id: config.h,v 1.3 2002/02/20 04:22:23 dbox Exp $
  *
  * $Log: config.h,v $
- * Revision 1.2  2002/02/20 03:09:05  dbox
- * changed error reporting for stubbed out functions.  Added function calls
- * to 'test' subdirectory programs
+ * Revision 1.3  2002/02/20 04:22:23  dbox
+ * tidying up
  *
  * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
  * second try, importing code into directories
