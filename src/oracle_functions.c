@@ -15,13 +15,13 @@
  * The Original Code was created by Easysoft Limited and its successors. 
  *
  * Contributor(s): Tom Fosdick (Easysoft) 
-		   Dennis Box (Ferm Nat Accelerator Lab)
+		   Dennis Box (Fermi Nat Accelerator Lab)
                    Stefan.Radman@ctbto.org
 
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.15 2002/12/11 21:39:23 dbox Exp $
+ * $Id: oracle_functions.c,v 1.16 2002/12/11 22:25:30 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.15 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.16 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
