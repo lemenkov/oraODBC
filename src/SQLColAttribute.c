@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColAttribute.c,v 1.2 2002/02/23 00:23:12 dbox Exp $
+ * $Id: SQLColAttribute.c,v 1.3 2002/03/08 22:07:19 dbox Exp $
  *
  * $Log: SQLColAttribute.c,v $
+ * Revision 1.3  2002/03/08 22:07:19  dbox
+ * added commit/rollback, more tests for SQLColAttribute
+ *
  * Revision 1.2  2002/02/23 00:23:12  dbox
  * added some missing cases to the switch statement
  *
@@ -80,7 +83,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: SQLColAttribute.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLColAttribute.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLColAttribute(
     SQLHSTMT            StatementHandle,
@@ -178,8 +181,7 @@ fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAtt
 #ifdef UNIX_DEBUG
       fprintf(stderr,"SQL_DESC_CONCISE_TYPE %s %d\n",__FILE__,__LINE__);
 #endif
-      *((SQLINTEGER*)NumericAttributePtr)=ood_ocitype_to_sqltype(
-								 stmt->current_ir->recs.ir[ColumnNumber].orig_type);
+      *((SQLINTEGER*)NumericAttributePtr)=ood_ocitype_to_sqltype_imp(stmt,ColumnNumber);
       break;
       
     case SQL_DESC_COUNT:

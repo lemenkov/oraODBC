@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.3 2002/03/06 23:00:19 dbox Exp $
+ * $Id: oracle_functions.c,v 1.4 2002/03/08 22:07:19 dbox Exp $
  *
  * $Log: oracle_functions.c,v $
+ * Revision 1.4  2002/03/08 22:07:19  dbox
+ * added commit/rollback, more tests for SQLColAttribute
+ *
  * Revision 1.3  2002/03/06 23:00:19  dbox
  * Changed to report float(126) and integer (actually NUMBER(38,0)
  * more correctly.
@@ -117,7 +120,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.4 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -600,6 +603,46 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
     return SQL_SUCCESS;
 }
 
+SQLRETURN ood_driver_transaction(hDbc_T *dbc, SQLSMALLINT action)
+{
+  SQLRETURN stat = SQL_SUCCESS;
+  sword ret;
+
+
+  switch(action){
+  case SQL_COMMIT: 
+    THREAD_MUTEX_LOCK(dbc);
+    ret = OCITransCommit((OCISvcCtx *)dbc->oci_svc,
+			 (OCIError*)dbc->oci_err,
+			 (ub4)OCI_DEFAULT);
+    if(ret) {
+      ood_driver_error(dbc,ret,__FILE__,__LINE__);
+      stat=SQL_ERROR;
+    }
+    THREAD_MUTEX_UNLOCK(dbc);
+
+
+    break;
+  case SQL_ROLLBACK:
+    THREAD_MUTEX_LOCK(dbc);
+    ret = OCITransRollback((OCISvcCtx *)dbc->oci_svc,
+			   (OCIError*)dbc->oci_err,
+			   (ub4)OCI_DEFAULT);
+    if(ret){
+      ood_driver_error(dbc,ret,__FILE__,__LINE__);
+      stat=SQL_ERROR;
+    }
+    THREAD_MUTEX_UNLOCK(dbc);
+    
+    break;
+  default:
+    stat = SQL_ERROR;
+  }
+
+
+ return stat;
+}
+
 /*
  * Oracle Execute Describe
  *
@@ -745,6 +788,26 @@ SQLRETURN ood_driver_prefetch(hStmt_T* stmt)
 		return SQL_ERROR;
 	}
 	return SQL_SUCCESS;
+}
+
+
+SQLRETURN ood_ocitype_to_sqltype_imp(hStmt_T* stmt, int colNum)
+{
+
+  SQLRETURN ret = ood_ocitype_to_sqltype(
+		   stmt->current_ir->recs.ir[colNum].orig_type);
+  
+  if (stmt->current_ar->recs.ar[colNum].data_type == SQL_C_FLOAT)
+    ret = SQL_C_FLOAT;
+  if (stmt->current_ar->recs.ar[colNum].data_type == SQL_C_DOUBLE)
+    ret = SQL_C_DOUBLE;
+
+  /* I dont understand yet why this one doesnt work like the others
+     if (stmt->current_ar->recs.ar[colNum].data_type == SQL_C_SLONG)
+     ret = SQL_C_SLONG;*/
+
+
+  return ret;
 }
 
 /*
@@ -1603,21 +1666,12 @@ SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
 	/*hack alert!! */
 	if(ar->precision==38 && ar->scale==0){
 	  ar->data_type=SQL_C_SLONG;
-	  ir->data_type=SQLT_INT;
-	  ir->data_size=sizeof(long);
-	  ir->to_string=ociint_sqlslong;
 	}
 	if(ar->precision==126 && ar->scale==0){
 	  ar->data_type=SQL_C_DOUBLE;
-	  ir->data_type=SQLT_FLT;
-	  ir->data_size=sizeof(double);
-	  ir->to_string=ociflt_sqlnts;
 	}
 	if(ar->precision==63 && ar->scale==0){
 	  ar->data_type=SQL_C_FLOAT;
-	  ir->data_type=SQLT_FLT;
-	  ir->data_size=sizeof(double);
-	  ir->to_string=ociflt_sqlnts;
 	}
         ar->concise_type=ar->data_type;
         ar->display_size=sqltype_display_size(ar->data_type,ir->data_size);

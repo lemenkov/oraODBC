@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.h,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: oracle_functions.h,v 1.2 2002/03/08 22:07:19 dbox Exp $
  *
  * $Log: oracle_functions.h,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/03/08 22:07:19  dbox
+ * added commit/rollback, more tests for SQLColAttribute
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.12  2000/07/21 10:19:03  tom
  * New LOB functions added
@@ -72,13 +75,14 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc);
 SQLRETURN ood_driver_disconnect(hDbc_T *dbc);
 SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql);
 SQLRETURN ood_driver_execute(hStmt_T* stmt);
+SQLRETURN ood_driver_transaction(hDbc_T *dbc, SQLSMALLINT action);
 SQLRETURN ood_driver_execute_describe(hStmt_T* stmt);
 SQLRETURN ood_driver_prefetch(hStmt_T* stmt);
 SQLRETURN ood_driver_num_result_cols(hStmt_T* stmt,SQLSMALLINT* cols);
 SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar);
 SQLRETURN ood_driver_define_col(ir_T* ir);
 SQLRETURN ood_ocitype_to_sqltype(ub2 data_type);
-
+SQLRETURN ood_ocitype_to_sqltype_imp(hStmt_T* stmt, int colNum);
 SQLRETURN ood_alloc_col_desc(hStmt_T *,int ,hDesc_T*,hDesc_T*);
 
 SQLRETURN ood_assign_ir(ir_T *ir,ub2 data_type, ub2 data_size, sb2 indicator,

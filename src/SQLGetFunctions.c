@@ -17,11 +17,14 @@
  * Contributor(s): Tom Fosdick (Easysoft) 
  *
  *******************************************************************************
- * $Id: SQLGetFunctions.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: SQLGetFunctions.c,v 1.2 2002/03/08 22:07:19 dbox Exp $
  *
  * $Log: SQLGetFunctions.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/03/08 22:07:19  dbox
+ * added commit/rollback, more tests for SQLColAttribute
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.15  2000/07/21 10:26:15  tom
  * SQL_API_SQLFETCHSCROLL,SQL_API_SQLEXTENDEDFETCH uncommented
@@ -75,7 +78,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetFunctions.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLGetFunctions.c,v $ $Revision: 1.2 $";
 
 int supported_functions[] = 
 {
@@ -95,7 +98,7 @@ int supported_functions[] =
     SQL_API_SQLDESCRIBECOL,
     SQL_API_SQLDESCRIBEPARAM,
     SQL_API_SQLDISCONNECT,
-    /*SQL_API_SQLENDTRAN, */
+    SQL_API_SQLENDTRAN, 
     SQL_API_SQLEXECDIRECT,
     SQL_API_SQLEXECUTE,
     SQL_API_SQLEXTENDEDFETCH,

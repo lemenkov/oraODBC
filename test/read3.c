@@ -135,6 +135,15 @@ int main()
 	if(col==8)assert(type==SQL_C_FLOAT);
 	if(col==4||col==5||col==7)  assert(type==SQL_C_NUMERIC);
 
+        type=0;
+        rc = SQLColAttribute(StmtHandle, col, SQL_DESC_CONCISE_TYPE,
+                              NULL, NULL,NULL,(SQLPOINTER)&type);
+        assert(rc==SQL_SUCCESS);
+        if(col==6)assert(type==SQL_C_DOUBLE);
+        if(col==8)assert(type==SQL_C_FLOAT);
+        if(col!=6 && col!=8)  assert(type==SQL_C_NUMERIC);
+
+
       }
 
 

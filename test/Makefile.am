@@ -9,7 +9,9 @@ read2 \
 malloctest \
 insert3 \
 direct_exec2 \
-read3
+read3 \
+rollback1 \
+commit1
 
 
 INCLUDES = -I${ODBCIDIR} -I../src
