@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetInfo.c,v 1.8 2003/02/18 19:25:23 dbox Exp $
+ * $Id: SQLGetInfo.c,v 1.9 2004/08/27 19:44:25 dbox Exp $
  *
  * $Log: SQLGetInfo.c,v $
+ * Revision 1.9  2004/08/27 19:44:25  dbox
+ * correct a rollback/commit state
+ *
  * Revision 1.8  2003/02/18 19:25:23  dbox
  * fixed a bunch of return type errors
  *
@@ -87,7 +90,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetInfo.c,v $ $Revision: 1.8 $";
+static char const rcsid[]= "$RCSfile: SQLGetInfo.c,v $ $Revision: 1.9 $";
 
 SQLRETURN SQL_API SQLGetInfo(
 			     SQLHDBC                ConnectionHandle,
@@ -356,7 +359,8 @@ SQLRETURN SQL_API SQLGetInfo(
 
     case SQL_CURSOR_COMMIT_BEHAVIOR:
     case SQL_CURSOR_ROLLBACK_BEHAVIOR:
-      *(SQLUSMALLINT*)InfoValuePtr=SQL_CB_DELETE;
+      /* Commit or rollback on one cursor has no affect on other cursors. */
+      *(SQLUSMALLINT*)InfoValuePtr=SQL_CB_PRESERVE;
       break;
 
     case SQL_CURSOR_SENSITIVITY:
