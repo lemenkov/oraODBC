@@ -1,6 +1,6 @@
 /* test all possible inputs to SQLGetInfo
  * author: Dennis Box, dbox@fnal.gov
- * $Id: getinfo1.c,v 1.4 2002/05/31 19:55:00 dbox Exp $
+ * $Id: getinfo1.c,v 1.5 2002/08/14 04:02:25 dbox Exp $
  */
 
 
@@ -88,7 +88,7 @@ int main(int argc, char ** argv)
 		      sizeof(result),&some_val);
       
       if(rc!=SQL_SUCCESS && rc!=SQL_SUCCESS_WITH_INFO){
-	printf("test %s  returned status %d\n",
+	VERBOSE("test %s  returned status %d\n",
 	       sql_get_info_type(getInfoOpts[i]),rc);
       }
     }
