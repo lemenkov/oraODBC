@@ -19,11 +19,11 @@
  *
  *******************************************************************************
  *
- * $Id: common_functions.c,v 1.7 2002/11/15 16:17:42 dbox Exp $
+ * $Id: common_functions.c,v 1.8 2004/11/17 03:02:59 dbox Exp $
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.7 $";
+static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.8 $";
 
 /*
  * SQL type display size
@@ -70,13 +70,61 @@ const char * oci_var_type(SQLSMALLINT sqltype)
   case SQLT_NCO: return "SQLT_NCO"; 
   case SQLT_VST: return "SQLT_VST"; 
   case SQLT_ODT: return "SQLT_ODT"; 
-    /* case SQLT_FILE: return "SQLT_FILE"; */
-    /*case SQLT_CFILE: return "SQLT_CFILE"; */
-    /*case SQLT_BFILE: return "SQLT_BFILE"; */
   default: return "UNKNOWN_OCI_TYPE";
-}
+  }
 }
 
+const char * odbc_desc_type(SQLSMALLINT sqltype)
+{
+	switch(sqltype){
+	case SQL_DESC_COUNT: return "SQL_DESC_COUNT";
+	case SQL_DESC_TYPE: return "SQL_DESC_TYPE";
+	case SQL_DESC_LENGTH: return "SQL_DESC_LENGTH";
+	case SQL_DESC_OCTET_LENGTH_PTR: return "SQL_DESC_OCTET_LENGTH_PTR";
+	case SQL_DESC_PRECISION: return "SQL_DESC_PRECISION";
+	case SQL_DESC_SCALE: return "SQL_DESC_SCALE";
+	case SQL_DESC_DATETIME_INTERVAL_CODE: return "SQL_DESC_DATETIME_INTERVAL_CODE";
+	case SQL_DESC_NULLABLE: return "SQL_DESC_NULLABLE";
+	case SQL_DESC_INDICATOR_PTR: return "SQL_DESC_INDICATOR_PTR";
+	case SQL_DESC_DATA_PTR: return "SQL_DESC_DATA_PTR";
+	case SQL_DESC_NAME: return "SQL_DESC_NAME";
+	case SQL_DESC_UNNAMED: return "SQL_DESC_UNNAMED";
+	case SQL_DESC_OCTET_LENGTH: return "SQL_DESC_OCTET_LENGTH";
+	case SQL_DESC_ALLOC_TYPE: return "SQL_DESC_ALLOC_TYPE";
+	case SQL_DESC_ALLOC_AUTO: return "SQL_DESC_ALLOC_AUTO";
+	case SQL_DESCRIBE_PARAMETER: return "SQL_DESCRIBE_PARAMETER";
+	case SQL_DESC_ARRAY_SIZE: return "SQL_DESC_ARRAY_SIZE";
+	case SQL_DESC_ARRAY_STATUS_PTR: return "SQL_DESC_ARRAY_STATUS_PTR";
+	case SQL_DESC_AUTO_UNIQUE_VALUE: return "SQL_DESC_AUTO_UNIQUE_VALUE";
+	case SQL_DESC_BASE_COLUMN_NAME: return "SQL_DESC_BASE_COLUMN_NAME";
+	case SQL_DESC_BASE_TABLE_NAME: return "SQL_DESC_BASE_TABLE_NAME";
+	case SQL_DESC_BIND_OFFSET_PTR: return "SQL_DESC_BIND_OFFSET_PTR";
+	case SQL_DESC_BIND_TYPE: return "SQL_DESC_BIND_TYPE";
+	case SQL_DESC_CASE_SENSITIVE: return "SQL_DESC_CASE_SENSITIVE";
+	case SQL_DESC_CATALOG_NAME: return "SQL_DESC_CATALOG_NAME";
+	case SQL_DESC_CONCISE_TYPE: return "SQL_DESC_CONCISE_TYPE";
+	case SQL_DESC_DATETIME_INTERVAL_PRECISION: return "SQL_DESC_DATETIME_INTERVAL_PRECISION";
+	case SQL_DESC_DISPLAY_SIZE: return "SQL_DESC_DISPLAY_SIZE";
+	case SQL_DESC_FIXED_PREC_SCALE: return "SQL_DESC_FIXED_PREC_SCALE";
+	case SQL_DESC_LABEL: return "SQL_DESC_LABEL";
+	case SQL_DESC_LITERAL_PREFIX: return "SQL_DESC_LITERAL_PREFIX";
+	case SQL_DESC_LITERAL_SUFFIX: return "SQL_DESC_LITERAL_SUFFIX";
+	case SQL_DESC_LOCAL_TYPE_NAME: return "SQL_DESC_LOCAL_TYPE_NAME";
+	case SQL_DESC_MAXIMUM_SCALE: return "SQL_DESC_MAXIMUM_SCALE";
+	case SQL_DESC_MINIMUM_SCALE: return "SQL_DESC_MINIMUM_SCALE";
+	case SQL_DESC_NUM_PREC_RADIX: return "SQL_DESC_NUM_PREC_RADIX";
+	case SQL_DESC_PARAMETER_TYPE: return "SQL_DESC_PARAMETER_TYPE";
+	case SQL_DESC_ROWS_PROCESSED_PTR: return "SQL_DESC_ROWS_PROCESSED_PTR";
+	case SQL_DESC_ROWVER: return "SQL_DESC_ROWVER";
+	case SQL_DESC_SCHEMA_NAME: return "SQL_DESC_SCHEMA_NAME";
+	case SQL_DESC_SEARCHABLE: return "SQL_DESC_SEARCHABLE";
+	case SQL_DESC_TYPE_NAME: return "SQL_DESC_TYPE_NAME";
+	case SQL_DESC_TABLE_NAME: return "SQL_DESC_TABLE_NAME";
+	case SQL_DESC_UNSIGNED: return "SQL_DESC_UNSIGNED";
+	case SQL_DESC_UPDATABLE: return "SQL_DESC_UPDATABLE";
+	default: return "UNKNOWN";
+	}
+}
 
 const char * odbc_var_type(SQLSMALLINT sqltype)
 {
@@ -413,7 +461,7 @@ case SQL_FILE_USAGE:
 
 
 
-const char * name_for_sql_attr_type( SQLINTEGER  attr)
+const char * odbc_sql_attr_type( SQLINTEGER  attr)
 {
   switch(attr){
       case SQL_ATTR_METADATA_ID: 

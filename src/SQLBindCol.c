@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLBindCol.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLBindCol.c,v 1.4 2004/11/17 03:02:59 dbox Exp $
  *
  * $Log: SQLBindCol.c,v $
+ * Revision 1.4  2004/11/17 03:02:59  dbox
+ * changed some bind/fetch internals, better ood_log behavior
+ *
  * Revision 1.3  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -91,7 +94,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBindCol.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLBindCol.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLBindCol(
     SQLHSTMT        StatementHandle,
@@ -103,13 +106,23 @@ SQLRETURN SQL_API SQLBindCol(
 {
     hStmt_T *stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status=SQL_SUCCESS;
+    SQLINTEGER *tmp;
 
 if(ENABLE_TRACE){
+  tmp=0;
+  if (StrLen_or_IndPtr && *StrLen_or_IndPtr) 
+    tmp=StrLen_or_IndPtr;
+  else{
+    tmp=(SQLINTEGER*)ORAMALLOC(sizeof(SQLINTEGER));
+    *tmp=NULL;
+  }
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)StatementHandle,0,"iii",
+            (SQLHANDLE)StatementHandle,0,"iiii",
 			"ColumnNumber",ColumnNumber,
-			"TargetType",TargetType,
-			"BufferLength",BufferLength);
+			"TargetType", TargetType,
+		    "BufferLength",BufferLength,
+		    "LenOrIndPtr",tmp
+		    );
 }
     ood_clear_diag((hgeneric*)(hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
@@ -129,7 +142,7 @@ if(ENABLE_TRACE){
          * Common stuff
          */
         stmt->current_ar->recs.ar[ColumnNumber].concise_type=stmt->current_ar->recs.ar[ColumnNumber].data_type=TargetType==SQL_C_DEFAULT?SQL_C_CHAR:TargetType;
-        stmt->current_ar->recs.ar[ColumnNumber].bind_indicator=StrLen_or_IndPtr;
+        stmt->current_ar->recs.ar[ColumnNumber].bind_indicator=tmp;
         stmt->current_ar->recs.ar[ColumnNumber].buffer_length=BufferLength;
         stmt->current_ar->recs.ar[ColumnNumber].data_ptr=TargetValuePtr;
         stmt->current_ir->recs.ir[ColumnNumber].default_copy=

@@ -18,7 +18,7 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColAttribute.c,v 1.8 2004/10/04 20:15:41 dbox Exp $
+ * $Id: SQLColAttribute.c,v 1.9 2004/11/17 03:02:59 dbox Exp $
  *
 
  *
@@ -85,17 +85,17 @@ SQLRETURN SQL_API SQLColAttribute(
 
 if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"ii",
+            (SQLHANDLE)stmt,0,"is",
 			"ColumnNumber",ColumnNumber,
-			"FieldIdentifier",FieldIdentifier);
+			"FieldIdentifier",odbc_desc_type(FieldIdentifier));
 }
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
 
     ar=&stmt->current_ar->recs.ar[ColumnNumber];
-    /*assert(IS_VALID(ar));*/
+    assert(IS_VALID(ar));
     ir=&stmt->current_ir->recs.ir[ColumnNumber];
-    /*assert(IS_VALID(ir));*/
+    assert(IS_VALID(ir));
    switch(FieldIdentifier)
     {
         case SQL_DESC_AUTO_UNIQUE_VALUE:
@@ -165,7 +165,11 @@ fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAtt
 #ifdef UNIX_DEBUG
       fprintf(stderr,"SQL_DESC_CONCISE_TYPE %s %d\n",__FILE__,__LINE__);
 #endif
+      /*
       *((SQLINTEGER*)NumericAttributePtr)=ood_ocitype_to_sqltype_imp(stmt,ColumnNumber);
+      */
+
+      *((SQLINTEGER*)NumericAttributePtr)=ar->data_type;
       break;
       
     case SQL_DESC_COUNT:
@@ -317,7 +321,6 @@ fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAtt
 	fprintf(stderr,"SQL_DESC_TYPE_NAME %s %d\n",__FILE__,__LINE__);
 	/*dump_ar_T(ar);
 	dump_ir_T(ir); */
- 	fprintf(stderr,"======================= %s %d\n",__FILE__,__LINE__);
       }
       if(!ar->type_name){
 	const char *nm = _sql_desc_type_name(ar);
@@ -390,14 +393,14 @@ fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAtt
 if(ENABLE_TRACE){
 	if(CharacterAttributePtr)
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"iis",
-			"FieldIdentifier",FieldIdentifier,
+            (SQLHANDLE)NULL,status,"sis",
+			"FieldIdentifier",odbc_desc_type(FieldIdentifier),
 			"ColumnNnumber",ColumnNumber,
 			"CharacterAttributePtr",CharacterAttributePtr);
 	else
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"iii",
-			"FieldIdentifier",FieldIdentifier,
+            (SQLHANDLE)NULL,status,"sii",
+			"FieldIdentifier",odbc_desc_type(FieldIdentifier),
 			"ColumnNnumber",ColumnNumber,
 			"*NumericAttributePtr",*(SQLINTEGER*)NumericAttributePtr);
 //#undef  UNIX_DEBUG

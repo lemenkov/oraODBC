@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSetStmtAttr.c,v 1.5 2003/02/11 21:37:55 dbox Exp $
+ * $Id: SQLSetStmtAttr.c,v 1.6 2004/11/17 03:02:59 dbox Exp $
  *
  * $Log: SQLSetStmtAttr.c,v $
+ * Revision 1.6  2004/11/17 03:02:59  dbox
+ * changed some bind/fetch internals, better ood_log behavior
+ *
  * Revision 1.5  2003/02/11 21:37:55  dbox
  * fixed a problem with array inserts, SQLSetStmtAttr and SQLGetStmtAttr
  * for parameters SQL_ATTR_PARAMSET_SIZE and SQL_ATTR_PARAM_BIND_TYPE
@@ -80,7 +83,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetStmtAttr.c,v $ $Revision: 1.5 $";
+static char const rcsid[]= "$RCSfile: SQLSetStmtAttr.c,v $ $Revision: 1.6 $";
 
 
 SQLRETURN SQL_API SQLSetStmtAttr(
@@ -92,9 +95,9 @@ SQLRETURN SQL_API SQLSetStmtAttr(
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status=SQL_SUCCESS;
      if(ENABLE_TRACE){
-      ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-		      (SQLHANDLE)stmt,0,"pii",
-		      "Attribute",Attribute,
+      ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
+		      (SQLHANDLE)stmt,0,"shi",
+		      "Attribute",odbc_sql_attr_type(Attribute),
 		      "ValuePtr",ValuePtr,
 		      "StringLength",StringLength);
     }
@@ -102,10 +105,10 @@ SQLRETURN SQL_API SQLSetStmtAttr(
     ood_mutex_lock_stmt(stmt);
     
     if(ENABLE_TRACE){
-      ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-		      (SQLHANDLE)stmt,0,"p",
-		      name_for_sql_attr_type(Attribute),
-		      (long)ValuePtr);
+      ood_log_message(stmt->dbc,__FILE__,__LINE__,0,
+		      (SQLHANDLE)stmt,0,"sh",
+		      "Attribute",odbc_sql_attr_type(Attribute),
+		      "ValuePtr",ValuePtr);
     }
 
     switch(Attribute)
@@ -156,7 +159,7 @@ SQLRETURN SQL_API SQLSetStmtAttr(
 	    ood_post_diag((hgeneric*)stmt->dbc,ERROR_ORIGIN_IM001,0,"",
 			  ERROR_MESSAGE_IM001,
 			  __LINE__,0,"",ERROR_STATE_IM001,
-			  "-"__FILE__,__LINE__);
+			  __FILE__,__LINE__);
 	    status=SQL_SUCCESS_WITH_INFO;
 	  }
 	break;
@@ -197,7 +200,7 @@ SQLRETURN SQL_API SQLSetStmtAttr(
 	ood_post_diag((hgeneric*)stmt->dbc,ERROR_ORIGIN_IM001,0,"",
 		      ERROR_MESSAGE_IM001,
 		      __LINE__,0,"",ERROR_STATE_IM001,
-		      "-"__FILE__,__LINE__);
+		      __FILE__,__LINE__);
         status=SQL_ERROR;
       }
     
