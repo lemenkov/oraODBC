@@ -1,5 +1,5 @@
 #include "common.h"
-/* $Id: common.c,v 1.3 2002/11/14 22:28:36 dbox Exp $*/
+/* $Id: common.c,v 1.4 2003/01/17 23:27:15 dbox Exp $*/
 #define IS_VALID(x) (x->valid_flag==VALID_FLAG_DEFAULT)
 SQLRETURN not_implemented()
 {
@@ -63,7 +63,7 @@ ir_T * make_ir_T()
 
   t->data_type = ub2_DEFAULT;
   t->orig_type = ub2_DEFAULT;
-  t->data_size = ub4_DEFAULT;
+  t->data_size = ub2_DEFAULT;
   t->col_num = int_DEFAULT;
   t->default_copy = FUNCTION_DEFAULT;
   t->to_string =  FUNCTION_DEFAULT;

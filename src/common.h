@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.5 2003/01/17 22:34:51 dbox Exp $
+ * $Id: common.h,v 1.6 2003/01/17 23:27:15 dbox Exp $
  *
  * $Log: common.h,v $
+ * Revision 1.6  2003/01/17 23:27:15  dbox
+ * more solaris tidy-ups
+ *
  * Revision 1.5  2003/01/17 22:34:51  dbox
  * changing greivous mutex lock/unlock typo
  *
@@ -357,7 +360,7 @@ struct ir_TAG
 {
   ub2 data_type;
   ub2 orig_type;
-  ub4 data_size;
+  ub2 data_size;
   int col_num;
   SQLRETURN (*default_copy)();
   SQLRETURN (*to_string)();
