@@ -18,7 +18,7 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColAttribute.c,v 1.6 2003/01/30 19:16:01 dbox Exp $
+ * $Id: SQLColAttribute.c,v 1.7 2003/01/30 21:01:37 dbox Exp $
  *
 
  *
@@ -37,7 +37,7 @@ const char * _sql_desc_type_name( struct ar_TAG * ar)
     return "FLOAT";
   }
 
-  if(ar->precision!=0){
+  if(ar->concise_type>=SQL_NUMERIC && ar->concise_type<=SQL_DOUBLE  ){
     if(ar->scale==0)
       return "INTEGER";
     return "NUMBER";
@@ -48,6 +48,16 @@ const char * _sql_desc_type_name( struct ar_TAG * ar)
 
   if(ar->concise_type==SQL_CHAR)
     return "CHAR";
+
+  if(ar->concise_type==SQL_TYPE_TIMESTAMP )
+    return "DATE";
+
+  if(ar->concise_type==SQL_LONGVARBINARY  )
+    return "BLOB";
+
+  if(ar->concise_type==SQL_LONGVARCHAR  )
+    return "CLOB";
+
 
 
   return "UNKNOWN TYPE";
