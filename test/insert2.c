@@ -1,10 +1,11 @@
 
 
 
-/* test array inserts, can't get it  to work!*/
-/* see SQLSetStmtAttr.c line 188 */
+/* test array inserts, claims it works but database disagrees*/
+/* last 2 of 3 char arrays dont insert... */
+/* see SQLSetStmtAttr.c */
 /* author: Dennis Box, dbox@fnal.gov
- * $Id: insert2.c,v 1.7 2002/08/13 22:41:46 dbox Exp $
+ * $Id: insert2.c,v 1.8 2003/02/11 21:37:55 dbox Exp $
  */
 
 
@@ -23,132 +24,131 @@
 
 int main()
 {
-    // Declare The Local Memory Variables
-    #define MAX_CHAR_LEN 255
-    #define ARRAY_LEN 3
-    SQLINTEGER   anIntArray[ARRAY_LEN];
-    SQLFLOAT   aFloatArray[ARRAY_LEN];
-    SQLCHAR   aCharArray[ARRAY_LEN][MAX_CHAR_LEN];
-    SQLINTEGER   charInsArray[ARRAY_LEN];
-    int i;
-
-    GET_LOGIN_VARS();
-    for(i=0;i<ARRAY_LEN;i++){
-      anIntArray[i]=i;
-      aFloatArray[i]=(float)i+0.5;
-      sprintf(aCharArray[i],"int=%d flt=%f",anIntArray[i],aFloatArray[i]);
-      charInsArray[i]=SQL_NTS;
-    }
-    VERBOSE("calling SQLAllocHandle(EnvHandle) \n");
-
-    rc = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &EnvHandle);
-    assert(rc == SQL_SUCCESS);
-    assert(EnvHandle != (SQLHANDLE)NULL);
-
-
-   
-    rc = SQLSetEnvAttr(EnvHandle, SQL_ATTR_ODBC_VERSION, 
-		       (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_UINTEGER);
-
-    assert(rc == SQL_SUCCESS);
-        
-    VERBOSE("calling SQLAllocHandle(ConHandle) \n");
-
-    rc = SQLAllocHandle(SQL_HANDLE_DBC, EnvHandle, &ConHandle);
-    assert(ConHandle != (SQLHANDLE)NULL);
-    assert(rc == SQL_SUCCESS);
-   
-    rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
-		    (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
-    assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO );
-
-    VERBOSE("connected to  database %s\n",twoTask);
-
-   
-
-    rc = SQLAllocStmt(ConHandle, &StmtHandle);
-    assert(rc == SQL_SUCCESS);
-
-    /* Set The SQL_ATTR_ROW_BIND_TYPE Statement Attribute To Tell
-       The Driver To Use Column-Wise Binding. */
-    
-       rc = SQLSetStmtAttr(StmtHandle, SQL_ATTR_PARAM_BIND_TYPE, 
-			   SQL_PARAM_BIND_BY_COLUMN, 0);
-
-       /*this function is not implemented so its not fair to test it for
-	 success.  The bind-by-array stuff works anyway without it */
-       assert(rc==SQL_ERROR);
-
-       /*T_ASSERT3(rc==SQL_SUCCESS, "failed to Set The SQL_ATTR_ROW_BIND_TYPE",
-	      " Statement Attribute To Tell The Driver To Use ",
-	      "Column-Wise Binding\n");*/
+  // Declare The Local Memory Variables
+#define MAX_CHAR_LEN 255
+#define ARRAY_LEN 3
+  SQLINTEGER retval;
+  SQLINTEGER   anIntArray[ARRAY_LEN];
+  SQLFLOAT   aFloatArray[ARRAY_LEN];
+  SQLCHAR   aCharArray[ARRAY_LEN][MAX_CHAR_LEN];
+  SQLINTEGER   charInsArray[ARRAY_LEN];
+  int i;
   
-    /*Tell The Driver That There Are 3 Values For Each Parameter
-      (By Setting The SQL_ATTR_PARAMSET_SIZE Statement
+  GET_LOGIN_VARS();
+  for(i=0;i<ARRAY_LEN;i++){
+    anIntArray[i]=i+3;
+    aFloatArray[i]=(float)i+0.5;
+    sprintf(aCharArray[i],"int=%d flt=%f",anIntArray[i],aFloatArray[i]);
+    charInsArray[i]=SQL_NTS;
+  }
+  VERBOSE("calling SQLAllocHandle(EnvHandle) \n");
+
+  rc = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &EnvHandle);
+  assert(rc == SQL_SUCCESS);
+  assert(EnvHandle != (SQLHANDLE)NULL);
+  
+  
+  
+  rc = SQLSetEnvAttr(EnvHandle, SQL_ATTR_ODBC_VERSION, 
+		     (SQLPOINTER) SQL_OV_ODBC3, SQL_IS_UINTEGER);
+  
+  assert(rc == SQL_SUCCESS);
+  
+  VERBOSE("calling SQLAllocHandle(ConHandle) \n");
+  
+  rc = SQLAllocHandle(SQL_HANDLE_DBC, EnvHandle, &ConHandle);
+  assert(ConHandle != (SQLHANDLE)NULL);
+  assert(rc == SQL_SUCCESS);
+  
+  rc = SQLConnect(ConHandle, twoTask, SQL_NTS, 
+		  (SQLCHAR *)userName , SQL_NTS, (SQLCHAR *) pswd, SQL_NTS);
+  assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO );
+  
+  VERBOSE("connected to  database %s\n",twoTask);
+  
+  
+  
+  rc = SQLAllocStmt(ConHandle, &StmtHandle);
+  assert(rc == SQL_SUCCESS);
+  
+  /* Set The SQL_ATTR_ROW_BIND_TYPE Statement Attribute To Tell
+     The Driver To Use Column-Wise Binding. */
+  
+  rc = SQLSetStmtAttr(StmtHandle, SQL_ATTR_PARAM_BIND_TYPE, 
+		      SQL_PARAM_BIND_BY_COLUMN, 0);
+  
+  assert(rc==SQL_SUCCESS);
+  
+  /*T_ASSERT3(rc==SQL_SUCCESS, "failed to Set The SQL_ATTR_ROW_BIND_TYPE",
+    " Statement Attribute To Tell The Driver To Use ",
+    "Column-Wise Binding\n");*/
+  
+  /*Tell The Driver That There Are 3 Values For Each Parameter
+    (By Setting The SQL_ATTR_PARAMSET_SIZE Statement
       Attribute*/
-    // rc = SQLParamOptions(StmtHandle,  ARRAY_LEN, 0);
-    // assert(rc==SQL_SUCCESS);
-    
-     
-    sprintf(SQLStmt,"insert into some_types values( ");
-    strcat(SQLStmt," ?, ?, ? ) ");
-
-    VERBOSE("preparing statement %s\n", SQLStmt);
-
-
-    rc = SQLPrepare(StmtHandle, SQLStmt, SQL_NTS);
-    assert(rc == SQL_SUCCESS);
- 
-    VERBOSE("binding....\n");
-
-    rc = SQLBindParameter(StmtHandle, 1, SQL_PARAM_INPUT, 
-			  SQL_C_DEFAULT, SQL_INTEGER, 0, 0, anIntArray, 0,
-			  NULL);
-    assert(rc == SQL_SUCCESS);
-
-    rc = SQLBindParameter(StmtHandle, 2, SQL_PARAM_INPUT, 
-			  SQL_C_DEFAULT, SQL_FLOAT, 0, 0, aFloatArray, 0,
-			  NULL);
-    assert(rc == SQL_SUCCESS);
-
-    rc = SQLBindParameter(StmtHandle, 3, SQL_PARAM_INPUT, 
-			  SQL_C_CHAR, SQL_CHAR, MAX_CHAR_LEN, 
-			  0, aCharArray, MAX_CHAR_LEN,
-			  charInsArray);
-    assert(rc == SQL_SUCCESS);
-
-    VERBOSE("executing....\n");
-
-
-    rc = SQLExecute(StmtHandle);
-
- 
-    assert(rc == SQL_SUCCESS);
-    VERBOSE("success: executed statement\n");
-
-    VERBOSE("calling SQLFreeStmt\n");
-    if (StmtHandle != NULL)
-      rc=SQLFreeHandle(SQL_HANDLE_STMT,StmtHandle);
-    assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
-
-
-    rc = SQLDisconnect(ConHandle);
-    assert(rc == SQL_SUCCESS);
-    VERBOSE("disconnected from  database\n");
-     
-
-    VERBOSE("calling SQLFreeHandle(ConHandle) \n");
-
-    assert (ConHandle != (SQLHANDLE)NULL);
-    rc = SQLFreeHandle(SQL_HANDLE_DBC, ConHandle);
-    assert(rc == SQL_SUCCESS);
-   
-    VERBOSE("calling SQLFreeHandle(EnvHandle) \n");
-
-    assert (EnvHandle != (SQLHANDLE)NULL);
-    rc = SQLFreeHandle(SQL_HANDLE_ENV, EnvHandle);
-    assert(rc == SQL_SUCCESS);
-   
-
-    return(rc);
+  rc = SQLSetStmtAttr(StmtHandle, SQL_ATTR_PARAMSET_SIZE,  ARRAY_LEN, 0);
+  assert(rc==SQL_SUCCESS);
+  
+  
+  sprintf(SQLStmt,"insert into some_types values( ");
+  strcat(SQLStmt," ?, ?, ? ) ");
+  
+  VERBOSE("preparing statement %s\n", SQLStmt);
+  
+  
+  rc = SQLPrepare(StmtHandle, SQLStmt, SQL_NTS);
+  assert(rc == SQL_SUCCESS);
+  
+  VERBOSE("binding....\n");
+  
+  rc = SQLBindParameter(StmtHandle, 1, SQL_PARAM_INPUT, 
+			SQL_C_SLONG, SQL_INTEGER, 0, 0, anIntArray, 0,
+			NULL);
+  assert(rc == SQL_SUCCESS);
+  
+  rc = SQLBindParameter(StmtHandle, 2, SQL_PARAM_INPUT, 
+			SQL_C_DOUBLE, SQL_FLOAT, 0, 0, aFloatArray, 0,
+			NULL);
+  assert(rc == SQL_SUCCESS);
+  
+  rc = SQLBindParameter(StmtHandle, 3, SQL_PARAM_INPUT, 
+			SQL_C_CHAR, SQL_CHAR, MAX_CHAR_LEN, 
+			0, aCharArray, MAX_CHAR_LEN,
+			charInsArray);
+  assert(rc == SQL_SUCCESS);
+  
+  VERBOSE("executing....\n");
+  
+  
+  rc = SQLExecute(StmtHandle);
+  
+  
+  assert(rc == SQL_SUCCESS);
+  VERBOSE("success: executed statement\n");
+  
+  VERBOSE("calling SQLFreeStmt\n");
+  if (StmtHandle != NULL)
+    rc=SQLFreeHandle(SQL_HANDLE_STMT,StmtHandle);
+  assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
+  
+  
+  rc = SQLDisconnect(ConHandle);
+  assert(rc == SQL_SUCCESS);
+  VERBOSE("disconnected from  database\n");
+  
+  
+  VERBOSE("calling SQLFreeHandle(ConHandle) \n");
+  
+  assert (ConHandle != (SQLHANDLE)NULL);
+  rc = SQLFreeHandle(SQL_HANDLE_DBC, ConHandle);
+  assert(rc == SQL_SUCCESS);
+  
+  VERBOSE("calling SQLFreeHandle(EnvHandle) \n");
+  
+  assert (EnvHandle != (SQLHANDLE)NULL);
+  rc = SQLFreeHandle(SQL_HANDLE_ENV, EnvHandle);
+  assert(rc == SQL_SUCCESS);
+  
+  
+  return(rc);
 }

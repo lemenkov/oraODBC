@@ -18,9 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSetStmtAttr.c,v 1.4 2002/11/14 22:28:36 dbox Exp $
+ * $Id: SQLSetStmtAttr.c,v 1.5 2003/02/11 21:37:55 dbox Exp $
  *
  * $Log: SQLSetStmtAttr.c,v $
+ * Revision 1.5  2003/02/11 21:37:55  dbox
+ * fixed a problem with array inserts, SQLSetStmtAttr and SQLGetStmtAttr
+ * for parameters SQL_ATTR_PARAMSET_SIZE and SQL_ATTR_PARAM_BIND_TYPE
+ * are now functional
+ *
  * Revision 1.4  2002/11/14 22:28:36  dbox
  * %$@*&%$??!
  *
@@ -75,7 +80,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetStmtAttr.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLSetStmtAttr.c,v $ $Revision: 1.5 $";
 
 
 SQLRETURN SQL_API SQLSetStmtAttr(
@@ -163,12 +168,16 @@ SQLRETURN SQL_API SQLSetStmtAttr(
       case SQL_ATTR_ROWS_FETCHED_PTR:
         stmt->rows_fetched_ptr=(SQLUINTEGER*)ValuePtr;
 	break;
-	
-      /* these guys are unimplemented and return SQL_ERROR */
       case SQL_ATTR_PARAM_BIND_TYPE:
+        stmt->param_bind_type=(SQLINTEGER)ValuePtr;
+	break;
+      case SQL_ATTR_PARAMSET_SIZE:
+        stmt->paramset_size=(SQLINTEGER)ValuePtr;
+	break;
+
+      /* these guys are unimplemented and return SQL_ERROR */
       case SQL_ATTR_PARAM_OPERATION_PTR:
       case SQL_ATTR_PARAMS_PROCESSED_PTR:
-      case SQL_ATTR_PARAMSET_SIZE:
       case SQL_ATTR_ROW_OPERATION_PTR:
       case SQL_ATTR_PARAM_STATUS_PTR:
       case SQL_ATTR_ASYNC_ENABLE:

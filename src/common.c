@@ -1,5 +1,5 @@
 #include "common.h"
-/* $Id: common.c,v 1.5 2003/01/30 19:16:01 dbox Exp $*/
+/* $Id: common.c,v 1.6 2003/02/11 21:37:55 dbox Exp $*/
 #define IS_VALID(x) (x->valid_flag==VALID_FLAG_DEFAULT)
 SQLRETURN not_implemented()
 {
@@ -236,6 +236,8 @@ hStmt_T * make_hStmt_T()
   t->row_status_ptr = (SQLUSMALLINT)NULL;
   t->row_bind_type = (SQLUINTEGER)NULL;
   t->rows_fetched_ptr = (SQLUINTEGER)NULL;
+  t->param_bind_type = (SQLUINTEGER)NULL;
+  t->paramset_size = 1;
   t->query_timeout = (SQLUINTEGER)NULL;
   t->valid_flag = VALID_FLAG_DEFAULT;
   return t;

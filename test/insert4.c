@@ -1,11 +1,9 @@
 
 
 
-/* test inserts, using bound parameters*/
-/* currently returns SQL_SUCCESS but inserts corrupted char strings 
- * into database, yuck
+/* test inserts, using bound parameters  - works 
  * author: Dennis Box, dbox@fnal.gov
- * $Id: insert4.c,v 1.5 2002/06/26 21:02:23 dbox Exp $
+ * $Id: insert4.c,v 1.6 2003/02/11 21:37:55 dbox Exp $
  */
 
 #include "test_defs.h"
@@ -82,7 +80,7 @@ int main()
     VERBOSE("binding....\n");
 
     rc = SQLBindParameter(StmtHandle, 1, SQL_PARAM_INPUT, 
-			  SQL_C_LONG, SQL_INTEGER, 0, 0, &anInt, 0,
+			  SQL_INTEGER, SQL_INTEGER, 0, 0, &anInt, 0,
 			  &cbInt);
     assert(rc == SQL_SUCCESS);
 
@@ -117,10 +115,12 @@ int main()
 
     VERBOSE("executing....\n");
 
-    for(i=0;i<ARRAY_LEN;i++){
-      anInt=i;
+    for(i=10;i<ARRAY_LEN+10;i++){
+      anInt=i+1;
       aFloat=i+0.5;
       sprintf(aCharArray,"int=%d flt=%f",anInt,aFloat);
+      VERBOSE("insert anInt=%d aFloat=%f charArray='%s'\n",
+	      anInt,aFloat,aCharArray);
       rc = SQLExecute(StmtHandle);
       assert(rc == SQL_SUCCESS);
       VERBOSE("success: executed statement values %s\n",aCharArray);

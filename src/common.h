@@ -18,9 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.7 2003/01/30 19:16:01 dbox Exp $
+ * $Id: common.h,v 1.8 2003/02/11 21:37:55 dbox Exp $
  *
  * $Log: common.h,v $
+ * Revision 1.8  2003/02/11 21:37:55  dbox
+ * fixed a problem with array inserts, SQLSetStmtAttr and SQLGetStmtAttr
+ * for parameters SQL_ATTR_PARAMSET_SIZE and SQL_ATTR_PARAM_BIND_TYPE
+ * are now functional
+ *
  * Revision 1.7  2003/01/30 19:16:01  dbox
  * more tweaking of SQLColAttribute.c and friends
  *
@@ -491,6 +496,8 @@ struct hStmt_TAG
   SQLUSMALLINT *row_status_ptr;
   SQLUINTEGER row_bind_type;
   SQLUINTEGER *rows_fetched_ptr;
+  SQLUINTEGER param_bind_type;
+  SQLUINTEGER paramset_size;
   SQLUINTEGER query_timeout; /* NOTE: does nothing (TODO)*/
   SQLSMALLINT valid_flag;
 

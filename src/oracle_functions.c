@@ -21,7 +21,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.23 2003/02/10 19:58:50 dbox Exp $
+ * $Id: oracle_functions.c,v 1.24 2003/02/11 21:37:55 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -31,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.23 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.24 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -535,12 +535,28 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
     }
   else
     {
-      ub4 commit_mode;
+      ub4 mode;
+      ub4 ar_size;
+      ar_size=1;
+      mode = OCI_DEFAULT;
+     
       THREAD_MUTEX_LOCK(stmt->dbc);
-      commit_mode=stmt->dbc->autocommit;
+      if(stmt->dbc->autocommit==OCI_COMMIT_ON_SUCCESS)
+	mode=OCI_COMMIT_ON_SUCCESS;
       THREAD_MUTEX_UNLOCK(stmt->dbc);
-      ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc,stmt->oci_stmt,stmt->dbc->oci_err,
-				  1,0,0,0,commit_mode,ret);
+      
+      if(stmt->stmt_type==OCI_STMT_INSERT
+	 && stmt->paramset_size > 1){
+	ar_size=stmt->paramset_size;
+	mode=OCI_BATCH_ERRORS;
+      }
+     ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc,
+				  stmt->oci_stmt,
+				  stmt->dbc->oci_err,
+				  ar_size
+				  ,0,0,0,mode,ret);
+
+
     }
   if(ret)
     {
