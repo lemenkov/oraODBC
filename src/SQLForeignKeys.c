@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLForeignKeys.c,v 1.2 2002/03/05 22:55:50 dbox Exp $
+ * $Id: SQLForeignKeys.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLForeignKeys.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/03/05 22:55:50  dbox
  * added functionality to oracle_functions.c
  *
@@ -62,7 +69,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLForeignKeys.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLForeignKeys.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLForeignKeys (
     SQLHSTMT            StatementHandle,
@@ -96,10 +103,10 @@ SQLRETURN SQL_API SQLForeignKeys (
 #else
 	char sql[512]="SELECT NULL,A.R_OWNER,B.TABLE_NAME,C.COLUMN_NAME,NULL,A.OWNER,A.TABLE_NAME,D.COLUMN_NAME,D.POSITION,NULL,NULL,A.CONSTRAINT_NAME,A.R_CONSTRAINT_NAME,NULL FROM ALL_CONSTRAINTS A,ALL_CONSTRAINTS B,ALL_CONS_COLUMNS C,ALL_CONS_COLUMNS D  WHERE A.CONSTRAINT_TYPE = 'r' AND  A.R_CONSTRAINT_NAME = B.CONSTRAINT_NAME  AND C.CONSTRAINT_NAME = B.CONSTRAINT_NAME AND D.CONSTRAINT_NAME = A.CONSTRAINT_NAME AND C.POSITION = D.POSITION ";
 #endif
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
 
     ood_clear_diag((hgeneric*)stmt);
 
@@ -222,10 +229,10 @@ fkschema [%s], fktable [%s]\n",pkschema,pktable,fkschema,fktable);
 
     if(status)
     {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,status,"");
-#endif
+}
         ood_mutex_unlock_stmt(stmt);
         return status;
     }
@@ -236,10 +243,10 @@ fkschema [%s], fktable [%s]\n",pkschema,pktable,fkschema,fktable);
     if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,14,stmt->current_ir,
 				stmt->current_ar))
     {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,SQL_ERROR,"");
-#endif
+}
         ood_mutex_unlock_stmt(stmt);
         return SQL_ERROR;
     }
@@ -452,9 +459,9 @@ fkschema [%s], fktable [%s]\n",pkschema,pktable,fkschema,fktable);
 	stmt->fetch_status=ood_driver_prefetch(stmt);
 
     ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return SQL_SUCCESS;
 }

@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColAttribute.c,v 1.3 2002/03/08 22:07:19 dbox Exp $
+ * $Id: SQLColAttribute.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLColAttribute.c,v $
+ * Revision 1.4  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.3  2002/03/08 22:07:19  dbox
  * added commit/rollback, more tests for SQLColAttribute
  *
@@ -83,7 +90,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: SQLColAttribute.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLColAttribute.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLColAttribute(
     SQLHSTMT            StatementHandle,
@@ -101,12 +108,12 @@ SQLRETURN SQL_API SQLColAttribute(
     if(!stmt||HANDLE_TYPE(stmt)!=SQL_HANDLE_STMT)
         return SQL_INVALID_HANDLE;
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"ii",
 			"ColumnNumber",ColumnNumber,
 			"FieldIdentifier",FieldIdentifier);
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
 
@@ -380,7 +387,7 @@ fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAtt
     }
 #endif
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
 	if(CharacterAttributePtr)
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"iis",
@@ -394,6 +401,6 @@ fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAtt
 			"ColumnNnumber",ColumnNumber,
 			"*NumericAttributePtr",*(SQLINTEGER*)NumericAttributePtr);
 //#undef  UNIX_DEBUG
-#endif
+}
     return status;
 }

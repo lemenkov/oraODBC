@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLAllocHandle.c,v 1.4 2002/06/19 22:21:37 dbox Exp $
+ * $Id: SQLAllocHandle.c,v 1.5 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLAllocHandle.c,v $
+ * Revision 1.5  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.4  2002/06/19 22:21:37  dbox
  * more tweaks to OCI calls to report what happens when DEBUG level is set
  *
@@ -92,7 +99,7 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.5 $";
 
 #include "common.h"
 
@@ -229,11 +236,11 @@ SQLRETURN _SQLAllocHandle(
 
             if(!dbc || HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
                 return SQL_INVALID_HANDLE;
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
                     (SQLHANDLE)dbc,SQL_SUCCESS,
                     "i","Handle Type",SQL_HANDLE_STMT);
-#endif
+}
 
             if(!OutputHandlePtr)
             {
@@ -241,11 +248,11 @@ SQLRETURN _SQLAllocHandle(
                         ERROR_MESSAGE_HY009,
                         __LINE__,0,"",ERROR_STATE_HY009,
                         __FILE__,__LINE__);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                     (SQLHANDLE)dbc,SQL_ERROR,
                     "s","OutputHandlePtr","NULL");
-#endif
+}
                 return SQL_ERROR;
             }
 
@@ -332,12 +339,12 @@ SQLRETURN _SQLAllocHandle(
             THREAD_MUTEX_UNLOCK(dbc);
 
             *OutputHandlePtr=(SQLHANDLE)stmt;
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                     (SQLHANDLE)dbc,SQL_SUCCESS,
                     "h","Output Handle",
                     stmt);
-#endif
+}
         }
         break;
 
@@ -349,12 +356,12 @@ SQLRETURN _SQLAllocHandle(
          
             if(!dbc || HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
                 return SQL_INVALID_HANDLE;
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
                     (SQLHANDLE)dbc,SQL_SUCCESS,
                     "i","Handle Type",
                     SQL_HANDLE_DESC);
-#endif
+}
 
 
             if(!OutputHandlePtr)
@@ -363,11 +370,11 @@ SQLRETURN _SQLAllocHandle(
                         ERROR_MESSAGE_HY009,
                         __LINE__,0,"",ERROR_STATE_HY009,
                         __FILE__,__LINE__);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                     (SQLHANDLE)dbc,SQL_ERROR,
                     "p","OutputHandlePtr","NULL");
-#endif
+}
                 return SQL_ERROR;
             }
 
@@ -380,11 +387,11 @@ SQLRETURN _SQLAllocHandle(
                         ERROR_MESSAGE_HY001,
                         __LINE__,0,"",ERROR_STATE_HY001,
                         __FILE__,__LINE__);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                     (SQLHANDLE)dbc,SQL_ERROR,
                     "");
-#endif
+}
                 return(SQL_ERROR);
             }
             ood_mutex_init((hgeneric*)desc);
@@ -402,12 +409,12 @@ SQLRETURN _SQLAllocHandle(
             THREAD_MUTEX_UNLOCK(dbc);
 
             *OutputHandlePtr = (SQLHANDLE)desc;
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                     (SQLHANDLE)dbc,SQL_SUCCESS,
                     "p","Output Handle",
                     desc);
-#endif
+}
 
             return SQL_SUCCESS;
         }

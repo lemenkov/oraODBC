@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLRowCount.c,v 1.3 2002/03/06 21:34:11 dbox Exp $
+ * $Id: SQLRowCount.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLRowCount.c,v $
+ * Revision 1.4  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.3  2002/03/06 21:34:11  dbox
  * took out spurious warning about stubbed function
  *
@@ -63,7 +70,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLRowCount.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLRowCount.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLRowCount(
     SQLHSTMT            StatementHandle,
@@ -74,19 +81,19 @@ SQLRETURN SQL_API SQLRowCount(
     {
         return SQL_INVALID_HANDLE;
     }
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
 
 	*RowCountPtr=(SQLINTEGER)abs(stmt->num_result_rows);
 
     ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,SQL_SUCCESS,"i","*RowCountPtr",*RowCountPtr);
-#endif
+}
     return SQL_SUCCESS;
 }

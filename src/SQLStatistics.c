@@ -18,11 +18,18 @@
  *
  *******************************************************************************
  *
- * $Id: SQLStatistics.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: SQLStatistics.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLStatistics.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.15  2000/07/21 10:04:17  tom
  * Fixed var init bug
@@ -74,7 +81,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLStatistics.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLStatistics.c,v $ $Revision: 1.2 $";
 
 /*
  * NOTE, this completely ignores the Reserved param ATM
@@ -181,10 +188,10 @@ SQLRETURN SQL_API SQLStatistics(
         if(!stmt->dbc->metadata_id)
             sql_end=ood_fast_strcat(sql," ESCAPE \'\\\'",sql_end);
     }
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"s","SQL",sql);
-#endif
+}
 
     if(schema&&schema!=(char*)SchemaName)
         ORAFREE(schema);
@@ -198,10 +205,10 @@ SQLRETURN SQL_API SQLStatistics(
     
     if(status)
     {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,status,"");
-#endif
+}
         ood_mutex_unlock_stmt(stmt);
         return status;
     }
@@ -213,10 +220,10 @@ SQLRETURN SQL_API SQLStatistics(
 				stmt->current_ar))
     {
         ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,SQL_ERROR,"");
-#endif
+}
         return SQL_ERROR;
     }
 
@@ -400,9 +407,9 @@ SQLRETURN SQL_API SQLStatistics(
 	stmt->fetch_status=ood_driver_prefetch(stmt);
 
     ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return status;
 }

@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColumns.c,v 1.3 2002/06/19 22:21:37 dbox Exp $
+ * $Id: SQLColumns.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLColumns.c,v $
+ * Revision 1.4  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.3  2002/06/19 22:21:37  dbox
  * more tweaks to OCI calls to report what happens when DEBUG level is set
  *
@@ -89,7 +96,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.4 $";
 
 /*
  * Due to the fact that Oracle returns the data type as a varchar and
@@ -233,10 +240,10 @@ SQLRETURN SQL_API SQLColumns(
     char sql[512]="SELECT NULL, OWNER, TABLE_NAME, COLUMN_NAME, DATA_TYPE, DATA_TYPE, NVL(DATA_PRECISION,DATA_LENGTH), DATA_LENGTH,DATA_SCALE, 10, REPLACE(REPLACE(NULLABLE,'Y',1),'N',0), ' ', NULL, DATA_TYPE, NULL, CHAR_COL_DECL_LENGTH, COLUMN_ID, REPLACE(REPLACE(NULLABLE,'N','NO'),'Y','YES') FROM ALL_TAB_COLUMNS";
 #endif
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
 
 
@@ -321,11 +328,10 @@ fprintf(stderr,"SQLColumns schema [%s], table [%s], column [%s]\n",schema,table,
             sql_end=ood_fast_strcat(sql," ESCAPE \'\\\'",sql_end);
         has_where_clause=1;
     }
-#if defined(ENABLE_TRACE) && defined(UNIX_DEBUG)
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"s","SQL",sql);
-#endif
-
+}
     if(schema&&schema!=(char*)SchemaName)
         ORAFREE(schema);
     if(table&&table!=(char*)TableName)
@@ -341,10 +347,10 @@ fprintf(stderr,"SQLColumns schema [%s], table [%s], column [%s]\n",schema,table,
 
     if(status)
     {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,status,"");
-#endif
+}
         ood_mutex_unlock_stmt(stmt);
         return status;
     }
@@ -362,10 +368,10 @@ fprintf(stderr,"SQLColumns schema [%s], table [%s], column [%s]\n",schema,table,
     if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,18,stmt->current_ir,
 				stmt->current_ar))
     {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,SQL_ERROR,"");
-#endif
+}
         ood_mutex_unlock_stmt(stmt);
         return SQL_ERROR;
     }
@@ -648,10 +654,10 @@ fprintf(stderr,"SQLColumns schema [%s], table [%s], column [%s]\n",schema,table,
 
 	stmt->fetch_status=ood_driver_prefetch(stmt);
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,status,"");
-#endif
+}
     ood_mutex_unlock_stmt(stmt);
     return status;
 }

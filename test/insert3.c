@@ -1,6 +1,6 @@
 /* test function: SQLExecDirect to insert a row into table 'some_numeric_types'
  * author: Dennis Box, dbox@fnal.gov
- * $Id: insert3.c,v 1.3 2002/05/31 19:55:00 dbox Exp $
+ * $Id: insert3.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  */
 
 
@@ -69,7 +69,7 @@ int main()
 
     VERBOSE("calling SQLFreeStmt\n");
     if (StmtHandle != NULL)
-      rc=SQLFreeStmt(StmtHandle, SQL_DROP);
+      rc=SQLFreeHandle(SQL_HANDLE_STMT,StmtHandle);
     assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
 
 

@@ -19,11 +19,11 @@
  *
  *******************************************************************************
  *
- * $Id: common_functions.c,v 1.3 2002/05/22 22:05:31 dbox Exp $
+ * $Id: common_functions.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.4 $";
 
 /*
  * SQL type display size
@@ -397,7 +397,6 @@ sword ood_alt_fetch_no_data(hStmt_T* stmt)
 }
 
 
-#ifdef ENABLE_TRACE
 /*
  * _log_message
  *
@@ -406,12 +405,14 @@ sword ood_alt_fetch_no_data(hStmt_T* stmt)
 static void _log_message_imp(char *tracefilename,char *file,int line, 
         int mask, SQLHANDLE handle, SQLRETURN ret, char* fmt, va_list ap)
 {
-    FILE *tracefile;
+    FILE *tracefile=stderr;
     char *left; /*left hand side of each format pair */
+    /*
     if(NULL==(tracefile=fopen(tracefilename,"a")))
     {
         return;
     }
+    */
 #if !defined(WIN32)
     fprintf(tracefile, "%s[%d]%s[%04d]\n",ERROR_PRODUCT,
             (int)getpid(),file,line);
@@ -565,7 +566,7 @@ static void _log_message_imp(char *tracefilename,char *file,int line,
             fmt++;
     }/*while(*fmt)*/
     fputc('\n',tracefile);
-    fclose(tracefile);
+    /*fclose(tracefile);*/
 }
 
 /*
@@ -611,11 +612,13 @@ void ood_log_message(hDbc_T* dbc,char *file,int line, int mask, SQLHANDLE handle
 #else
     THREAD_MUTEX_LOCK(dbc);
 #endif
+    /*
     if(dbc->trace!=SQL_OPT_TRACE_ON)
     {
         THREAD_MUTEX_UNLOCK(dbc);
         return;
     }
+    */
     va_start( ap, fmt );
     _log_message_imp((char*)dbc->tracefile,file,line,mask,handle,ret,fmt,ap);
     va_end( ap );
@@ -623,24 +626,4 @@ void ood_log_message(hDbc_T* dbc,char *file,int line, int mask, SQLHANDLE handle
     return;
 }
 
-void* ora_malloc(size_t size)
-{
-  void * ptr = malloc(size);
-  if(ptr==NULL){
-    fprintf(stderr,"Out Of Memory Error line %d file %s\n",__LINE__,__FILE__);
-    exit(-1);
-  }
-  return ptr;
-}
 
-void* ora_realloc(void *ptr, size_t size);
-{  
-  void * ptr2 = realloc(ptr,size);
-  if(ptr==NULL){
-    fprintf(stderr,"Out Of Memory Error line %d file %s\n",__LINE__,__FILE__);
-    exit(-1);
-  }
-  return ptr2;
-}
-
-#endif

@@ -18,11 +18,18 @@
  *
  *******************************************************************************
  *
- * $Id: SQLPrimaryKeys.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: SQLPrimaryKeys.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLPrimaryKeys.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.11  2000/07/21 10:04:17  tom
  * Fixed var init bug
@@ -59,7 +66,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLPrimaryKeys.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLPrimaryKeys.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLPrimaryKeys(
     SQLHSTMT            StatementHandle,
@@ -92,10 +99,10 @@ SQLRETURN SQL_API SQLPrimaryKeys(
 #else
 	char sql[512]="SELECT NULL, ALL_CONSTRAINTS.OWNER, ALL_CONSTRAINTS.TABLE_NAME, COLUMN_NAME, POSITION, ALL_CONSTRAINTS.CONSTRAINT_NAME FROM ALL_CONSTRAINTS, ALL_CONS_COLUMNS WHERE ALL_CONSTRAINTS.OWNER = ALL_CONS_COLUMNS.OWNER AND ALL_CONSTRAINTS.TABLE_NAME = ALL_CONS_COLUMNS.TABLE_NAME AND ALL_CONSTRAINTS.CONSTRAINT_TYPE='P' AND POSITION!=0";
 #endif
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
 
     ood_clear_diag((hgeneric*)stmt);
 
@@ -176,10 +183,10 @@ fprintf(stderr,"SQLPrimaryKeys schema [%s], table [%s]\n",schema,table);
 
     if(status)
     {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,status,"");
-#endif
+}
         ood_mutex_unlock_stmt(stmt);
         return status;
     }
@@ -190,10 +197,10 @@ fprintf(stderr,"SQLPrimaryKeys schema [%s], table [%s]\n",schema,table);
     if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,6,stmt->current_ir,
 				stmt->current_ar))
     {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,SQL_ERROR,"");
-#endif
+}
         ood_mutex_unlock_stmt(stmt);
         return SQL_ERROR;
     }
@@ -292,9 +299,9 @@ fprintf(stderr,"SQLPrimaryKeys schema [%s], table [%s]\n",schema,table);
 	stmt->fetch_status=ood_driver_prefetch(stmt);
 
     ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return SQL_SUCCESS;
 }

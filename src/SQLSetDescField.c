@@ -18,9 +18,16 @@
  *
  ******************************************************************************
  *
- * $Id: SQLSetDescField.c,v 1.2 2002/02/20 03:09:05 dbox Exp $
+ * $Id: SQLSetDescField.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLSetDescField.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/02/20 03:09:05  dbox
  * changed error reporting for stubbed out functions.  Added function calls
  * to 'test' subdirectory programs
@@ -54,7 +61,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetDescField.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLSetDescField.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLSetDescField(
     SQLHDESC            DescriptorHandle,
@@ -64,19 +71,19 @@ SQLRETURN SQL_API SQLSetDescField(
     SQLINTEGER            BufferLength )
 {
     hDesc_T* desc=(hDesc_T*)DescriptorHandle;
-#ifdef ENABLE_TRACE
     SQLRETURN status=SQL_SUCCESS;
+if(ENABLE_TRACE){
     ood_log_message(desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)desc,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)desc);
     THREAD_MUTEX_LOCK(desc);
 
     THREAD_MUTEX_UNLOCK(desc);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
     return SQL_SUCCESS;
 }

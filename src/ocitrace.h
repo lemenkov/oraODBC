@@ -12,6 +12,7 @@
 #else
 #define DBD_OCI_TRACEON	( debugLevel3() )
 #define DBD_OCI_TRACEFP	stderr
+#define ENABLE_TRACE ( debugLevel2() )
 #endif
 
 #define OciTp		("OCI")			/* OCI Trace Prefix */

@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetDiagField.c,v 1.2 2002/05/14 23:01:06 dbox Exp $
+ * $Id: SQLGetDiagField.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLGetDiagField.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/05/14 23:01:06  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -51,7 +58,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetDiagField.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLGetDiagField.c,v $ $Revision: 1.3 $";
 
 /*
  * Please note this in implemented in diagnostics.h
@@ -67,8 +74,8 @@ SQLRETURN SQL_API SQLGetDiagField(
     SQLSMALLINT            *StringLengthPtr )
 {
     SQLRETURN status=SQL_SUCCESS;
-#ifdef ENABLE_TRACE
     hDbc_T* dbc=NULL;
+if(ENABLE_TRACE){
     switch(HANDLE_TYPE(Handle))
     {
         case SQL_HANDLE_DBC:
@@ -86,16 +93,16 @@ SQLRETURN SQL_API SQLGetDiagField(
             (SQLHANDLE)Handle,0,"");
 	assert(IS_VALID(dbc));
     }
-#endif
+}
      status=_SQLGetDiagField( HandleType, Handle, RecNumber, DiagIdentifier, 
             DiagInfoPtr, BufferLength, StringLengthPtr );
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
      if(dbc){
          ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
              (SQLHANDLE)NULL,status,"");
 	 assert(IS_VALID(dbc));
      }
-#endif
+}
      return status;
 }

@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSetConnectAttr.c,v 1.2 2002/05/14 23:01:06 dbox Exp $
+ * $Id: SQLSetConnectAttr.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLSetConnectAttr.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/05/14 23:01:06  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -63,7 +70,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetConnectAttr.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLSetConnectAttr.c,v $ $Revision: 1.3 $";
 SQLRETURN SQL_API SQLSetConnectAttr(
     SQLHDBC            ConnectionHandle,
     SQLINTEGER        Attribute,
@@ -73,12 +80,12 @@ SQLRETURN SQL_API SQLSetConnectAttr(
     hDbc_T* dbc=(hDbc_T*)ConnectionHandle;
     SQLRETURN status=SQL_SUCCESS;
     assert(IS_VALID(dbc));
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)dbc,0,"ipi",
 			"Attribute",Attribute,"ValuePtr",ValuePtr,
 			"StringLength",StringLength);
-#endif
+}
     ood_clear_diag((hgeneric*)dbc);
 
     switch(Attribute)
@@ -146,10 +153,10 @@ SQLRETURN SQL_API SQLSetConnectAttr(
                 __FILE__,__LINE__);
         status=SQL_ERROR;
     }
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return status;
 }
 

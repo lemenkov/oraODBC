@@ -18,11 +18,18 @@
  *
  *******************************************************************************
  *
- * $Id: diagnostics.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: diagnostics.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: diagnostics.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.14  2000/07/21 10:23:06  tom
  * DiagRec output nulled for return=SQL_NO_DATA
@@ -513,7 +520,7 @@ void ood_post_diag(struct hgeneric_TAG *hH,
     if(!hH)
         return;
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
 	switch(HANDLE_TYPE(hH))
 	{
 		case SQL_HANDLE_DBC:
@@ -535,7 +542,7 @@ void ood_post_diag(struct hgeneric_TAG *hH,
 				"message",message);
             break;
 	}
-#endif
+}
 
     new=(error_node*)malloc(sizeof(error_node));
     if(!new)

@@ -18,11 +18,18 @@
  *
  *******************************************************************************
  *
- * $Id: SQLFreeStmt.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLFreeStmt.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLFreeStmt.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.11  2000/07/21 10:08:58  tom
  * Logging tidied and fixed use of wrong descriptor
@@ -62,7 +69,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFreeStmt.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLFreeStmt.c,v $ $Revision: 1.2 $";
 
 /*
  * SQLFreeStmt can be called from SQLCloseCursor
@@ -72,12 +79,17 @@ SQLRETURN _SQLFreeStmt(
     SQLHSTMT            StatementHandle,
     SQLUSMALLINT        Option )
 {
+#define STUB_OUT_FOR_3_4
+#ifdef STUB_OUT_FOR_3_4
+return SQL_SUCCESS;
+#else
+
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status=SQL_SUCCESS;
     sword ret;
 
     ood_clear_diag((hgeneric*)stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,status,"s",
 			"Option",
@@ -85,7 +97,7 @@ SQLRETURN _SQLFreeStmt(
 			Option==SQL_DROP?"SQL_DROP":
 			Option==SQL_UNBIND?"SQL_UNBIND":
 			Option==SQL_RESET_PARAMS?"SQL_RESET_PARAMS":"unkown");
-#endif
+}
     
 
     switch(Option)
@@ -153,11 +165,12 @@ SQLRETURN _SQLFreeStmt(
             break;
     }
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)stmt,status,"");
-#endif
+}
     return status;
+#endif
 }
 
 SQLRETURN SQL_API SQLFreeStmt(

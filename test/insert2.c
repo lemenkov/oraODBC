@@ -4,7 +4,7 @@
 /* test array inserts, can't get it  to work!*/
 /* see SQLSetStmtAttr.c line 188 */
 /* author: Dennis Box, dbox@fnal.gov
- * $Id: insert2.c,v 1.5 2002/05/31 19:55:00 dbox Exp $
+ * $Id: insert2.c,v 1.6 2002/06/26 21:02:23 dbox Exp $
  */
 
 
@@ -123,7 +123,7 @@ int main()
 
     VERBOSE("calling SQLFreeStmt\n");
     if (StmtHandle != NULL)
-      rc=SQLFreeStmt(StmtHandle, SQL_DROP);
+      rc=SQLFreeHandle(SQL_HANDLE_STMT,StmtHandle);
     assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
 
 

@@ -17,9 +17,16 @@
  * Contributor(s): Tom Fosdick (Easysoft) 
  *
  *******************************************************************************
- * $Id: SQLGetFunctions.c,v 1.3 2002/05/14 23:01:06 dbox Exp $
+ * $Id: SQLGetFunctions.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLGetFunctions.c,v $
+ * Revision 1.4  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.3  2002/05/14 23:01:06  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -82,7 +89,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetFunctions.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLGetFunctions.c,v $ $Revision: 1.4 $";
 
 int supported_functions[] = 
 {
@@ -110,7 +117,7 @@ int supported_functions[] =
     SQL_API_SQLFETCHSCROLL,
     SQL_API_SQLFOREIGNKEYS,
     SQL_API_SQLFREEHANDLE,
-    SQL_API_SQLFREESTMT,
+    SQL_API_SQLFREESTMT, 
     SQL_API_SQLGETCONNECTATTR,
 /*    SQL_API_SQLGETCURSORNAME,*/
     SQL_API_SQLGETDATA,
@@ -175,12 +182,12 @@ SQLRETURN SQL_API SQLGetFunctions(
         return SQL_INVALID_HANDLE;
     }
     assert(IS_VALID(dbc));
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)dbc,0,"Uh"
             ,"FunctionId",FunctionId,
             "SupportedPtr",SupportedPtr);
-#endif
+}
     ood_clear_diag((hgeneric*)dbc);
 
     if ( FunctionId == SQL_API_ODBC3_ALL_FUNCTIONS )
@@ -223,10 +230,10 @@ SQLRETURN SQL_API SQLGetFunctions(
         }
     }
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,SQL_SUCCESS,"U",
             "*SupportedPtr",*SupportedPtr);
-#endif
+}
     return SQL_SUCCESS;
 }

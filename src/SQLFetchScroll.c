@@ -18,11 +18,18 @@
  *
  ******************************************************************************
  *
- * $Id: SQLFetchScroll.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLFetchScroll.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLFetchScroll.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.10  2000/07/21 10:07:37  tom
  * Initial implementation
@@ -53,7 +60,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFetchScroll.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLFetchScroll.c,v $ $Revision: 1.2 $";
 
 SQLRETURN ood_SQLFetchScroll(
     hStmt_T*            stmt,
@@ -70,18 +77,18 @@ SQLRETURN SQL_API SQLFetchScroll(
 {   
 	hStmt_T* stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status=SQL_SUCCESS;
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
     ood_mutex_lock_stmt(stmt);
 
 	status=ood_SQLFetchScroll(stmt,FetchOrientation,FetchOffset);
 
     ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
 	return status;
 }

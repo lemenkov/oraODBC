@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLMoreResults.c,v 1.2 2002/02/20 03:09:05 dbox Exp $
+ * $Id: SQLMoreResults.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLMoreResults.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/02/20 03:09:05  dbox
  * changed error reporting for stubbed out functions.  Added function calls
  * to 'test' subdirectory programs
@@ -60,24 +67,24 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLMoreResults.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLMoreResults.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLMoreResults( 
     SQLHSTMT        StatementHandle )
 {
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
-#ifdef ENABLE_TRACE
     SQLRETURN status=SQL_SUCCESS;
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
     ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
     return SQL_NO_DATA;
 }

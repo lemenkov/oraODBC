@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLFreeHandle.c,v 1.4 2002/06/19 22:21:37 dbox Exp $
+ * $Id: SQLFreeHandle.c,v 1.5 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLFreeHandle.c,v $
+ * Revision 1.5  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.4  2002/06/19 22:21:37  dbox
  * more tweaks to OCI calls to report what happens when DEBUG level is set
  *
@@ -95,7 +102,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.5 $";
 
 void ood_ap_free(ap_T *ap)
 {
@@ -264,6 +271,7 @@ SQLRETURN _SQLFreeHandle(
     SQLHANDLE            Handle )
 {
     sword ret;
+    hDbc_T* dbc;
     if(!Handle)
         return SQL_INVALID_HANDLE;
 
@@ -293,10 +301,10 @@ SQLRETURN _SQLFreeHandle(
             hDbc_T *dbc=(hDbc_T*)Handle;
 	    if(dbc && IS_VALID(dbc))
 	      {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
 		ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
 				(SQLHANDLE)dbc,0,"s",NULL,"(No Exit Trace)");
-#endif
+}
 		ood_free_diag((hgeneric*)dbc);
 		THREAD_MUTEX_LOCK(dbc);
 		if(dbc->oci_err)
@@ -334,13 +342,13 @@ SQLRETURN _SQLFreeHandle(
         {
             hStmt_T *stmt=(hStmt_T*)Handle;
 	    if(!IS_VALID(stmt)) return SQL_ERROR;
-#ifdef ENABLE_TRACE
-            hDbc_T* dbc=stmt->dbc;
+if(ENABLE_TRACE){
+            dbc=stmt->dbc;
 	    if(!IS_VALID(dbc)) return SQL_ERROR;
 
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
                     (SQLHANDLE)stmt,0,"");
-#endif
+}
             ood_free_diag((hgeneric*)stmt);
             if(stmt->oci_stmt)
                 OCIHandleFree_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,ret);
@@ -376,24 +384,24 @@ SQLRETURN _SQLFreeHandle(
             THREAD_MUTEX_UNLOCK(stmt->dbc);
             ood_mutex_destroy((hgeneric*)stmt);
             ORAFREE(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                     (SQLHANDLE)NULL,SQL_SUCCESS,"");
-#endif
+}
         }
         break;
 
         case SQL_HANDLE_DESC:
         {
             hDesc_T *desc=(hDesc_T*)Handle;
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
             hDbc_T* dbc=desc->dbc;
-	    if(!IS_VALID(desc)) return SQL_FAILURE;
-	    if(!IS_VALID(dbc)) return SQL_FAILURE;
+	    if(!IS_VALID(desc)) return SQL_ERROR;
+	    if(!IS_VALID(dbc)) return SQL_ERROR;
 	    
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
                     (SQLHANDLE)desc,0,"");
-#endif
+}
             if(!desc||HANDLE_TYPE(desc)!=SQL_HANDLE_DESC)
                 return SQL_INVALID_HANDLE;
 
@@ -408,10 +416,10 @@ SQLRETURN _SQLFreeHandle(
                         __FILE__,__LINE__);
             }
             descriptor_free(desc);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                     (SQLHANDLE)NULL,SQL_SUCCESS,"");
-#endif
+}
         }
         break;
 

@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLNumParams.c,v 1.3 2002/05/14 12:03:19 dbox Exp $
+ * $Id: SQLNumParams.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLNumParams.c,v $
+ * Revision 1.4  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.3  2002/05/14 12:03:19  dbox
  * fixed some malloc/free syntax
  *
@@ -57,29 +64,29 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLNumParams.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLNumParams.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLNumParams(
     SQLHSTMT        StatementHandle,
     SQLSMALLINT        *ParameterCountPtr )
 {
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
-
-#ifdef ENABLE_TRACE
     SQLRETURN status=SQL_SUCCESS;
+
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
 
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
 	*ParameterCountPtr=stmt->current_ap->num_recs;
     ood_mutex_unlock_stmt(stmt);
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     /*fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
     */
     return SQL_SUCCESS;

@@ -18,11 +18,18 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetData.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLGetData.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLGetData.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.12  2000/07/21 10:09:38  tom
  * Logging tidied and return mechanism tweaked for LOBS
@@ -66,7 +73,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetData.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLGetData.c,v $ $Revision: 1.2 $";
 
 SQLRETURN _SQLGetData(
     SQLHSTMT            StatementHandle,
@@ -89,14 +96,14 @@ SQLRETURN _SQLGetData(
 			stmt->current_row-1,ColumnNumber,
 			(long)TargetValuePtr);
 #endif
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"iiii",
 			"ColumnNumber",ColumnNumber,
 			"RowNumber",stmt->current_row-1,
 			"TargetType",TargetType,
 			"BufferLength",BufferLength);
-#endif
+}
 
     ood_mutex_lock_stmt(stmt);
     ir=stmt->current_ir;
@@ -111,10 +118,10 @@ SQLRETURN _SQLGetData(
     {
         *StrLen_or_indPtr=SQL_NULL_DATA;
         ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,status,"");
-#endif
+}
         return SQL_SUCCESS;
     }
 
@@ -128,13 +135,13 @@ SQLRETURN _SQLGetData(
         status=ir_rec->default_copy(stmt->current_row-1,ir_rec,TargetValuePtr,
 				BufferLength, StrLen_or_indPtr) ;
         ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,status,"sii",
 				"SQL_C_DEFAULT|SQL_ARD_TYPE","",
 				"indicator",StrLen_or_indPtr?*StrLen_or_indPtr:0,
 				"*Target",*((SQLCHAR*)TargetValuePtr));
-#endif
+}
         return status;
     }
 
@@ -146,10 +153,10 @@ SQLRETURN _SQLGetData(
         status=ir_rec->to_string(stmt->current_row-1,ir_rec,TargetValuePtr,
 				BufferLength,StrLen_or_indPtr);
         ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,status,"s","SQL_C_CHAR","");
-#endif
+}
         return status;
     }
 
@@ -164,10 +171,10 @@ SQLRETURN _SQLGetData(
 			 StrLen_or_indPtr);
     ood_mutex_unlock_stmt(stmt);
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"s","data converted at SQLGetData","");
-#endif
+}
     return status;
 
 

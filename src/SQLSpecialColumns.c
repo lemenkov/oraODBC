@@ -18,11 +18,18 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSpecialColumns.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: SQLSpecialColumns.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLSpecialColumns.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.11  2000/07/10 08:24:35  tom
  * tweaks for less tolerant compilers
@@ -56,7 +63,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSpecialColumns.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLSpecialColumns.c,v $ $Revision: 1.2 $";
 
 sword ood_fetch_sqlspecialcolumns(struct hStmt_TAG* stmt)
 {
@@ -122,10 +129,10 @@ SQLRETURN SQL_API SQLSpecialColumns(
 	ir_T* ir;
 	ar_T* ar;
     SQLRETURN status=SQL_SUCCESS;
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
 
@@ -133,10 +140,10 @@ SQLRETURN SQL_API SQLSpecialColumns(
 	if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,8,stmt->current_ir,
 				stmt->current_ar))
     {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,SQL_ERROR,"");
-#endif
+}
         ood_mutex_unlock_stmt(stmt);
         return SQL_ERROR;
     }
@@ -302,9 +309,9 @@ SQLRETURN SQL_API SQLSpecialColumns(
 	    stmt->alt_fetch=ood_fetch_sqlspecialcolumns;
 
     ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return SQL_SUCCESS;
 }

@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLNativeSql.c,v 1.3 2002/05/14 23:01:06 dbox Exp $
+ * $Id: SQLNativeSql.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLNativeSql.c,v $
+ * Revision 1.4  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.3  2002/05/14 23:01:06  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -58,7 +65,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLNativeSql.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLNativeSql.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLNativeSql(
     SQLHDBC            ConnectionHandle,
@@ -69,20 +76,20 @@ SQLRETURN SQL_API SQLNativeSql(
     SQLINTEGER        *TextLength2Ptr )
 {
     hDbc_T* dbc=(hDbc_T*)ConnectionHandle;
-#ifdef ENABLE_TRACE
     SQLRETURN status=SQL_SUCCESS;
+if(ENABLE_TRACE){
 
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)dbc,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)dbc);
     THREAD_MUTEX_LOCK(dbc);
 
     THREAD_MUTEX_UNLOCK(dbc);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
     assert(IS_VALID(dbc));
     return SQL_SUCCESS;

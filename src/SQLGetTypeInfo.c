@@ -18,11 +18,18 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetTypeInfo.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: SQLGetTypeInfo.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLGetTypeInfo.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.14  2000/07/21 10:12:37  tom
  * lots of minor tweaks
@@ -71,7 +78,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetTypeInfo.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLGetTypeInfo.c,v $ $Revision: 1.2 $";
 
 /*
  * The information required for this isn't stored in Oracle, so
@@ -370,12 +377,12 @@ SQLRETURN SQL_API SQLGetTypeInfo(
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
 	ir_T* ir;
 	ar_T* ar;
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"ii",
 			"DataType",DataType,
 			"stmt->row_array_size",stmt->row_array_size);
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
 
@@ -383,10 +390,10 @@ SQLRETURN SQL_API SQLGetTypeInfo(
 	if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,19,stmt->current_ir,
 				stmt->current_ar))
     {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,SQL_ERROR,"");
-#endif
+}
         ood_mutex_unlock_stmt(stmt);
         return SQL_ERROR;
     }
@@ -905,9 +912,9 @@ SQLRETURN SQL_API SQLGetTypeInfo(
         ir->data_ptr=ORAMALLOC(ir->data_size*stmt->row_array_size);
 
     ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return SQL_SUCCESS;
 }

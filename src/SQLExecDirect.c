@@ -18,11 +18,18 @@
  *
  *******************************************************************************
  *
- * $Id: SQLExecDirect.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLExecDirect.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLExecDirect.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.10  2000/07/21 10:06:10  tom
  * Fixed prefetch assignment
@@ -59,7 +66,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLExecDirect(
     SQLHSTMT        StatementHandle,
@@ -72,12 +79,12 @@ SQLRETURN SQL_API SQLExecDirect(
     if(!stmt||HANDLE_TYPE(stmt)!=SQL_HANDLE_STMT)
         return SQL_INVALID_HANDLE;
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"si",
 			"SQL",StatementText,
 			"Length",TextLength);
-#endif
+}
 
     ood_clear_diag((hgeneric*)stmt);
 
@@ -108,10 +115,9 @@ SQLRETURN SQL_API SQLExecDirect(
 
     ood_mutex_unlock_stmt(stmt);
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
-
+}
     return status;
 }

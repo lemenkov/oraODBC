@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLConnect.c,v 1.2 2002/05/14 23:01:05 dbox Exp $
+ * $Id: SQLConnect.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLConnect.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/05/14 23:01:05  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -72,7 +79,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLConnect.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLConnect.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLConnect(
     SQLHDBC         ConnectionHandle,
@@ -85,10 +92,8 @@ SQLRETURN SQL_API SQLConnect(
 {
     hDbc_T *dbc=(hDbc_T*)ConnectionHandle;
     SQLRETURN status=SQL_SUCCESS;
-    assert(IS_VALID(dbc));
-#ifdef ENABLE_TRACE
     SQLCHAR trace_opt[4];
-#endif
+    assert(IS_VALID(dbc));
 
     
     if(!dbc || HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
@@ -158,7 +163,7 @@ SQLRETURN SQL_API SQLConnect(
                 "",dbc->PWD,64,"ODBC.INI");
     }
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     /*
      * Get the tracing options 
      */
@@ -176,7 +181,7 @@ SQLRETURN SQL_API SQLConnect(
      SQLGetPrivateProfileString(dbc->DSN,"TraceFile",
              TRACEFILE_DEFAULT,dbc->tracefile,FILENAME_MAX,"ODBC.INI");
 
-#endif
+}
 
     /*
      * We now have all the information we need to be able to 
@@ -184,7 +189,7 @@ SQLRETURN SQL_API SQLConnect(
      */
     status=ood_driver_connect(dbc);
     THREAD_MUTEX_UNLOCK(dbc);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
 	ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
              (SQLHANDLE)dbc,0,"ssss",
 			 NULL,"New Connection",
@@ -193,6 +198,6 @@ SQLRETURN SQL_API SQLConnect(
 			 "USER",dbc->UID);
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return(status);
 }

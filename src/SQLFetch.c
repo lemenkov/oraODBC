@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLFetch.c,v 1.2 2002/06/19 22:21:37 dbox Exp $
+ * $Id: SQLFetch.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLFetch.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/06/19 22:21:37  dbox
  * more tweaks to OCI calls to report what happens when DEBUG level is set
  *
@@ -83,7 +90,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFetch.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLFetch.c,v $ $Revision: 1.3 $";
 
 SQLRETURN ood_SQLFetch( 
     hStmt_T* stmt )
@@ -244,7 +251,7 @@ SQLRETURN ood_SQLFetch(
                     {
                         if(!stmt->current_ir->recs.ir[i].ind_arr[row])
                         {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
                             ood_log_message(stmt->dbc,__FILE__,__LINE__,
  								    TRACE_FUNCTION_EXIT,
                                     (SQLHANDLE)NULL,status,"iih",
@@ -253,7 +260,7 @@ SQLRETURN ood_SQLFetch(
 								    stmt->current_ar->recs.ar[i].buffer_length,
 								    "Data Pointer",
 								    (long)stmt->current_ar->recs.ar[i].data_ptr);
-#endif
+}
 			           	  /*
 						   * And finally call the conversion function!
 						   *
@@ -275,7 +282,7 @@ SQLRETURN ood_SQLFetch(
                         }
                         else /* if null */
                         {
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
                            ood_log_message(stmt->dbc,__FILE__,__LINE__,
 						       TRACE_FUNCTION_EXIT,
                                (SQLHANDLE)NULL,status,"iihs",
@@ -285,7 +292,7 @@ SQLRETURN ood_SQLFetch(
 							    "Data Pointer",
 							    (long)stmt->current_ar->recs.ar[i].data_ptr,
 							    NULL,"Column is NULL");
-#endif
+}
                                 *stmt->current_ar->recs.ar[i].bind_indicator
                                     =SQL_NULL_DATA;
                         }
@@ -306,12 +313,12 @@ SQLRETURN SQL_API SQLFetch(
 {
 	hStmt_T* stmt=(hStmt_T*)StatementHandle;
 	SQLRETURN status;
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"ii",
 			"Status",stmt->fetch_status,
 			"num_result_rows",stmt->num_result_rows);
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
 	
@@ -319,9 +326,9 @@ SQLRETURN SQL_API SQLFetch(
 	
     ood_mutex_unlock_stmt(stmt);
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return status;
 }

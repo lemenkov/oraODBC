@@ -18,9 +18,16 @@
  *
  ******************************************************************************
  *
- * $Id: SQLGetDiagRec.c,v 1.2 2002/05/14 23:01:06 dbox Exp $
+ * $Id: SQLGetDiagRec.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLGetDiagRec.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/05/14 23:01:06  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -52,7 +59,7 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: SQLGetDiagRec.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLGetDiagRec.c,v $ $Revision: 1.3 $";
 
 #include "common.h"
 
@@ -71,8 +78,8 @@ SQLRETURN SQL_API SQLGetDiagRec(
     SQLSMALLINT            *TextLengthPtr )
 {
     SQLRETURN status=SQL_SUCCESS;
-#ifdef ENABLE_TRACE
     hDbc_T* dbc=NULL;
+if(ENABLE_TRACE){
     switch(HANDLE_TYPE(Handle))
     {
         case SQL_HANDLE_DBC:
@@ -92,13 +99,13 @@ SQLRETURN SQL_API SQLGetDiagRec(
 			"BufferLength,",BufferLength);
 	assert(IS_VALID(dbc));
     }
-#endif
+}
     status=_SQLGetDiagRec( HandleType, Handle, RecNumber, SqlState,
             NativeErrorPtr, MessageText, BufferLength, TextLengthPtr );
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
 	ood_clear_diag((hgeneric*)Handle);
     return status;
 }

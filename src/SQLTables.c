@@ -18,11 +18,18 @@
  *
  *******************************************************************************
  *
- * $Id: SQLTables.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: SQLTables.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLTables.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.16  2000/07/21 10:04:17  tom
  * Fixed var init bug
@@ -75,7 +82,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLTables.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLTables.c,v $ $Revision: 1.2 $";
 
 static void ood_sqltables_construct_sql(hStmt_T* stmt,char* sql, char* schema, 
 		char *table, char *type, char* sql_end, int has_where_clause)
@@ -186,10 +193,10 @@ SQLRETURN SQL_API SQLTables(
     ir_T *ir;
     ar_T *ar;
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
 
     if(SchemaName&&!*SchemaName
@@ -256,10 +263,10 @@ fprintf(stderr,"schema [0x%.8lx] SchemaName [0x%.8lx] NameLength2 [%d]\n",
 				stmt->current_ar))
     {
         ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,SQL_ERROR,"");
-#endif
+}
         return SQL_ERROR;
     }
 
@@ -344,9 +351,9 @@ fprintf(stderr,"schema [0x%.8lx] SchemaName [0x%.8lx] NameLength2 [%d]\n",
 	stmt->fetch_status=ood_driver_prefetch(stmt);
 
     ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return status;
 }

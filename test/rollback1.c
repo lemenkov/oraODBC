@@ -4,7 +4,7 @@
  *      SQLEndTran then rolls back the  insertion
  *
  * author: Dennis Box, dbox@fnal.gov
- * $Id: rollback1.c,v 1.3 2002/05/31 19:55:00 dbox Exp $
+ * $Id: rollback1.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  */
 
 #include "test_defs.h"
@@ -71,7 +71,7 @@ int main()
 
     VERBOSE("calling SQLFreeStmt\n");
     if (StmtHandle != NULL)
-      rc=SQLFreeStmt(StmtHandle, SQL_DROP);
+      rc=SQLFreeHandle(SQL_HANDLE_STMT, StmtHandle);
     assert(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO);
 
 

@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLDescribeParam.c,v 1.3 2002/06/19 15:24:21 dbox Exp $
+ * $Id: SQLDescribeParam.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLDescribeParam.c,v $
+ * Revision 1.4  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.3  2002/06/19 15:24:21  dbox
  * changed 'unknown' behavior for var type to make libodbc++ happier, better
  * fix is in works
@@ -58,7 +65,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDescribeParam.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLDescribeParam.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLDescribeParam(
     SQLHSTMT            StatementHandle,
@@ -71,13 +78,13 @@ SQLRETURN SQL_API SQLDescribeParam(
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
 	ap_T *ap;
   
+    SQLRETURN status=SQL_SUCCESS;
 	assert(IS_VALID(stmt));
 
-#ifdef ENABLE_TRACE
-    SQLRETURN status=SQL_SUCCESS;
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
 
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
@@ -88,10 +95,10 @@ SQLRETURN SQL_API SQLDescribeParam(
                 "",ERROR_MESSAGE_07009,
                 __LINE__,0,"",ERROR_STATE_07009,__FILE__,__LINE__);
         ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
         ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
                 (SQLHANDLE)NULL,SQL_ERROR,"");
-#endif
+}
 		return SQL_ERROR;
 	}
 	assert(IS_VALID(stmt->current_ap));
@@ -116,9 +123,9 @@ SQLRETURN SQL_API SQLDescribeParam(
 
     ood_mutex_unlock_stmt(stmt);
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return SQL_SUCCESS;
 }

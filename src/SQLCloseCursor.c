@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLCloseCursor.c,v 1.2 2002/05/02 15:39:48 dbox Exp $
+ * $Id: SQLCloseCursor.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLCloseCursor.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/05/02 15:39:48  dbox
  * fixed unused var warnings found by insure++
  *
@@ -60,7 +67,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLCloseCursor.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLCloseCursor.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLCloseCursor(
     SQLHSTMT            StatementHandle )
@@ -68,17 +75,17 @@ SQLRETURN SQL_API SQLCloseCursor(
     SQLRETURN status=SQL_SUCCESS;
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
 
     status=_SQLFreeStmt(StatementHandle,SQL_CLOSE);
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return status;
 }

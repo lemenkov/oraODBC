@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLPrepare.c,v 1.2 2002/05/31 19:54:59 dbox Exp $
+ * $Id: SQLPrepare.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLPrepare.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/05/31 19:54:59  dbox
  * added  reasonable comments to the tests, fixed SQLPrepare so that it
  * allocates space in the statement for the column ap and ir descriptors
@@ -66,7 +73,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLPrepare.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLPrepare.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLPrepare(
     SQLHSTMT        StatementHandle,
@@ -81,10 +88,10 @@ SQLRETURN SQL_API SQLPrepare(
     {
         return SQL_INVALID_HANDLE;
     }
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
     
 	stmt->sql=ood_lex_parse((char*)StatementText,TextLength,
@@ -99,9 +106,9 @@ SQLRETURN SQL_API SQLPrepare(
     }
     ood_mutex_unlock_stmt(stmt);
 
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return status;
 }

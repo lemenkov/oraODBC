@@ -18,9 +18,16 @@
  *
  ******************************************************************************
  *
- * $Id: SQLBrowseConnect.c,v 1.2 2002/05/14 23:01:05 dbox Exp $
+ * $Id: SQLBrowseConnect.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLBrowseConnect.c,v $
+ * Revision 1.3  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/05/14 23:01:05  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -58,7 +65,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBrowseConnect.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLBrowseConnect.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLBrowseConnect(
     SQLHDBC            ConnectionHandle,
@@ -80,10 +87,10 @@ SQLRETURN SQL_API SQLBrowseConnect(
     hDbc_T* dbc=(hDbc_T*)ConnectionHandle;
     SQLRETURN status=SQL_SUCCESS;
     assert(IS_VALID(dbc));
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)dbc,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)dbc);
 
     if(StringLength1!=SQL_NTS)
@@ -147,9 +154,9 @@ SQLRETURN SQL_API SQLBrowseConnect(
             out_end=ood_fast_strcat((char*)OutConnectionString,"DB=?;",out_end);
         }
     }
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     return status;
 }

@@ -18,9 +18,16 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSetPos.c,v 1.3 2002/05/02 15:39:48 dbox Exp $
+ * $Id: SQLSetPos.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
  *
  * $Log: SQLSetPos.c,v $
+ * Revision 1.4  2002/06/26 21:02:23  dbox
+ * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
+ * setenv DEBUG 3 traces through OCIxxx functions
+ *
+ *
+ * VS: ----------------------------------------------------------------------
+ *
  * Revision 1.3  2002/05/02 15:39:48  dbox
  * fixed unused var warnings found by insure++
  *
@@ -57,7 +64,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetPos.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLSetPos.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLSetPos( 
     SQLHSTMT            StatementHandle,
@@ -67,18 +74,18 @@ SQLRETURN SQL_API SQLSetPos(
 {
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status=SQL_ERROR;
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
             (SQLHANDLE)stmt,0,"");
-#endif
+}
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
 
     ood_mutex_unlock_stmt(stmt);
-#ifdef ENABLE_TRACE
+if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
-#endif
+}
     fprintf(stderr,"called stubbed function line %d file %s \n",__LINE__,__FILE__);
     return status;
 }
