@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: common_functions.h,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: common_functions.h,v 1.2 2002/05/16 19:27:26 dbox Exp $
  *
  * $Log: common_functions.h,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/05/16 19:27:26  dbox
+ * new test to beat the crap out of SQLGetInfo.c
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.5  2000/05/11 13:17:32  tom
  * *** empty log message ***
@@ -52,6 +55,8 @@
 
 void* ora_malloc(size_t num);
 void* ora_realloc(void *ptr, size_t size);
+const char * odbc_var_type(SQLSMALLINT sqltype);
+const char * oci_var_type(SQLSMALLINT sqltype);
 
 SQLINTEGER sqltype_display_size(SQLSMALLINT,int);
 void ood_mutex_lock_stmt(hStmt_T *stmt);

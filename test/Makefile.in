@@ -87,17 +87,16 @@ PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 
-check_PROGRAMS =  connect1 connect2 direct_exec1 direct_exec2 insert1 insert3 read1 read2 read3 malloctest rollback1 commit1 insert2 insert4 lowlevel
+check_PROGRAMS =  connect1 connect2 direct_exec1 direct_exec2 insert1 insert3 read1 read2 read3 malloctest rollback1 commit1 insert2 insert4 lowlevel getinfo1
 
 
-INCLUDES = -I${ODBCIDIR} -I../src \
- -I${ODBCIDIR} -I${ORAIDIR} -I${ORANDIR} -I${ORAPDIR} 
+INCLUDES = -I${ODBCIDIR} -I../src  -I${ODBCIDIR} -I${ORAIDIR} -I${ORANDIR} -I${ORAPDIR}
+
 
 TESTS = $(check_PROGRAMS)
 EXTRA_DIST = runtests
 
-LDFLAGS =  	-L${ODBCLDIR} -lodbc ../src/mem_functions.o ../src/common.o
-
+LDFLAGS = -L${ODBCLDIR} -lodbc ../src/mem_functions.o ../src/common.o
 
 CLEANFILES = *.*~ .deps/*.P
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -182,6 +181,11 @@ lowlevel_OBJECTS =  lowlevel.o
 lowlevel_LDADD = $(LDADD)
 lowlevel_DEPENDENCIES = 
 lowlevel_LDFLAGS = 
+getinfo1_SOURCES = getinfo1.c
+getinfo1_OBJECTS =  getinfo1.o
+getinfo1_LDADD = $(LDADD)
+getinfo1_DEPENDENCIES = 
+getinfo1_LDFLAGS = 
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -195,12 +199,12 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = gtar
 GZIP_ENV = --best
 DEP_FILES =  .deps/commit1.P .deps/connect1.P .deps/connect2.P \
-.deps/direct_exec1.P .deps/direct_exec2.P .deps/insert1.P \
-.deps/insert2.P .deps/insert3.P .deps/insert4.P .deps/lowlevel.P \
-.deps/malloctest.P .deps/read1.P .deps/read2.P .deps/read3.P \
-.deps/rollback1.P
-SOURCES = connect1.c connect2.c direct_exec1.c direct_exec2.c insert1.c insert3.c read1.c read2.c read3.c malloctest.c rollback1.c commit1.c insert2.c insert4.c lowlevel.c
-OBJECTS = connect1.o connect2.o direct_exec1.o direct_exec2.o insert1.o insert3.o read1.o read2.o read3.o malloctest.o rollback1.o commit1.o insert2.o insert4.o lowlevel.o
+.deps/direct_exec1.P .deps/direct_exec2.P .deps/getinfo1.P \
+.deps/insert1.P .deps/insert2.P .deps/insert3.P .deps/insert4.P \
+.deps/lowlevel.P .deps/malloctest.P .deps/read1.P .deps/read2.P \
+.deps/read3.P .deps/rollback1.P
+SOURCES = connect1.c connect2.c direct_exec1.c direct_exec2.c insert1.c insert3.c read1.c read2.c read3.c malloctest.c rollback1.c commit1.c insert2.c insert4.c lowlevel.c getinfo1.c
+OBJECTS = connect1.o connect2.o direct_exec1.o direct_exec2.o insert1.o insert3.o read1.o read2.o read3.o malloctest.o rollback1.o commit1.o insert2.o insert4.o lowlevel.o getinfo1.o
 
 all: all-redirect
 .SUFFIXES:
@@ -313,6 +317,10 @@ insert4: $(insert4_OBJECTS) $(insert4_DEPENDENCIES)
 lowlevel: $(lowlevel_OBJECTS) $(lowlevel_DEPENDENCIES)
 	@rm -f lowlevel
 	$(LINK) $(lowlevel_LDFLAGS) $(lowlevel_OBJECTS) $(lowlevel_LDADD) $(LIBS)
+
+getinfo1: $(getinfo1_OBJECTS) $(getinfo1_DEPENDENCIES)
+	@rm -f getinfo1
+	$(LINK) $(getinfo1_LDFLAGS) $(getinfo1_OBJECTS) $(getinfo1_LDADD) $(LIBS)
 
 tags: TAGS
 

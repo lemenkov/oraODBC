@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.7 2002/05/14 23:01:06 dbox Exp $
+ * $Id: oracle_functions.c,v 1.8 2002/05/16 19:27:26 dbox Exp $
  *
  * $Log: oracle_functions.c,v $
+ * Revision 1.8  2002/05/16 19:27:26  dbox
+ * new test to beat the crap out of SQLGetInfo.c
+ *
  * Revision 1.7  2002/05/14 23:01:06  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -130,7 +133,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.7 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.8 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -708,14 +711,14 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
                 stmt->dbc->oci_err,(dvoid*)&parm,i);
 
         /* IR data type (AR types may be derived from this later) */
-		/* 
-		 * Annoyingly we find that ODBC expects the data type conversion to
-		 * happen in the driver rather than in the back-end. This means it
-		 * expects to be able to derive the original return type from the 
-		 * IRD. We use the IRD to store the type we actually get the data
-		 * as, so there needs to be an "original type" field to store what it
-		 * was.
-		 */
+	/* 
+	 * Annoyingly we find that ODBC expects the data type conversion to
+	 * happen in the driver rather than in the back-end. This means it
+	 * expects to be able to derive the original return type from the 
+	 * IRD. We use the IRD to store the type we actually get the data
+	 * as, so there needs to be an "original type" field to store what it
+	 * was.
+	 */
         if(!stmt->current_ir->recs.ir[i].data_type)
             ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
                     &stmt->current_ir->recs.ir[i].orig_type,
@@ -725,54 +728,54 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
         
         /* IR data size */
         if(!stmt->current_ir->recs.ir[i].data_size)
-            ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
-                    &stmt->current_ir->recs.ir[i].data_size,
-                    0,OCI_ATTR_DATA_SIZE,stmt->dbc->oci_err);
-
+	  ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
+			  &stmt->current_ir->recs.ir[i].data_size,
+			  0,OCI_ATTR_DATA_SIZE,stmt->dbc->oci_err);
+	
         /* AR column name :- can be set elsewhere */
         ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
-                &col_name,
-                &siz,OCI_ATTR_NAME,stmt->dbc->oci_err);
+			&col_name,
+			&siz,OCI_ATTR_NAME,stmt->dbc->oci_err);
         if(ret)
-        {
+	  {
             ood_driver_error(stmt,ret,__FILE__,__LINE__);
             if(ret==OCI_ERROR)
-                return SQL_ERROR;
-        }
+	      return SQL_ERROR;
+	  }
         if(!*stmt->current_ar->recs.ar[i].column_name)
-        {
+	  {
             siz=siz>ORACLE_MAX_COLUMN_LEN?ORACLE_MAX_COLUMN_LEN:siz;
             memcpy(stmt->current_ar->recs.ar[i].column_name,col_name,(int)siz);
             stmt->current_ar->recs.ar[i].column_name[siz]='\0';
-        }
-
+	  }
+	
         /* AR precision */
         ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
-                &precision,
-                0,OCI_ATTR_PRECISION,stmt->dbc->oci_err);
+			&precision,
+			0,OCI_ATTR_PRECISION,stmt->dbc->oci_err);
         stmt->current_ar->recs.ar[i].precision=(SQLSMALLINT)precision;
-
+	
         /* AR scale (aka decimal digits) */
         ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
-                &scale,
-                0,OCI_ATTR_SCALE,stmt->dbc->oci_err);
+			&scale,
+			0,OCI_ATTR_SCALE,stmt->dbc->oci_err);
         if(scale!=-127)
-            stmt->current_ar->recs.ar[i].scale=(SQLSMALLINT)scale;
-
+	  stmt->current_ar->recs.ar[i].scale=(SQLSMALLINT)scale;
+	
         /* AR nullable */
         ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
-                &nullable,
-                0,OCI_ATTR_IS_NULL,stmt->dbc->oci_err);
+			&nullable,
+			0,OCI_ATTR_IS_NULL,stmt->dbc->oci_err);
         if(nullable)
-            stmt->current_ar->recs.ar[i].nullable=SQL_NULLABLE;
+	  stmt->current_ar->recs.ar[i].nullable=SQL_NULLABLE;
         else
-            stmt->current_ar->recs.ar[i].nullable=SQL_NO_NULLS;
-         
+	  stmt->current_ar->recs.ar[i].nullable=SQL_NO_NULLS;
+	
         /* setup the IR and a few more essential AR fields */
         status|=ood_driver_setup_fetch_env(&stmt->current_ir->recs.ir[i],
-                &stmt->current_ar->recs.ar[i]);
+					   &stmt->current_ar->recs.ar[i]);
     }
- 
+    
     return status;
 }
 /*
@@ -783,33 +786,33 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
  */
 SQLRETURN ood_driver_prefetch(hStmt_T* stmt)
 {
-	sword ret=OCIStmtExecute(stmt->dbc->oci_svc,stmt->oci_stmt,
-			stmt->dbc->oci_err,(ub4)stmt->row_array_size,
-			0,0,0,OCI_DEFAULT);
-
-	OCIAttrGet(stmt->oci_stmt,OCI_HTYPE_STMT,
-					&stmt->num_result_rows,0,OCI_ATTR_ROW_COUNT,
-					stmt->dbc->oci_err);
+  sword ret=OCIStmtExecute(stmt->dbc->oci_svc,stmt->oci_stmt,
+			   stmt->dbc->oci_err,(ub4)stmt->row_array_size,
+			   0,0,0,OCI_DEFAULT);
+  
+  OCIAttrGet(stmt->oci_stmt,OCI_HTYPE_STMT,
+	     &stmt->num_result_rows,0,OCI_ATTR_ROW_COUNT,
+	     stmt->dbc->oci_err);
 #ifdef UNIX_DEBUG
-	errcheck(__FILE__,__LINE__,ret,stmt->dbc->oci_err);
+  errcheck(__FILE__,__LINE__,ret,stmt->dbc->oci_err);
 #endif
-	if(ret&&ret!=OCI_SUCCESS_WITH_INFO)
-	{
-		if(ret==OCI_NO_DATA)
-			return SQL_NO_DATA;
-
-		ood_driver_error(stmt,ret,__FILE__,__LINE__);
-		return SQL_ERROR;
-	}
-	return SQL_SUCCESS;
+  if(ret&&ret!=OCI_SUCCESS_WITH_INFO)
+    {
+      if(ret==OCI_NO_DATA)
+	return SQL_NO_DATA;
+      
+      ood_driver_error(stmt,ret,__FILE__,__LINE__);
+      return SQL_ERROR;
+    }
+  return SQL_SUCCESS;
 }
 
 
 SQLRETURN ood_ocitype_to_sqltype_imp(hStmt_T* stmt, int colNum)
 {
-
+  
   SQLRETURN ret = ood_ocitype_to_sqltype(
-		   stmt->current_ir->recs.ir[colNum].orig_type);
+					 stmt->current_ir->recs.ir[colNum].orig_type);
   
   if (stmt->current_ar->recs.ar[colNum].data_type == SQL_C_FLOAT)
     ret = SQL_C_FLOAT;
@@ -865,10 +868,10 @@ SQLRETURN ood_ocitype_to_sqltype(ub2 data_type)
         case SQLT_BIN:
         return SQL_C_BINARY;
         
-		case SQLT_LNG:
-		case SQLT_CLOB:
+        case SQLT_LNG:
+        case SQLT_CLOB:
         case SQLT_LVC:
-		return SQL_LONGVARCHAR;
+        return SQL_LONGVARCHAR;
 
         case SQLT_LVB:
         case SQLT_BLOB:
@@ -924,8 +927,7 @@ SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
             return SQL_ERROR;
         }
         
-        app->recs.ap=ORAREALLOC(app->recs.ap,
-                sizeof(ap_T)*(rows+1));
+        app->recs.ap=ORAREALLOC(app->recs.ap, sizeof(ap_T)*(rows+1));
         if(!app->recs.ap)
         {
             ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_HY001,0,"",
@@ -971,9 +973,12 @@ SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
         imp->recs.ip[floor].to_string=NULL;
         imp->recs.ip[floor].to_oracle=NULL;
         imp->recs.ip[floor].desc=imp;
+        imp->recs.ip[floor].valid_flag=VALID_FLAG_DEFAULT;
+
         imp->recs.ir[floor].ind_arr=NULL;
         imp->recs.ir[floor].length_arr=NULL;
         imp->recs.ir[floor].rcode_arr=NULL;
+        imp->recs.ir[floor].valid_flag=VALID_FLAG_DEFAULT;
 
         app->recs.ap[floor].auto_unique=0;
         app->recs.ap[floor].base_column_name=NULL;
@@ -1003,7 +1008,7 @@ SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,int rows,
         app->recs.ap[floor].type_name=NULL;
         app->recs.ap[floor].un_signed=SQL_TRUE;
         app->recs.ap[floor].updateable=SQL_TRUE;
-
+	app->recs.ap[floor].valid_flag=VALID_FLAG_DEFAULT;
         floor++;
     }
     return SQL_SUCCESS;
@@ -1025,6 +1030,7 @@ static void ood_setup_bookmark(ir_T *ir, ar_T* ar,void *desc)
     ir->rcode_arr=NULL;
     ir->locator=NULL;
     ir->posn=1;
+    ir->valid_flag=VALID_FLAG_DEFAULT;
 
     ar->auto_unique=SQL_TRUE;
     ar->base_column_name=NULL;
@@ -1053,7 +1059,9 @@ static void ood_setup_bookmark(ir_T *ir, ar_T* ar,void *desc)
     ar->data_type=0;
     ar->type_name=NULL;
     ar->un_signed=SQL_TRUE;
-    ar->updateable=SQL_FALSE;
+    ar->updateable=SQL_FALSE;	
+    ar->valid_flag=VALID_FLAG_DEFAULT;
+
 	return;
 }
 
@@ -1138,6 +1146,8 @@ SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
         imp->recs.ir[floor].rcode_arr=NULL;
         imp->recs.ir[floor].locator=NULL;
         imp->recs.ir[floor].posn=1;
+	imp->recs.ir[floor].valid_flag=VALID_FLAG_DEFAULT;
+
 
         app->recs.ar[floor].auto_unique=SQL_FALSE;
         app->recs.ar[floor].base_column_name=NULL;
@@ -1167,6 +1177,7 @@ SQLRETURN ood_alloc_col_desc(hStmt_T *stmt,int rows,
         app->recs.ar[floor].type_name=NULL;
         app->recs.ar[floor].un_signed=SQL_TRUE;
         app->recs.ar[floor].updateable=SQL_TRUE;
+	app->recs.ap[floor].valid_flag=VALID_FLAG_DEFAULT;
 
         floor++;
     }
@@ -2700,6 +2711,10 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	ip_T* ip=&stmt->current_ip->recs.ip[parmnum];
 	void* bind_ptr;
 
+	assert(IS_VALID(stmt));
+	assert(IS_VALID(ap));
+	assert(IS_VALID(ip));
+
 	ip->col_num=parmnum;
 	ip->desc=stmt->current_ip;
 
@@ -2707,6 +2722,10 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	 * There are several types where no converswions that Oracle can't do
 	 * are likely to arise. 
 	 */
+	if(getenv("DEBUG")){
+	  printf("ood_driver_bind_param::line %d concise_type=%d %s\n"
+		 ,__LINE__,ap->concise_type,odbc_var_type(ap->concise_type));
+	}
 
 	switch(ap->concise_type)
 	{
@@ -2717,7 +2736,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 			ip->data_ptr=NULL; /* not malloc'd, we use APD directly */
 			bind_ptr=ap->data_ptr;
 			break;
-
+	case SQL_INTEGER:
 		case SQL_C_ULONG:
 		case SQL_C_SLONG:
 			ip->data_size=sizeof(long);
@@ -2740,7 +2759,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 			ip->data_ptr=NULL;
 			bind_ptr=ap->data_ptr;
 			break;
-
+			
 		case SQL_C_FLOAT:
 			ip->data_size=sizeof(float);
 			ip->data_type=SQLT_FLT;
@@ -2987,7 +3006,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 				break;
 
 		        default:
-				case SQL_INTEGER:
+				/*case SQL_INTEGER:*/
 				case SQL_DECIMAL:
 				case SQL_NUMERIC:
 				case SQL_SMALLINT:
@@ -3023,11 +3042,14 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 			"bind_ptr",bind_ptr
 			);
 #endif
-
+	if(getenv("DEBUG")){
+	  printf("ood_driver_bind_param::OCIBindByPos parm=%d size=%d type=%d %s\n",
+		 parmnum,ip->data_size,ip->data_type,oci_var_type(ip->data_type));
+	}
 	ret=OCIBindByPos(stmt->oci_stmt,&ocibind,stmt->dbc->oci_err,
 			(ub4)parmnum,bind_ptr,
-			ip->data_size, ip->data_type,
-			&ap->bind_indicator,
+			 ip->data_size , ip->data_type,
+			 /*&ap->bind_indicator*/ 0,
 			0,0,0,0,OCI_DEFAULT);
 	return(ret);
 }

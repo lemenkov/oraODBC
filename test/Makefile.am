@@ -13,16 +13,18 @@ rollback1 \
 commit1 \
 insert2 \
 insert4 \
-lowlevel
+lowlevel \
+getinfo1
 
-INCLUDES = -I${ODBCIDIR} -I../src
+INCLUDES = -I${ODBCIDIR} -I../src \
+ -I${ODBCIDIR} -I${ORAIDIR} -I${ORANDIR} -I${ORAPDIR}
 
 TESTS = $(check_PROGRAMS)
 EXTRA_DIST = runtests
 
+LDFLAGS =       -L${ODBCLDIR} -lodbc ../src/mem_functions.o ../src/common.o
 
-LDFLAGS = \
-	-L${ODBCLDIR} -lodbc ../src/mem_functions.o
+
 
 CLEANFILES=*.*~ .deps/*.P
 

@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: common_functions.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: common_functions.c,v 1.2 2002/05/16 19:27:26 dbox Exp $
  *
  * $Log: common_functions.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/05/16 19:27:26  dbox
+ * new test to beat the crap out of SQLGetInfo.c
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.10  2000/07/20 08:18:20  tom
  * *** empty log message ***
@@ -58,7 +61,7 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.2 $";
 
 /*
  * SQL type display size
@@ -67,6 +70,73 @@ static char const rcsid[]= "$RCSfile: common_functions.c,v $ $Revision: 1.1 $";
  * length
  */
 #include "common.h"
+const char * oci_var_type(SQLSMALLINT sqltype)
+{
+  switch(sqltype){
+  case SQLT_CHR: return "SQLT_CHR"; 
+  case SQLT_NUM: return "SQLT_NUM"; 
+  case SQLT_INT: return "SQLT_INT"; 
+  case SQLT_FLT: return "SQLT_FLT"; 
+  case SQLT_STR: return "SQLT_STR"; 
+  case SQLT_VNU: return "SQLT_VNU"; 
+  case SQLT_PDN: return "SQLT_PDN"; 
+  case SQLT_LNG: return "SQLT_LNG"; 
+  case SQLT_VCS: return "SQLT_VCS"; 
+  case SQLT_NON: return "SQLT_NON"; 
+  case SQLT_RID: return "SQLT_RID"; 
+  case SQLT_DAT: return "SQLT_DAT"; 
+  case SQLT_VBI: return "SQLT_VBI"; 
+  case SQLT_BIN: return "SQLT_BIN"; 
+  case SQLT_LBI: return "SQLT_LBI"; 
+  case SQLT_UIN: return "SQLT_UIN"; 
+  case SQLT_SLS: return "SQLT_SLS"; 
+  case SQLT_LVC: return "SQLT_LVC"; 
+  case SQLT_LVB: return "SQLT_LVB"; 
+  case SQLT_AFC: return "SQLT_AFC"; 
+  case SQLT_AVC: return "SQLT_AVC"; 
+  case SQLT_CUR: return "SQLT_CUR"; 
+  case SQLT_RDD: return "SQLT_RDD"; 
+  case SQLT_LAB: return "SQLT_LAB"; 
+  case SQLT_OSL: return "SQLT_OSL"; 
+  case SQLT_NTY: return "SQLT_NTY"; 
+  case SQLT_REF: return "SQLT_REF"; 
+  case SQLT_CLOB: return "SQLT_CLOB"; 
+  case SQLT_BLOB: return "SQLT_BLOB"; 
+  case SQLT_BFILEE: return "SQLT_BFILEE"; 
+  case SQLT_CFILEE: return "SQLT_CFILEE"; 
+  case SQLT_RSET: return "SQLT_RSET"; 
+  case SQLT_NCO: return "SQLT_NCO"; 
+  case SQLT_VST: return "SQLT_VST"; 
+  case SQLT_ODT: return "SQLT_ODT"; 
+    /* case SQLT_FILE: return "SQLT_FILE"; */
+    /*case SQLT_CFILE: return "SQLT_CFILE"; */
+    /*case SQLT_BFILE: return "SQLT_BFILE"; */
+  default: return "UNKNOWN_OCI_TYPE";
+}
+}
+
+
+const char * odbc_var_type(SQLSMALLINT sqltype)
+{
+  switch(sqltype){
+  case SQL_UNKNOWN_TYPE: return "SQL_UNKNOWN_TYPE";        
+  case SQL_CHAR    : return "SQL_CHAR";         
+  case SQL_NUMERIC  : return "SQL_NUMERIC";        
+  case SQL_DECIMAL  : return "SQL_DECIMAL";        
+  case SQL_INTEGER   : return "SQL_INTEGER";       
+  case SQL_SMALLINT  : return "SQL_SMALLINT";       
+  case SQL_FLOAT    : return "SQL_FLOAT";        
+  case SQL_REAL     : return "SQL_REAL";        
+  case SQL_DOUBLE    : return "SQL_DOUBLE";       
+  case SQL_DATETIME   : return "SQL_DATETIME";      
+  case SQL_VARCHAR     : return "SQL_VARCHAR";
+  default: return "OUT_OF_RANGE_NO_IDEA"; 
+  }
+}
+
+
+
+
 
 SQLINTEGER sqltype_display_size(SQLSMALLINT sqltype,int length)
 {
