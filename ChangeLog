@@ -7,6 +7,22 @@ http://home.fnal.gov/~dbox/oracle/odbc/devlog.html
 
 begin dbox@fnal.gov (and contributers)  changes:
 
+
+2004/6/11 Changes contributed by Steven Reynolds , sreynolds@bradmark.com
+
+   1. Fixes to SQLColumns.c and oracle_functions.c to clean 
+	up some size/type mismatches that resulted in core dumps. 
+
+2004/6/10
+   1. Changes to SQLDriverConnect.c and SQLConnect.c to take a
+      closer look at the odbc.ini file, if it exists, to look
+      for username, password, and database.  Different ini files
+      'in the wild' sometimes say DB=, sometimes DATABASE=, 
+      sometimes USER=, or UID= so this should catch them. I hope.
+
+2004/05/05
+   1. Changes to return codes for SQLExectDirect for bad select statements.
+
 2003/12/15 Changes contributed by Steven Reynolds , sreynolds@bradmark.com
 
    1. SQLFreeHandle.c: Change order of frees in _SQLFreeHandle(). 
