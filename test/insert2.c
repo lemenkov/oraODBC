@@ -5,7 +5,7 @@
 /* last 2 of 3 char arrays dont insert... */
 /* see SQLSetStmtAttr.c */
 /* author: Dennis Box, dbox@fnal.gov
- * $Id: insert2.c,v 1.9 2003/08/05 19:40:43 dbox Exp $
+ * $Id: insert2.c,v 1.10 2004/08/27 19:53:49 dbox Exp $
  */
 
 
@@ -26,7 +26,7 @@ int main()
 {
   // Declare The Local Memory Variables
 #define MAX_CHAR_LEN 255
-#define ARRAY_LEN 3
+#define ARRAY_LEN 20
   SQLINTEGER retval;
   SQLINTEGER   anIntArray[ARRAY_LEN];
   SQLFLOAT   aFloatArray[ARRAY_LEN];
@@ -36,10 +36,11 @@ int main()
   
   GET_LOGIN_VARS();
   for(i=0;i<ARRAY_LEN;i++){
-    anIntArray[i]=i+3;
-    aFloatArray[i]=(float)i+0.5;
+    anIntArray[i]=i+2;
+    aFloatArray[i]=(float)i+2.5;
     sprintf(aCharArray[i],"int=%d flt=%f",anIntArray[i],aFloatArray[i]);
     charInsArray[i]=SQL_NTS;
+    VERBOSE("prepared row %d %f '%s'\n",anIntArray[i],aFloatArray[i],aCharArray[i]);
   }
   VERBOSE("calling SQLAllocHandle(EnvHandle) \n");
 
@@ -74,7 +75,16 @@ int main()
   
   rc = SQLAllocStmt(ConHandle, &StmtHandle);
   assert(rc == SQL_SUCCESS);
+    sprintf(SQLStmt,"drop table some_types2");
+  rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
   
+  sprintf(SQLStmt,"create table some_types2 (an_int integer, ");
+  strcat(SQLStmt," a_float float, a_string varchar(255)) ");
+  
+  rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
+  
+  assert(rc == SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
+
   /* Set The SQL_ATTR_ROW_BIND_TYPE Statement Attribute To Tell
      The Driver To Use Column-Wise Binding. */
   
@@ -95,7 +105,7 @@ int main()
   assert(rc==SQL_SUCCESS);
   assert(retval==ARRAY_LEN);
 
-  sprintf(SQLStmt,"insert into some_types values( ");
+  sprintf(SQLStmt,"insert into some_types2 values( ");
   strcat(SQLStmt," ?, ?, ? ) ");
   
   VERBOSE("preparing statement %s\n", SQLStmt);
@@ -127,10 +137,11 @@ int main()
   
   rc = SQLExecute(StmtHandle);
   
-  
-  assert(rc == SQL_SUCCESS);
+  VERBOSE("SQLExecute returned %d\n",rc);
+  assert(rc == SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
   VERBOSE("success: executed statement\n");
-  
+ 
+
   VERBOSE("calling SQLFreeStmt\n");
   if (StmtHandle != NULL)
     rc=SQLFreeHandle(SQL_HANDLE_STMT,StmtHandle);

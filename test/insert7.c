@@ -92,7 +92,7 @@ int main()
     rc = SQLBindParameter(StmtHandle, 1, SQL_PARAM_INPUT, 
 			  SQL_C_CHAR, SQL_TYPE_DATE, 0, 0, dateStr, 
 			  sizeof(dateStr),
-			  &cbDate);
+			  NULL);
     assert(rc == SQL_SUCCESS);
     
     VERBOSE("executing....\n");

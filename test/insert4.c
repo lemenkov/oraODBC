@@ -3,7 +3,7 @@
 
 /* test inserts, using bound parameters  - works 
  * author: Dennis Box, dbox@fnal.gov
- * $Id: insert4.c,v 1.7 2003/08/05 19:40:43 dbox Exp $
+ * $Id: insert4.c,v 1.8 2004/08/27 19:53:49 dbox Exp $
  */
 
 #include "test_defs.h"
@@ -85,18 +85,18 @@ int main()
 
     rc = SQLBindParameter(StmtHandle, 1, SQL_PARAM_INPUT, 
 			  SQL_INTEGER, SQL_INTEGER, 0, 0, &anInt, 0,
-			  &cbInt);
+			  NULL);
     assert(rc == SQL_SUCCESS);
 
     rc = SQLBindParameter(StmtHandle, 2, SQL_PARAM_INPUT, 
 			  SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &aFloat, 0,
-			  &cbFloat);
+			  NULL);
     assert(rc == SQL_SUCCESS);
 
     rc = SQLBindParameter(StmtHandle, 3, SQL_PARAM_INPUT, 
 			  SQL_C_CHAR, SQL_CHAR, MAX_CHAR_LEN, 
 			  0, aCharArray, MAX_CHAR_LEN,
-			  SQL_NTS);
+			  NULL);
     assert(rc == SQL_SUCCESS);
 
     rc = SQLDescribeParam(StmtHandle,1,&DataType,&ParameterSize,

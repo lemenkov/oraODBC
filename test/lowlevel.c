@@ -2,7 +2,7 @@
 /* test of low_level 'constructors' for   ar_T * , ir_T * and  hEnv_T * */
 
  /* author: Dennis Box, dbox@fnal.gov
- * $Id: lowlevel.c,v 1.3 2003/01/30 19:16:35 dbox Exp $
+ * $Id: lowlevel.c,v 1.4 2004/08/27 19:53:49 dbox Exp $
  */
 
 #include <mem_functions.h>
@@ -30,12 +30,14 @@ int main()
   hDesc_T *ar, *ap, *ir, *ip;
   hStmt_T * hst;
 
-  art = make_ar_T();
+  art = ORAMALLOC(sizeof(ar_T));
+  ood_ar_init (art);
   assert(IS_VALID(art));
   if(getenv("VERBOSE"))
     dump_ar_T(art);
 
-  irt =  make_ir_T();
+  irt =  ORAMALLOC(sizeof(ir_T));
+  ood_ir_init (irt,1,het);
   assert(irt->valid_flag==VALID_FLAG_DEFAULT);
  if(getenv("VERBOSE"))
     dump_ir_T(irt);
