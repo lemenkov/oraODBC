@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: sqllex.l,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: sqllex.l,v 1.2 2003/01/27 21:06:50 dbox Exp $
  *
  * $Log: sqllex.l,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2003/01/27 21:06:50  dbox
+ * WTF is COPYING doing in here, its already EPL it cant be GPL too!
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.4  2000/07/10 08:24:35  tom
  * tweaks for less tolerant compilers
@@ -39,7 +42,7 @@
  *
  ******************************************************************************/
 %{
-static char const rcsid[]= "$RCSfile: sqllex.l,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: sqllex.l,v $ $Revision: 1.2 $";
 #undef YY_DECL
 #define YY_DECL static int ood_yylex(char *sql,char *buf, char *sql_end,int* num_params)
 #ifndef YY_USE_PROTOS 
@@ -111,7 +114,7 @@ TIME {DIGIT}{2}{TIMESEP}{DIGIT}{2}{TIMESEP}{DIGIT}{2}
 \;" "*$	return 1;
 
 	/*default */
-.	sql_end=ood_fast_strcat(buf,yytext,sql_end);
+.|\n	sql_end=ood_fast_strcat(buf,yytext,sql_end);
 %%
 char* ood_lex_parse(char *stringin, int len, int *num_params)
 {

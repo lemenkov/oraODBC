@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLFetch.c,v 1.3 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLFetch.c,v 1.4 2003/01/27 21:06:50 dbox Exp $
  *
  * $Log: SQLFetch.c,v $
+ * Revision 1.4  2003/01/27 21:06:50  dbox
+ * WTF is COPYING doing in here, its already EPL it cant be GPL too!
+ *
  * Revision 1.3  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -90,7 +93,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFetch.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLFetch.c,v $ $Revision: 1.4 $";
 
 SQLRETURN ood_SQLFetch( 
     hStmt_T* stmt )
@@ -230,8 +233,8 @@ SQLRETURN ood_SQLFetch(
 				if(stmt->row_status_ptr)
 				{
 				    stmt->row_status_ptr[row]=SQL_NO_DATA;
-				    continue;
 				}
+			   continue;
 			}
 			if(stmt->current_ir->lob_col_flag) 
 			{

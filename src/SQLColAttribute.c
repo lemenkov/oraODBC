@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColAttribute.c,v 1.4 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLColAttribute.c,v 1.5 2003/01/27 21:06:50 dbox Exp $
  *
  * $Log: SQLColAttribute.c,v $
+ * Revision 1.5  2003/01/27 21:06:50  dbox
+ * WTF is COPYING doing in here, its already EPL it cant be GPL too!
+ *
  * Revision 1.4  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -90,7 +93,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: SQLColAttribute.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLColAttribute.c,v $ $Revision: 1.5 $";
 
 SQLRETURN SQL_API SQLColAttribute(
     SQLHSTMT            StatementHandle,
@@ -262,7 +265,7 @@ fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAtt
 	}
       else
 	{
-	  strcpy(CharacterAttributePtr,"");
+	  strcpy(CharacterAttributePtr,"local_type_name");
 	  if(StringLengthPtr)
 	    *StringLengthPtr=0;
 	}
@@ -346,7 +349,7 @@ fprintf(stderr,"SQL_DESC_AUTO_UNIQUE_VALUE=%d %s %d\n",*((SQLINTEGER*)NumericAtt
 	}
       else
 	{
-	  strcpy(CharacterAttributePtr,"");
+	  strcpy(CharacterAttributePtr,"type_name");
 	  if(StringLengthPtr)
 	    *StringLengthPtr=0;
 	}

@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLTables.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLTables.c,v 1.3 2003/01/27 21:06:50 dbox Exp $
  *
  * $Log: SQLTables.c,v $
+ * Revision 1.3  2003/01/27 21:06:50  dbox
+ * WTF is COPYING doing in here, its already EPL it cant be GPL too!
+ *
  * Revision 1.2  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -34,6 +37,8 @@
  * Revision 1.16  2000/07/21 10:04:17  tom
  * Fixed var init bug
  *
+
+
  * Revision 1.15  2000/07/10 08:24:35  tom
  * tweaks for less tolerant compilers
  *
@@ -82,7 +87,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLTables.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLTables.c,v $ $Revision: 1.3 $";
 
 static void ood_sqltables_construct_sql(hStmt_T* stmt,char* sql, char* schema, 
 		char *table, char *type, char* sql_end, int has_where_clause)
@@ -234,15 +239,15 @@ if(ENABLE_TRACE){
         table=ood_xtoSQLNTS(TableName,NameLength3);
         type=ood_xtoSQLNTS(TableType,NameLength4);
     
-	    ood_sqltables_construct_sql(stmt,sql,schema,table,type,sql_end,0);
+	ood_sqltables_construct_sql(stmt,sql,schema,table,type,sql_end,0);
         
-#ifdef UNIX_DEBUG    
-fprintf(stderr,
-        "SQLTables schema [%s][%d], table [%s][%d], type [%s][%d] SQL [%s]\n",
-        schema,NameLength2,table,NameLength3,type,NameLength4,sql);
-fprintf(stderr,"schema [0x%.8lx] SchemaName [0x%.8lx] NameLength2 [%d]\n",
-		(long)schema,(long)SchemaName,NameLength2);
-#endif
+	if(debugLevel()> 2){
+	  fprintf(stderr,
+		  "SQLTables schema [%s][%d], table [%s][%d], type [%s][%d] SQL [%s]\n",
+		  schema,NameLength2,table,NameLength3,type,NameLength4,sql);
+	  fprintf(stderr,"schema [0x%.8lx] SchemaName [0x%.8lx] NameLength2 [%d]\n",
+		  (long)schema,(long)SchemaName,NameLength2);
+	}
         if(schema&&(schema!=(char*)SchemaName))/*malloc'd*/
             ORAFREE(schema);
         if(table&&(table!=(char*)TableName))/*malloc'd*/
