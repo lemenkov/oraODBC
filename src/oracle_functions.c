@@ -25,7 +25,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.31 2004/08/27 19:52:55 dbox Exp $
+ * $Id: oracle_functions.c,v 1.32 2004/08/27 23:11:31 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -35,7 +35,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.31 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.32 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -821,11 +821,11 @@ SQLRETURN ood_ocitype_to_sqltype(ub2 data_type)
     case SQLT_VST:
     case SQLT_VCS:
     case SQLT_AVC:
+    case SQLT_CHR:
 
       return SQL_VARCHAR;
 
       /* fixed char */
-    case SQLT_CHR:
     case SQLT_AFC:
 
       return SQL_CHAR;
@@ -1597,7 +1597,7 @@ SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar)
     }
   if(!ar->data_type) /* not bound (yet) */
     {
-      ar->data_type=ood_ocitype_to_sqltype(ir->data_type);
+      ar->data_type=ood_ocitype_to_sqltype(ir->orig_type);
       /*hack alert!! */
 
       if(ar->precision!=0 && ar->scale==0){
@@ -1610,7 +1610,6 @@ SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar)
 	else
 	ar->data_type=SQL_FLOAT;
       }
-      
       ar->concise_type=ar->data_type;
       ar->display_size=sqltype_display_size(ar->data_type,ir->data_size);
     }
