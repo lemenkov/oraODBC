@@ -10,6 +10,8 @@
 # even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 # PARTICULAR PURPOSE.
 
+# $Id: Makefile.in,v 1.13 2002/05/31 20:04:42 dbox Exp $
+
 
 SHELL = @SHELL@
 

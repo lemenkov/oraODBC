@@ -1,3 +1,5 @@
+
+# $Id: Makefile.am,v 1.13 2002/05/31 20:04:42 dbox Exp $
 check_PROGRAMS=\
 connect1 \
 connect2 \
