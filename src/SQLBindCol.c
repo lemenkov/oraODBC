@@ -2,25 +2,29 @@
  *
  * Copyright (c) 2000 Easysoft Ltd
  *
- * The contents of this file are subject to the Easysoft Public License 
- * Version 1.0 (the "License"); you may not use this file except in compliance 
- * with the License. 
+ * The contents of this file are subject to the Easysoft Public License
+ * Version 1.0 (the "License"); you may not use this file except in compliance
+ * with the License.
  *
- * You may obtain a copy of the License at http://www.easysoft.org/EPL.html 
+ * You may obtain a copy of the License at http://www.easysoft.org/EPL.html
  *
- * Software distributed under the License is distributed on an "AS IS" basis, 
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for 
- * the specific language governing rights and limitations under the License. 
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
  *
- * The Original Code was created by Easysoft Limited and its successors. 
+ * The Original Code was created by Easysoft Limited and its successors.
  *
- * Contributor(s): Tom Fosdick (Easysoft) 
+ * Contributor(s): Tom Fosdick (Easysoft)
  *
  *******************************************************************************
  *
- * $Id: SQLBindCol.c,v 1.5 2004/11/23 23:26:00 dbox Exp $
+ * $Id: SQLBindCol.c,v 1.6 2005/03/17 01:56:36 dbox Exp $
  *
  * $Log: SQLBindCol.c,v $
+ * Revision 1.6  2005/03/17 01:56:36  dbox
+ * fix memory leak in freeing up ar_TAG, submitted by Philippe Le Rohellec <philippe@cloudmark.com>
+ *
+ *
  * Revision 1.5  2004/11/23 23:26:00  dbox
  * StrLen_or_IndPtr can come in as SQL_NULL_DATA but should not set ar or ir
  * internals, these are read later if the bound column is actually null
@@ -98,7 +102,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBindCol.c,v $ $Revision: 1.5 $";
+static char const rcsid[]= "$RCSfile: SQLBindCol.c,v $ $Revision: 1.6 $";
 
 SQLRETURN SQL_API SQLBindCol(
     SQLHSTMT        StatementHandle,
@@ -114,11 +118,14 @@ SQLRETURN SQL_API SQLBindCol(
 
 
   tmp=0;
-  if (StrLen_or_IndPtr && *StrLen_or_IndPtr) 
+  if (StrLen_or_IndPtr && *StrLen_or_IndPtr) {
+    stmt->current_ar->recs.ar[ColumnNumber].bind_indicator_malloced = 0;
     tmp=StrLen_or_IndPtr;
+  }
   else{
     tmp=(SQLINTEGER*)ORAMALLOC(sizeof(SQLINTEGER));
     *tmp=0;
+    stmt->current_ar->recs.ar[ColumnNumber].bind_indicator_malloced = 1;
   }
   if(*tmp==SQL_NULL_DATA)
     *tmp=0;
@@ -134,7 +141,7 @@ SQLRETURN SQL_API SQLBindCol(
 
  ood_clear_diag((hgeneric*)(hgeneric*)stmt);
  ood_mutex_lock_stmt(stmt);
- 
+
  /*
   * We may not have allocated our row descriptors yet... so make sure
   */
@@ -145,11 +152,11 @@ SQLRETURN SQL_API SQLBindCol(
    }
  else
    {
-     
+
      /*
       * Common stuff
       *
-      * people who write statements like the next one should be 
+      * people who write statements like the next one should be
       * brought back every 3-4 years and tortured until they confess to
       * what the statement actually does (not what they think it does)
       */

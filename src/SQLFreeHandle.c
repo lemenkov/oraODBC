@@ -2,27 +2,27 @@
  *
  * Copyright (c) 2000 Easysoft Ltd
  *
- * The contents of this file are subject to the Easysoft Public License 
- * Version 1.0 (the "License"); you may not use this file except in compliance 
- * with the License. 
+ * The contents of this file are subject to the Easysoft Public License
+ * Version 1.0 (the "License"); you may not use this file except in compliance
+ * with the License.
  *
- * You may obtain a copy of the License at http://www.easysoft.org/EPL.html 
+ * You may obtain a copy of the License at http://www.easysoft.org/EPL.html
  *
- * Software distributed under the License is distributed on an "AS IS" basis, 
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for 
- * the specific language governing rights and limitations under the License. 
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
  *
- * The Original Code was created by Easysoft Limited and its successors. 
+ * The Original Code was created by Easysoft Limited and its successors.
  *
- * Contributor(s): Tom Fosdick (Easysoft) 
+ * Contributor(s): Tom Fosdick (Easysoft)
  *
  *******************************************************************************
  *
- * $Id: SQLFreeHandle.c,v 1.7 2004/08/27 19:42:40 dbox Exp $
+ * $Id: SQLFreeHandle.c,v 1.8 2005/03/17 01:54:59 dbox Exp $
  *
- * $Log: SQLFreeHandle.c,v $
- * Revision 1.7  2004/08/27 19:42:40  dbox
- * correct some bad behavior in ar/ir handles wrt number of records in re-used handles
+ * $Log: SQLFreeHandle.c,v 
+ * Revision 1.7  2004/08/27 19:42:40  dbo
+ * correct some bad behavior in ar/ir handles wrt number of records in re-used handle
  *
  * Revision 1.6  2003/12/16 01:22:06  dbox
  * changes contributed by Steven Reynolds sreynolds@bradmark.com
@@ -113,7 +113,7 @@
  *
  * Revision 1.3  2000/04/20 10:50:31  nick
  * Add to CVS and tidy up
- * 
+ *
  * Revision 1.2  2000/04/19 15:26:47  tom
  * First Function Checkin
  *
@@ -125,7 +125,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.7 $";
+static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.8 $";
 
 void ood_ap_free(ap_T *ap)
 {
@@ -133,10 +133,21 @@ void ood_ap_free(ap_T *ap)
         ORAFREE(ap);
 }
 
-void ood_ar_free(ar_T *ar)
+void ood_ar_free(ar_T *ar, int num_recs)
 {
+    int i;
     if(ar)
+    {
+        for(i=0;i<=num_recs;i++)
+        {
+            if(ar[i].bind_indicator)
+            {
+                if(ar[i].bind_indicator_malloced==1)
+                    ORAFREE(ar[i].bind_indicator);
+            }
+        }
         ORAFREE(ar);
+    }
 }
 
 void ood_ip_free(ip_T *ip, int num_recs)
@@ -204,7 +215,7 @@ static void descriptor_free(hDesc_T *desc)
         break;
 
         case DESC_AR:
-            ood_ar_free(desc->recs.ar);
+            ood_ar_free(desc->recs.ar,desc->num_recs);
         break;
 
         case DESC_IP:
@@ -227,7 +238,7 @@ static void descriptor_free(hDesc_T *desc)
         desc->prev->next=desc->next;
     else /* first in the descriptor list */
         desc->dbc->desc_list=desc->next;
-        
+
     if(desc->next)
         desc->next->prev=desc->prev;
     else /*last in the descriptor list */
@@ -321,7 +332,7 @@ if(ENABLE_TRACE){
 			stmt->oci_stmt = (OCIStmt *)0;
 	            }
 		    stmt = stmt->next;
-		} 
+		}
 		ood_free_diag((hgeneric*)dbc);
 		THREAD_MUTEX_LOCK(dbc);
 		if(dbc->oci_err)
@@ -386,7 +397,7 @@ if(ENABLE_TRACE){
 			 */
 				ORAFREE(stmt->sql);
 
-            /* 
+            /*
              * Knock the statement out of the statement list
              */
             THREAD_MUTEX_LOCK(stmt->dbc);
@@ -415,7 +426,7 @@ if(ENABLE_TRACE){
             hDbc_T* dbc=desc->dbc;
 	    if(!IS_VALID(desc)) return SQL_ERROR;
 	    if(!IS_VALID(dbc)) return SQL_ERROR;
-	    
+
             ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
                     (SQLHANDLE)desc,0,"");
 }
@@ -424,7 +435,7 @@ if(ENABLE_TRACE){
 
             if(desc->stmt)
             {
-                /* 
+                /*
                  * only implicit descriptors have statement refs
                  */
                 ood_post_diag((hgeneric*)desc,ERROR_ORIGIN_HY017,0,"",
