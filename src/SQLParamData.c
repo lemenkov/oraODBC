@@ -18,11 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: SQLParamData.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: SQLParamData.c,v 1.2 2002/02/20 03:09:05 dbox Exp $
  *
  * $Log: SQLParamData.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/02/20 03:09:05  dbox
+ * changed error reporting for stubbed out functions.  Added function calls
+ * to 'test' subdirectory programs
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.10  2000/07/07 08:09:23  tom
  * logging altered to alert the log reader
@@ -53,7 +57,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLParamData.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLParamData.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLParamData( 
     SQLHSTMT        StatementHandle,
@@ -74,6 +78,6 @@ SQLRETURN SQL_API SQLParamData(
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
 #endif
-    fprintf(stderr,"called stubbed function\n",__LINE__,__FILE__);
+    fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
     return SQL_SUCCESS;
 }

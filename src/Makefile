@@ -67,22 +67,22 @@ AS = @AS@
 CC = gcc
 CPP = gcc -E
 DLLTOOL = @DLLTOOL@
-LD_ODBCINSTLIB = -L/afs/fnal.gov/files/code/e875/general/external/Linux2-GCC_2_95/lib -lodbcinst
+LD_ODBCINSTLIB = -L/usr/products/devel/dbox/odbc/install/lib -lodbcinst
 LEX = flex
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LIB_VERSION = 1:0:0
 LN_S = ln -s
 MAKEINFO = makeinfo
 OBJDUMP = @OBJDUMP@
-ODBCIDIR = /afs/fnal.gov/files/code/e875/general/external/Linux2-GCC_2_95/include
+ODBCIDIR = /usr/products/devel/dbox/odbc/install/include
 ODBCINSTLIB = libodbcinst.so
-ODBCLDIR = /afs/fnal.gov/files/code/e875/general/external/Linux2-GCC_2_95/lib
+ODBCLDIR = /usr/products/devel/dbox/odbc/install/lib
 ODBCLIB = libodbc.so
-ORAIDIR = /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo
-ORALDIR = /usr/products/Linux/oracle_client/v8_1_6/lib
+ORAIDIR = /usr/products/Linux/oracle_client/v8_0_5/rdbms/public
+ORALDIR = /usr/products/Linux/oracle_client/v8_0_5/lib
 ORALIB = -lclntsh
-ORANDIR = /usr/products/Linux/oracle_client/v8_1_6/network/public
-ORAPDIR = /usr/products/Linux/oracle_client/v8_1_6/rdbms/public
+ORANDIR = /usr/products/Linux/oracle_client/v8_0_5/network/public
+ORAPDIR = /usr/products/Linux/oracle_client/v8_0_5/plsql/public
 PACKAGE = oracle
 RANLIB = ranlib
 VERSION = 0.4.0pre1
@@ -94,7 +94,7 @@ INCLUDES = -I${ODBCIDIR} -I${ORAIDIR} -I${ORANDIR} -I${ORAPDIR} -D_REENTRANT
 EXTRA_DIST =  	common.h 	diagnostics.h 	oracle_functions.h 	string_functions.h 	common_functions.h 	acconfig.h 	mem_functions.h
 
 
-liboraodbc_la_LIBADD = -L/afs/fnal.gov/files/code/e875/general/external/Linux2-GCC_2_95/lib -lodbcinst
+liboraodbc_la_LIBADD = -L/usr/products/devel/dbox/odbc/install/lib -lodbcinst
 
 liboraodbc_la_LDFLAGS =  	-version-info 1:0:0     -export-dynamic 	-export-symbols odbcdriver.exp 	-L${ORALDIR} ${ORALIB}
 

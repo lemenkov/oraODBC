@@ -18,11 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: SQLBulkOperations.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLBulkOperations.c,v 1.2 2002/02/20 03:09:05 dbox Exp $
  *
  * $Log: SQLBulkOperations.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/02/20 03:09:05  dbox
+ * changed error reporting for stubbed out functions.  Added function calls
+ * to 'test' subdirectory programs
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.9  2000/06/06 10:24:33  tom
  * Tidy up for possible release 0.0.3
@@ -50,7 +54,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBulkOperations.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLBulkOperations.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLBulkOperations(
     SQLHSTMT            StatementHandle,
@@ -70,6 +74,6 @@ SQLRETURN SQL_API SQLBulkOperations(
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
 #endif
-    fprintf(stderr,"called stubbed function\n",__LINE__,__FILE__);
+    fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
     return SQL_SUCCESS;
 }

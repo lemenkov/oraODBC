@@ -2,12 +2,12 @@ SQLNumParams.lo SQLNumParams.o : SQLNumParams.c common.h config.h \
  /usr/include/sys/types.h /usr/include/features.h \
  /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h \
  /usr/include/bits/types.h \
- /usr/products/Linux/gcc/v2_95_2/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/include/stddef.h \
+ /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/stddef.h \
  /usr/include/time.h /usr/include/endian.h /usr/include/bits/endian.h \
  /usr/include/sys/select.h /usr/include/bits/select.h \
  /usr/include/bits/sigset.h /usr/include/sys/sysmacros.h \
  /usr/include/stdio.h \
- /usr/products/Linux/gcc/v2_95_2/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/include/stdarg.h \
+ /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/stdarg.h \
  /usr/include/libio.h /usr/include/_G_config.h \
  /usr/include/bits/stdio_lim.h /usr/include/bits/stdio.h \
  /usr/include/stdlib.h /usr/include/alloca.h /usr/include/errno.h \
@@ -17,36 +17,34 @@ SQLNumParams.lo SQLNumParams.o : SQLNumParams.c common.h config.h \
  /usr/include/getopt.h /usr/include/math.h \
  /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h \
  /usr/include/bits/mathcalls.h \
- /usr/products/Linux/gcc/v2_95_2/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/include/float.h \
+ /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/float.h \
  /usr/include/bits/mathinline.h /usr/include/pthread.h \
  /usr/include/sched.h /usr/include/bits/sched.h \
  /usr/include/bits/time.h /usr/include/signal.h \
  /usr/include/bits/pthreadtypes.h /usr/include/bits/sigthread.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/oci.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/oratypes.h \
- /usr/products/Linux/gcc/v2_95_2/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/include/limits.h \
- /usr/products/Linux/gcc/v2_95_2/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/include/syslimits.h \
+ /usr/products/Linux/oracle_client/v8_0_5/rdbms/public/oci.h \
+ /usr/products/Linux/oracle_client/v8_0_5/rdbms/public/oratypes.h \
+ /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/limits.h \
+ /usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/syslimits.h \
  /usr/include/limits.h /usr/include/bits/posix1_lim.h \
  /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
  /usr/include/bits/posix2_lim.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/ocidfn.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/oci1.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/oro.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/ori.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/ort.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/orl.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/public/ociextp.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/ociapr.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/ociap.h \
- /usr/products/Linux/oracle_client/v8_1_6/network/public/nzt.h \
- /usr/products/Linux/oracle_client/v8_1_6/network/public/nzerror.h \
- /usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/oci8dp.h \
- /afs/fnal.gov/files/code/e875/general/external/Linux2-GCC_2_95/include/sql.h \
- /afs/fnal.gov/files/code/e875/general/external/Linux2-GCC_2_95/include/sqltypes.h \
- /afs/fnal.gov/files/code/e875/general/external/Linux2-GCC_2_95/include/sqlext.h \
- diagnostics.h mem_functions.h string_functions.h \
- /usr/include/string.h /usr/include/bits/string.h \
- /usr/include/bits/string2.h oracle_functions.h common_functions.h
+ /usr/products/Linux/oracle_client/v8_0_5/rdbms/public/ocidfn.h \
+ /usr/products/Linux/oracle_client/v8_0_5/rdbms/public/oro.h \
+ /usr/products/Linux/oracle_client/v8_0_5/rdbms/public/ori.h \
+ /usr/products/Linux/oracle_client/v8_0_5/rdbms/public/ort.h \
+ /usr/products/Linux/oracle_client/v8_0_5/rdbms/public/orl.h \
+ /usr/products/Linux/oracle_client/v8_0_5/plsql/public/ociextp.h \
+ /usr/products/Linux/oracle_client/v8_0_5/rdbms/public/ociapr.h \
+ /usr/products/Linux/oracle_client/v8_0_5/rdbms/public/ociap.h \
+ /usr/products/Linux/oracle_client/v8_0_5/network/public/nzt.h \
+ /usr/products/Linux/oracle_client/v8_0_5/network/public/nzerror.h \
+ /usr/products/devel/dbox/odbc/install/include/sql.h \
+ /usr/products/devel/dbox/odbc/install/include/sqltypes.h \
+ /usr/products/devel/dbox/odbc/install/include/sqlext.h diagnostics.h \
+ mem_functions.h string_functions.h /usr/include/string.h \
+ /usr/include/bits/string.h /usr/include/bits/string2.h \
+ oracle_functions.h common_functions.h
 SQLNumParams.c :
 common.h :
 config.h :
@@ -55,7 +53,7 @@ config.h :
 /usr/include/sys/cdefs.h :
 /usr/include/gnu/stubs.h :
 /usr/include/bits/types.h :
-/usr/products/Linux/gcc/v2_95_2/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/include/stddef.h :
+/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/stddef.h :
 /usr/include/time.h :
 /usr/include/endian.h :
 /usr/include/bits/endian.h :
@@ -64,7 +62,7 @@ config.h :
 /usr/include/bits/sigset.h :
 /usr/include/sys/sysmacros.h :
 /usr/include/stdio.h :
-/usr/products/Linux/gcc/v2_95_2/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/include/stdarg.h :
+/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/stdarg.h :
 /usr/include/libio.h :
 /usr/include/_G_config.h :
 /usr/include/bits/stdio_lim.h :
@@ -83,7 +81,7 @@ config.h :
 /usr/include/bits/huge_val.h :
 /usr/include/bits/mathdef.h :
 /usr/include/bits/mathcalls.h :
-/usr/products/Linux/gcc/v2_95_2/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/include/float.h :
+/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/float.h :
 /usr/include/bits/mathinline.h :
 /usr/include/pthread.h :
 /usr/include/sched.h :
@@ -92,30 +90,28 @@ config.h :
 /usr/include/signal.h :
 /usr/include/bits/pthreadtypes.h :
 /usr/include/bits/sigthread.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/oci.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/oratypes.h :
-/usr/products/Linux/gcc/v2_95_2/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/include/limits.h :
-/usr/products/Linux/gcc/v2_95_2/lib/gcc-lib/i686-pc-linux-gnu/2.95.2/include/syslimits.h :
+/usr/products/Linux/oracle_client/v8_0_5/rdbms/public/oci.h :
+/usr/products/Linux/oracle_client/v8_0_5/rdbms/public/oratypes.h :
+/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/limits.h :
+/usr/lib/gcc-lib/i386-redhat-linux/egcs-2.91.66/include/syslimits.h :
 /usr/include/limits.h :
 /usr/include/bits/posix1_lim.h :
 /usr/include/bits/local_lim.h :
 /usr/include/linux/limits.h :
 /usr/include/bits/posix2_lim.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/ocidfn.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/oci1.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/oro.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/ori.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/ort.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/orl.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/public/ociextp.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/ociapr.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/ociap.h :
-/usr/products/Linux/oracle_client/v8_1_6/network/public/nzt.h :
-/usr/products/Linux/oracle_client/v8_1_6/network/public/nzerror.h :
-/usr/products/Linux/oracle_client/v8_1_6/rdbms/demo/oci8dp.h :
-/afs/fnal.gov/files/code/e875/general/external/Linux2-GCC_2_95/include/sql.h :
-/afs/fnal.gov/files/code/e875/general/external/Linux2-GCC_2_95/include/sqltypes.h :
-/afs/fnal.gov/files/code/e875/general/external/Linux2-GCC_2_95/include/sqlext.h :
+/usr/products/Linux/oracle_client/v8_0_5/rdbms/public/ocidfn.h :
+/usr/products/Linux/oracle_client/v8_0_5/rdbms/public/oro.h :
+/usr/products/Linux/oracle_client/v8_0_5/rdbms/public/ori.h :
+/usr/products/Linux/oracle_client/v8_0_5/rdbms/public/ort.h :
+/usr/products/Linux/oracle_client/v8_0_5/rdbms/public/orl.h :
+/usr/products/Linux/oracle_client/v8_0_5/plsql/public/ociextp.h :
+/usr/products/Linux/oracle_client/v8_0_5/rdbms/public/ociapr.h :
+/usr/products/Linux/oracle_client/v8_0_5/rdbms/public/ociap.h :
+/usr/products/Linux/oracle_client/v8_0_5/network/public/nzt.h :
+/usr/products/Linux/oracle_client/v8_0_5/network/public/nzerror.h :
+/usr/products/devel/dbox/odbc/install/include/sql.h :
+/usr/products/devel/dbox/odbc/install/include/sqltypes.h :
+/usr/products/devel/dbox/odbc/install/include/sqlext.h :
 diagnostics.h :
 mem_functions.h :
 string_functions.h :

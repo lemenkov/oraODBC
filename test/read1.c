@@ -31,9 +31,18 @@ int main()
     SQLCHAR  SQLStmt[MAX_LEN];
 
     int an_int;
+    int num_cols;
     float a_float;
     SQLCHAR a_buf[MAX_LEN];
    
+    SQLUSMALLINT col;
+    SQLSMALLINT col_len;
+    SQLSMALLINT type;
+    SQLUINTEGER sz;
+    SQLSMALLINT scale;
+    SQLSMALLINT can_null;
+
+
     
     if(getenv("TWO_TASK") && strlen((const char*)getenv("TWO_TASK"))<MAX_LEN)
       sprintf(twoTask,"%s",getenv("TWO_TASK"));
@@ -79,6 +88,22 @@ int main()
     rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
     assert(rc == SQL_SUCCESS);
 
+    rc = SQLNumResultCols(StmtHandle,&num_cols);
+    assert(rc==SQL_SUCCESS || rc==SQL_SUCCESS_WITH_INFO);
+    assert(num_cols==3);
+
+
+    for(col=1; col<=num_cols; col++)
+      {
+	rc = SQLDescribeCol(StmtHandle,col,a_buf,MAX_LEN,&col_len,
+			    &type,&sz,&scale,&can_null);
+
+	assert(rc==SQL_SUCCESS);
+
+	VERBOSE("col=%d name:%s len=%d type=%d size=%d scale=%d nullable=%d\n"
+		,col,a_buf,col_len,type,sz,scale,can_null);
+      }
+
 
 
     rc = SQLBindCol(StmtHandle, 1, SQL_C_SLONG, 
@@ -95,7 +120,7 @@ int main()
 
 
     do{
-      rc=SQLFetch(StmtHandle);
+      rc = SQLFetch(StmtHandle);
       VERBOSE("an_int=%d a_float=%f a_string=%s\n",an_int,a_float,a_buf);
     }while(rc==SQL_SUCCESS);
 

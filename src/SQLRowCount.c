@@ -18,11 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: SQLRowCount.c,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: SQLRowCount.c,v 1.2 2002/02/20 03:09:05 dbox Exp $
  *
  * $Log: SQLRowCount.c,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2002/02/20 03:09:05  dbox
+ * changed error reporting for stubbed out functions.  Added function calls
+ * to 'test' subdirectory programs
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.9  2000/07/21 10:13:07  tom
  * casting made explicit
@@ -56,7 +60,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLRowCount.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLRowCount.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLRowCount(
     SQLHSTMT            StatementHandle,
@@ -81,6 +85,6 @@ SQLRETURN SQL_API SQLRowCount(
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,SQL_SUCCESS,"i","*RowCountPtr",*RowCountPtr);
 #endif
-    fprintf(stderr,"called stubbed function\n",__LINE__,__FILE__);
+    fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
     return SQL_SUCCESS;
 }
