@@ -18,9 +18,15 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.2 2002/03/05 22:55:50 dbox Exp $
+ * $Id: oracle_functions.c,v 1.3 2002/03/06 23:00:19 dbox Exp $
  *
  * $Log: oracle_functions.c,v $
+ * Revision 1.3  2002/03/06 23:00:19  dbox
+ * Changed to report float(126) and integer (actually NUMBER(38,0)
+ * more correctly.
+ *
+ * S: ----------------------------------------------------------------------
+ *
  * Revision 1.2  2002/03/05 22:55:50  dbox
  * added functionality to oracle_functions.c
  *
@@ -111,7 +117,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.3 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -1542,14 +1548,6 @@ SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
 			ir->data_size=1024;
 			ir->to_string=ocivnu_sqlnts;
 
-			/*hack alert!! 
-			if(ar->precision==38 && ar->scale==0)
-			  ir->data_type=SQL_C_SLONG;
-			if(ar->precision==126 && ar->scale==0)
-			  ir->data_type=SQL_C_DOUBLE;
-			if(ar->precision==63 && ar->scale==0)
-			  ir->data_type=SQL_C_FLOAT;
-			*/
 
 			break;
 
@@ -1603,13 +1601,24 @@ SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
     {
         ar->data_type=ood_ocitype_to_sqltype(ir->data_type);
 	/*hack alert!! */
-	if(ar->precision==38 && ar->scale==0)
+	if(ar->precision==38 && ar->scale==0){
 	  ar->data_type=SQL_C_SLONG;
-	if(ar->precision==126 && ar->scale==0)
+	  ir->data_type=SQLT_INT;
+	  ir->data_size=sizeof(long);
+	  ir->to_string=ociint_sqlslong;
+	}
+	if(ar->precision==126 && ar->scale==0){
 	  ar->data_type=SQL_C_DOUBLE;
-	if(ar->precision==63 && ar->scale==0)
+	  ir->data_type=SQLT_FLT;
+	  ir->data_size=sizeof(double);
+	  ir->to_string=ociflt_sqlnts;
+	}
+	if(ar->precision==63 && ar->scale==0){
 	  ar->data_type=SQL_C_FLOAT;
-
+	  ir->data_type=SQLT_FLT;
+	  ir->data_size=sizeof(double);
+	  ir->to_string=ociflt_sqlnts;
+	}
         ar->concise_type=ar->data_type;
         ar->display_size=sqltype_display_size(ar->data_type,ir->data_size);
     }
