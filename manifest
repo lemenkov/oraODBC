@@ -2,7 +2,7 @@ list of files for 0.5.0 release
 Nov 15 2002 , dbox@fnal.gov
 
 This list was produced with the following command:
- find . -name '*.[ch]' | xargs grep '$Id: manifest,v 1.1 2002/12/11 22:25:30 dbox Exp $a[3] $a[4] $a[5]\n";' > manifest
+ find . -name '*.[ch]' | xargs grep 'Id: '  | perl -ne '@a=split(); print "$a[3] $a[4] $a[5]\n";' > manifest
 
 acconfig.h,v 1.1.1.1 2002/02/11
 SQLAllocHandle.c,v 1.5 2002/06/26

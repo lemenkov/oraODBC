@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.4 2002/06/19 22:21:37 dbox Exp $
+ * $Id: common.h,v 1.5 2003/01/17 22:34:51 dbox Exp $
  *
  * $Log: common.h,v $
+ * Revision 1.5  2003/01/17 22:34:51  dbox
+ * changing greivous mutex lock/unlock typo
+ *
  * Revision 1.4  2002/06/19 22:21:37  dbox
  * more tweaks to OCI calls to report what happens when DEBUG level is set
  *
@@ -232,7 +235,7 @@ typedef struct hgeneric_TAG
 #if defined(HAVE_LIBPTHREAD)
 #define THREAD_MUTEX_LOCK(h) pthread_mutex_lock(&(((hgeneric*)h)->mutex))
 #define THREAD_MUTEX_UNLOCK(h) pthread_mutex_unlock(&(((hgeneric*)h)->mutex))
-#define GLOBAL_MUTEX_LOCK(h) pthread_mutex_unlock(&(h))
+#define GLOBAL_MUTEX_LOCK(h) pthread_mutex_lock(&(h))
 #define GLOBAL_MUTEX_UNLOCK(h) pthread_mutex_unlock(&(h))
 /*#elif defined(WIN32)
 #define THREAD_MUTEX_LOCK(h) WaitForSingleObject(&(((hgeneric*)h)->mutex),INFINITE );
