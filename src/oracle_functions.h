@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.h,v 1.5 2004/08/06 20:46:10 dbox Exp $
+ * $Id: oracle_functions.h,v 1.6 2004/08/27 19:52:55 dbox Exp $
  *
  * $Log: oracle_functions.h,v $
+ * Revision 1.6  2004/08/27 19:52:55  dbox
+ * tons of changes by Gary Houston, ghouston@intellecthr.com.  Fixes error handling and handle re-use
+ *
  * Revision 1.5  2004/08/06 20:46:10  dbox
  * lots of re-working of behavior for filling ir and ar descriptors when
  * a statement handle is reused.  Fixes a crash when number of columns changes
@@ -91,6 +94,7 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt);
 SQLRETURN ood_driver_prefetch(hStmt_T* stmt);
 SQLRETURN ood_driver_num_result_cols(hStmt_T* stmt,SQLSMALLINT* cols);
 SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar);
+void ood_ir_array_reset (ir_T *ir, size_t num_entries, hDesc_T *desc);
 SQLRETURN ood_driver_define_col(ir_T* ir);
 SQLRETURN ood_ocitype_to_sqltype(ub2 data_type);
 SQLRETURN ood_ocitype_to_sqltype_imp(hStmt_T* stmt, int colNum);
@@ -98,7 +102,6 @@ SQLRETURN ood_alloc_col_desc(hStmt_T *, ub4, hDesc_T*, hDesc_T*);
 
 SQLRETURN ood_assign_ir(ir_T *ir,ub2 data_type, ub2 data_size, sb2 indicator,
     SQLRETURN (*default_copy)(), SQLRETURN (*to_string)());
-
 SQLRETURN (*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
     (int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 
