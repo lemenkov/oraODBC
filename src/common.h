@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.9 2004/08/06 20:44:33 dbox Exp $
+ * $Id: common.h,v 1.10 2004/08/27 19:50:47 dbox Exp $
  *
  * $Log: common.h,v $
+ * Revision 1.10  2004/08/27 19:50:47  dbox
+ * re worked handle init/reset functions
+ *
  * Revision 1.9  2004/08/06 20:44:33  dbox
  * move and change some variable types
  *
@@ -339,7 +342,6 @@ struct ar_TAG
   SQLINTEGER  display_size;
   SQLSMALLINT fixed_prec_scale;
   SQLINTEGER *bind_indicator; /* for bound columns */
-  SQLCHAR*    column_label;
   SQLINTEGER  length;
   SQLCHAR*    literal_prefix;
   SQLCHAR*    literal_suffix;
@@ -517,10 +519,10 @@ typedef struct ar_TAG ar_T;
 #define ip_T ir_T
 typedef struct ir_TAG ir_T;
 
-
-ar_T * make_ar_T();
-ir_T * make_ir_T();
+void ood_ar_init (ar_T *t);
 void dump_ar_T(ar_T * t);
+void ood_ir_init (ir_T *t, ub4 col_num, hDesc_T *desc);
+void ood_ir_free_contents (ir_T *t);
 void dump_ir_T(ir_T * t);
 
 hEnv_T * make_hEnv_T();

@@ -1,7 +1,5 @@
 #include "common.h"
-/* $Id: common.c,v 1.7 2004/08/06 20:44:33 dbox Exp $*/
-
-#define IS_VALID(x) (x->valid_flag==VALID_FLAG_DEFAULT)
+/* $Id: common.c,v 1.8 2004/08/27 19:50:47 dbox Exp $*/
 
 static  int g_Debug_Oracle_ODBC;
 
@@ -22,45 +20,39 @@ SQLRETURN init_hgeneric(hgeneric *t)
   return SQL_SUCCESS;
 }
 
-ar_T * make_ar_T()
-
+void ood_ar_init (ar_T *t)
 {
-  ar_T * t = ORAMALLOC(sizeof(ar_T));
   t->auto_unique = SQLSMALLINT_DEFAULT;
   t->base_column_name = SQLCHAR_DEFAULT;
   t->base_table_name = SQLCHAR_DEFAULT; 
-  t->case_sensitive = SQLSMALLINT_DEFAULT;
+  t->case_sensitive = SQL_FALSE;
   t->catalog_name = SQLCHAR_DEFAULT;
-  t->concise_type = SQLSMALLINT_DEFAULT;
+  t->concise_type = SQL_C_DEFAULT;
   t->data_ptr = SQLPOINTER_DEFAULT;
   t->display_size = SQLINTEGER_DEFAULT;
   t->fixed_prec_scale = SQLSMALLINT_DEFAULT;
   t->bind_indicator = SQLINTEGER_DEFAULT;
-  t->column_label = SQLCHAR_DEFAULT;
   t->length = SQLINTEGER_DEFAULT;
   t->literal_prefix = SQLCHAR_DEFAULT;
   t->literal_suffix = SQLCHAR_DEFAULT;
   t->local_type_name = SQLCHAR_DEFAULT;
   t->column_name[0] = SQLCHAR_DEFAULT;
-  t->nullable = SQLSMALLINT_DEFAULT;
-  t->num_prec_radix = SQLINTEGER_DEFAULT;
+  t->nullable = SQL_TRUE;
+  t->num_prec_radix = 10;
   t->octet_length = SQLINTEGER_DEFAULT;
   t->precision = SQLSMALLINT_DEFAULT;
   t->scale = SQLSMALLINT_DEFAULT;
   t->schema_name = SQLCHAR_DEFAULT;
-  t->searchable = SQLSMALLINT_DEFAULT;
+  t->searchable = SQL_TRUE;
   t->table_name = SQLCHAR_DEFAULT;
   t->data_type = SQLSMALLINT_DEFAULT;
   t->type_name = SQLCHAR_DEFAULT;
-  t->un_signed = SQLSMALLINT_DEFAULT;
-  t->updateable = SQLSMALLINT_DEFAULT;
+  t->un_signed = SQL_TRUE;
+  t->updateable = SQL_TRUE;
   t->buffer_length = SQLINTEGER_DEFAULT;
   t->bind_target_type = SQLSMALLINT_DEFAULT;
   t->valid_flag = VALID_FLAG_DEFAULT;
-
-  return t;
-};
-
+}
 
 void dump_ar_T(ar_T * t)
 
@@ -77,7 +69,6 @@ void dump_ar_T(ar_T * t)
   printf("display_size=%d\n",t->display_size);
   printf("fixed_prec_scale=%d ",t->fixed_prec_scale);
   printf("bind_indicator=%d\n",t->bind_indicator);
-  printf("column_label='%s' ",t->column_label);
   printf("length=%d\n",t->length);
   printf("literal_prefix='%s' ",t->literal_prefix);
   printf("literal_suffix='%s'\n",t->literal_suffix);
@@ -98,23 +89,18 @@ void dump_ar_T(ar_T * t)
   printf("buffer_length=%d ",t->buffer_length);
   printf("bind_target_type=%d\n",t->bind_target_type);
   printf("valid_flag=%d\n",t->valid_flag);
+}
 
-};
-
-
-
-ir_T * make_ir_T()
-{  
-  ir_T * t = ORAMALLOC(sizeof(ir_T));
-
+void ood_ir_init (ir_T *t, ub4 col_num, hDesc_T *desc)
+{
   t->data_type = ub2_DEFAULT;
   t->orig_type = ub2_DEFAULT;
   t->data_size = ub2_DEFAULT;
-  t->col_num = int_DEFAULT;
+  t->col_num = col_num;
   t->default_copy = FUNCTION_DEFAULT;
   t->to_string =  FUNCTION_DEFAULT;
   t->to_oracle = FUNCTION_DEFAULT;
-  t->desc = struct_DEFAULT;
+  t->desc = desc;
   t->data_ptr =  struct_DEFAULT;
   t->ind_arr = sb2_DEFAULT;
   t->length_arr = ub2_DEFAULT;
@@ -123,8 +109,32 @@ ir_T * make_ir_T()
   t->posn = ub4_DEFAULT;
   t->lobsiz = ub4_DEFAULT;
   t->valid_flag = VALID_FLAG_DEFAULT;
-  return t;
 }
+
+void ood_ir_free_contents (ir_T *t)
+{
+  if (t->data_ptr)
+    {
+      ORAFREE (t->data_ptr);
+    }
+  if (t->ind_arr)
+    ORAFREE (t->ind_arr);
+  if (t->length_arr)
+    ORAFREE (t->length_arr);
+  if (t->rcode_arr)
+    ORAFREE (t->rcode_arr);
+  if (t->locator)
+    {
+      SQLUINTEGER i;
+
+      for (i = 0; i < t->desc->stmt->row_array_size; i++)
+	{
+	  OCIDescriptorFree_log (t->locator[i], OCI_DTYPE_LOB);
+	}
+      ORAFREE (t->locator);
+    }
+}
+
 void dump_ir_T(ir_T * t)
 
 {
