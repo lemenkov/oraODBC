@@ -13,7 +13,6 @@
 /*              SQLNumDescribeCol()                                */
 /*              SQLSetEnvAttr()                                    */
 
-
 #include "test_defs.h"
 #include <stdio.h>
 #include <assert.h>
@@ -39,9 +38,9 @@ int main()
     SQLHANDLE   StmtHandle;
     SQLCHAR  SQLStmt[MAX_LEN];
 
-    int an_int;
+    int anInteger,anInt,aSmallInt;
+    float aDecimal83,aNumeric94,aFloat,aFloat9,aReal;
     SQLUSMALLINT num_cols;
-    float a_float;
     SQLCHAR buf1[MAX_LEN];
     SQLCHAR buf2[MAX_LEN];
    
@@ -139,27 +138,52 @@ int main()
       }
 
 
-#if 0
+
+
+    /*SQLGetData does not seem to work for SQL_NUMBERIC or SQL_DOUBLE */
 
     while(SQLFetch(StmtHandle)==SQL_SUCCESS){
 
       rc = SQLGetData(StmtHandle, 1, SQL_C_SLONG, 
-                     &an_int, sizeof(an_int), NULL);
+		      &anInteger, sizeof(anInteger), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
-
-      rc = SQLGetData(StmtHandle, 2, SQL_C_FLOAT, 
-                     &a_float, sizeof(a_float), NULL);
+      
+      rc = SQLGetData(StmtHandle, 2, SQL_C_SLONG, 
+		      &anInt, sizeof(anInt), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
-
-      rc = SQLGetData(StmtHandle, 3, SQL_C_CHAR, 
-                    (SQLPOINTER) buf1, sizeof(buf1), NULL);
+      
+      rc = SQLGetData(StmtHandle, 3, SQL_C_SLONG, 
+		      &aSmallInt, sizeof(aSmallInt), NULL);
       assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
+      
+      rc = SQLGetData(StmtHandle, 4, SQL_C_FLOAT, 
+		      &aDecimal83, sizeof(aDecimal83), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
+      
+      rc = SQLGetData(StmtHandle, 5, SQL_C_FLOAT, 
+		      &aNumeric94, sizeof(aNumeric94), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
+      
+      rc = SQLGetData(StmtHandle, 6, SQL_C_FLOAT, 
+		      &aFloat, sizeof(aFloat), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
+      
+      
+      rc = SQLGetData(StmtHandle, 7, SQL_C_FLOAT, 
+		      &aFloat9, sizeof(aFloat9), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
+      
+      rc = SQLGetData(StmtHandle, 8, SQL_C_FLOAT, 
+		      &aReal, sizeof(aReal), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
+      
 
-     VERBOSE("an_int=%d a_float=%f a_string=%s\n",an_int,a_float,buf1);
-
+      VERBOSE("anInteger=%d, anInt=%d, aSmallInt=%d, aDecimal83=%f, aNumeric94=%f, aFloat=%f, aFloat9=%f, aReal=%f\n",
+               anInteger,anInt,aSmallInt,aDecimal83,
+	       aNumeric94,aFloat,aFloat9,aReal);
     }
-
-#endif
+    
+    
     rc = SQLDisconnect(ConHandle);
     assert(rc == SQL_SUCCESS);
     VERBOSE("disconnected from  database\n");
