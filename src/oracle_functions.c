@@ -19,7 +19,7 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.12 2002/06/26 20:59:06 dbox Exp $
+ * $Id: oracle_functions.c,v 1.13 2002/08/13 22:41:46 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -29,7 +29,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.12 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.13 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -2806,6 +2806,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
      
 
     case SQL_CHAR:
+    case SQL_VARCHAR:
       
       ip->data_type=SQLT_CHR;
       ip->data_ptr=NULL;

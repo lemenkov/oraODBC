@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLSetStmtAttr.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLSetStmtAttr.c,v 1.3 2002/08/13 22:41:46 dbox Exp $
  *
  * $Log: SQLSetStmtAttr.c,v $
+ * Revision 1.3  2002/08/13 22:41:46  dbox
+ * fixed the array insert test
+ *
  * Revision 1.2  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -69,7 +72,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetStmtAttr.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLSetStmtAttr.c,v $ $Revision: 1.3 $";
 
 
 SQLRETURN SQL_API SQLSetStmtAttr(
@@ -80,313 +83,116 @@ SQLRETURN SQL_API SQLSetStmtAttr(
 {
     hStmt_T* stmt=(hStmt_T*)StatementHandle;
     SQLRETURN status=SQL_SUCCESS;
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"pii",
-			"Attribute",Attribute,
-			"ValuePtr",ValuePtr,
-			"StringLength",StringLength);
-}
+     if(ENABLE_TRACE){
+      ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
+		      (SQLHANDLE)stmt,0,"pii",
+		      "Attribute",Attribute,
+		      "ValuePtr",ValuePtr,
+		      "StringLength",StringLength);
+    }
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_lock_stmt(stmt);
+    
+    if(ENABLE_TRACE){
+      ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
+		      (SQLHANDLE)stmt,0,"p",
+		      name_for_sql_attr_type(Attribute),
+		      (long)ValuePtr);
+    }
 
-#ifdef UNIX_DEBUG
-	signal(SIGSEGV,SIG_DFL);
-#endif
-
-	switch(Attribute)
-	{
-        case SQL_ATTR_METADATA_ID:
-#ifdef UNIX_DEBUG
-			ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-					(SQLHANDLE)stmt,0,"p",
-					"SQL_ATTR_METADATA_ID:",(long)ValuePtr);
-#endif
+    switch(Attribute)
+      {
+      case SQL_ATTR_METADATA_ID:
         THREAD_MUTEX_LOCK(stmt->dbc);
         stmt->dbc->metadata_id=(SQLUINTEGER)ValuePtr;
         THREAD_MUTEX_UNLOCK(stmt->dbc);
-		break;
-
-		case SQL_ATTR_APP_ROW_DESC:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_APP_ROW_DESC:",(long)ValuePtr);
-#endif
+	break;
+	
+      case SQL_ATTR_APP_ROW_DESC:
         stmt->current_ip=*((SQLPOINTER*)ValuePtr);
-		break;
-
-		case SQL_ATTR_APP_PARAM_DESC:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_APP_PARAM_DESC:",(long)ValuePtr);
-#endif
+	break;
+	
+      case SQL_ATTR_APP_PARAM_DESC:
         stmt->current_ip=*((SQLPOINTER*)ValuePtr);
-		break;
-
-        case SQL_ATTR_IMP_PARAM_DESC:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_IMP_PARAM_DESC:",(long)ValuePtr);
-#endif
+	break;
+	
+      case SQL_ATTR_IMP_PARAM_DESC:
         stmt->current_ip=*((SQLPOINTER*)ValuePtr);
-		break;
-
-        case SQL_ATTR_IMP_ROW_DESC:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_IMP_ROW_DESC:",(long)ValuePtr);
-#endif
+	break;
+	
+      case SQL_ATTR_IMP_ROW_DESC:
         stmt->current_ip=*((SQLPOINTER*)ValuePtr);
-		break;
-
-		case SQL_ATTR_QUERY_TIMEOUT:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_IMP_ROW_DESC:",(long)ValuePtr);
-#endif
-		stmt->query_timeout=(SQLUINTEGER)ValuePtr;
-		break;
-
-
-
-        case SQL_ATTR_PARAM_BIND_OFFSET_PTR:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_PARAM_BIND_OFFSET_PTR:",(long)ValuePtr);
-#endif
+	break;
+	
+      case SQL_ATTR_QUERY_TIMEOUT:
+	stmt->query_timeout=(SQLUINTEGER)ValuePtr;
+	break;
+	
+      case SQL_ATTR_PARAM_BIND_OFFSET_PTR:
         stmt->param_bind_offset_ptr=*((SQLPOINTER*)ValuePtr);
-	    break;
-
-        case SQL_ATTR_ROW_BIND_OFFSET_PTR:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_ROW_BIND_OFFSET_PTR:",(long)ValuePtr);
-#endif
+	break;
+	
+      case SQL_ATTR_ROW_BIND_OFFSET_PTR:
         stmt->row_bind_offset_ptr=*((SQLPOINTER*)ValuePtr);
-		break;
-
-        case SQL_ATTR_ROW_ARRAY_SIZE:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_ROW_ARRAY_SIZE:",(long)ValuePtr);
-#endif
+	break;
+	
+      case SQL_ATTR_ROW_ARRAY_SIZE:
         stmt->row_array_size=(SQLINTEGER)ValuePtr;
-		break;
-
-        case SQL_ATTR_ROW_BIND_TYPE:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_ROW_BIND_TYPE:",*((int*)ValuePtr));
-#endif
-           if((SQLINTEGER)ValuePtr==SQL_BIND_BY_COLUMN)
-		        stmt->row_bind_type=(SQLINTEGER)ValuePtr;
-			else
-			{
-		        ood_post_diag((hgeneric*)stmt->dbc,ERROR_ORIGIN_IM001,0,"",
-                        ERROR_MESSAGE_IM001,
-                        __LINE__,0,"",ERROR_STATE_IM001,
-                        "-"__FILE__,__LINE__);
-                status=SQL_ERROR;
-			}
-		break;
-
-        case SQL_ATTR_ROW_STATUS_PTR:
+	break;
+	
+      case SQL_ATTR_ROW_BIND_TYPE:
+	if((SQLINTEGER)ValuePtr==SQL_BIND_BY_COLUMN)
+	  stmt->row_bind_type=(SQLINTEGER)ValuePtr;
+	else
+	  {
+	    ood_post_diag((hgeneric*)stmt->dbc,ERROR_ORIGIN_IM001,0,"",
+			  ERROR_MESSAGE_IM001,
+			  __LINE__,0,"",ERROR_STATE_IM001,
+			  "-"__FILE__,__LINE__);
+	    status=SQL_ERROR;
+	  }
+	break;
+	
+      case SQL_ATTR_ROW_STATUS_PTR:
         stmt->row_status_ptr=(SQLUSMALLINT*)ValuePtr;
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"pi",
-			"SQL_ATTR_ROW_STATUS_PTR:",(long)ValuePtr,
-			"StringLength",StringLength);
-#endif
         break;
-
-        case SQL_ATTR_ROWS_FETCHED_PTR:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_ROWS_FETCHED_PTR:",(long)ValuePtr);
-#endif
+	
+      case SQL_ATTR_ROWS_FETCHED_PTR:
         stmt->rows_fetched_ptr=(SQLUINTEGER*)ValuePtr;
-		break;
-
-        case SQL_ATTR_PARAM_BIND_TYPE:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_PARAM_BIND_TYPE:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_PARAM_OPERATION_PTR:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_PARAM_OPERATION_PTR:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_PARAMS_PROCESSED_PTR:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_PARAMS_PROCESSED_PTR:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_PARAMSET_SIZE:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_PARAMSET_SIZE:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_ROW_OPERATION_PTR:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_ROW_OPERATION_PTR:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_PARAM_STATUS_PTR:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_PARAM_STATUS_PTR:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_ASYNC_ENABLE:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_ASYNC_ENABLE:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_CONCURRENCY:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_CONCURRENCY:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_CURSOR_SCROLLABLE:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_CURSOR_SCROLLABLE:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_CURSOR_SENSITIVITY:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_CURSOR_SENSITIVITY:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_CURSOR_TYPE:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_CURSOR_TYPE:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_ENABLE_AUTO_IPD:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_ENABLE_AUTO_IPD:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_FETCH_BOOKMARK_PTR:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_FETCH_BOOKMARK_PTR:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_KEYSET_SIZE:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_KEYSET_SIZE:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_MAX_LENGTH:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_MAX_LENGTH:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_MAX_ROWS:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_MAX_ROWS:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_NOSCAN:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_NOSCAN:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_SIMULATE_CURSOR:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_SIMULATE_CURSOR:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-        case SQL_ATTR_USE_BOOKMARKS:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"SQL_ATTR_USE_BOOKMARKS:",(long)ValuePtr);
-#endif
-            /*break;*/
-
-		default:
-#ifdef UNIX_DEBUG
-		ood_log_message(stmt->dbc,"-"__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			(SQLHANDLE)stmt,0,"p",
-			"default:",(long)ValuePtr);
-#endif
-		ood_post_diag((hgeneric*)stmt->dbc,ERROR_ORIGIN_IM001,0,"",
-                ERROR_MESSAGE_IM001,
-                __LINE__,0,"",ERROR_STATE_IM001,
-                "-"__FILE__,__LINE__);
+	break;
+	
+      /* these guys are unimplemented and return SQL_ERROR */
+      case SQL_ATTR_PARAM_BIND_TYPE:
+      case SQL_ATTR_PARAM_OPERATION_PTR:
+      case SQL_ATTR_PARAMS_PROCESSED_PTR:
+      case SQL_ATTR_PARAMSET_SIZE:
+      case SQL_ATTR_ROW_OPERATION_PTR:
+      case SQL_ATTR_PARAM_STATUS_PTR:
+      case SQL_ATTR_ASYNC_ENABLE:
+      case SQL_ATTR_CONCURRENCY:
+      case SQL_ATTR_CURSOR_SCROLLABLE:
+      case SQL_ATTR_CURSOR_SENSITIVITY:
+      case SQL_ATTR_CURSOR_TYPE:
+      case SQL_ATTR_ENABLE_AUTO_IPD:
+      case SQL_ATTR_FETCH_BOOKMARK_PTR:
+      case SQL_ATTR_KEYSET_SIZE:
+      case SQL_ATTR_MAX_LENGTH:
+      case SQL_ATTR_MAX_ROWS:
+      case SQL_ATTR_NOSCAN:
+      case SQL_ATTR_SIMULATE_CURSOR:
+      case SQL_ATTR_USE_BOOKMARKS:
+      default:
+	ood_post_diag((hgeneric*)stmt->dbc,ERROR_ORIGIN_IM001,0,"",
+		      ERROR_MESSAGE_IM001,
+		      __LINE__,0,"",ERROR_STATE_IM001,
+		      "-"__FILE__,__LINE__);
         status=SQL_ERROR;
-	}
-
+      }
+    
     ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
+    if(ENABLE_TRACE){
+      ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+		      (SQLHANDLE)NULL,status,"");
+    }
     return status;
 }

@@ -19,7 +19,7 @@
  *
  *******************************************************************************
  *
- * $Id: common_functions.h,v 1.3 2002/05/22 22:05:31 dbox Exp $
+ * $Id: common_functions.h,v 1.4 2002/08/13 22:41:46 dbox Exp $
  ******************************************************************************/
 #ifndef _ORACOMMON_FUNCTIONS_H
 #define _ORACOMMON_FUNCTIONS_H
@@ -34,6 +34,8 @@ void* ora_realloc(void *ptr, size_t size);
 const char * odbc_var_type(SQLSMALLINT sqltype);
 const char * oci_var_type(SQLSMALLINT sqltype);
 const char * sql_get_info_type(SQLSMALLINT sqltype);
+const char * name_for_sql_attr_type( SQLINTEGER  attr);
+
 SQLINTEGER sqltype_display_size(SQLSMALLINT a, int b);
 void ood_mutex_lock_stmt(hStmt_T *stmt);
 void ood_mutex_unlock_stmt(hStmt_T *stmt);
