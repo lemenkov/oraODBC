@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLBindParameter.c,v 1.4 2003/10/20 23:37:13 dbox Exp $
+ * $Id: SQLBindParameter.c,v 1.5 2004/08/06 20:42:29 dbox Exp $
  *
  * $Log: SQLBindParameter.c,v $
+ * Revision 1.5  2004/08/06 20:42:29  dbox
+ * 1. got rid of useless function _SQLBindParameter 2. fixed behavior of Column size for various data types to conform to ODBC standard
+ *
  * Revision 1.4  2003/10/20 23:37:13  dbox
  * various changes to handle blob i/o
  *
@@ -66,9 +69,10 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBindParameter.c,v $ $Revision: 1.4 $";
+static char const rcsid[]= "$RCSfile: SQLBindParameter.c,v $ $Revision: 1.5 $";
 
-SQLRETURN _SQLBindParameter(
+
+SQLRETURN SQL_API SQLBindParameter(
     SQLHSTMT            StatementHandle,
     SQLUSMALLINT        ParameterNumber,
     SQLSMALLINT            InputOutputType,
@@ -118,11 +122,35 @@ if(ENABLE_TRACE){
             stmt->current_ap->recs.ap[ParameterNumber].bind_indicator=
 				StrLen_or_IndPtr;
             stmt->current_ap->recs.ap[ParameterNumber].buffer_length=	BufferLength;
-	    if(ColumnSize >= BufferLength)
-	      stmt->current_ap->recs.ap[ParameterNumber].octet_length= ColumnSize;
-	    else
-	      stmt->current_ap->recs.ap[ParameterNumber].octet_length= BufferLength;
-	      
+
+	    /* Column size is ignored for various data types.
+	       Reference: ODBC Programmer's Reference, Appendix D,
+	       Column Size
+	       http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/odbccolumn_size.asp.
+	    */
+	    
+	    stmt->current_ap->recs.ap[ParameterNumber].octet_length = BufferLength;
+
+	    switch (ParameterType)
+	      {
+	      case SQL_BIT:
+	      case SQL_TINYINT:
+	      case SQL_SMALLINT:
+	      case SQL_INTEGER:
+	      case SQL_BIGINT:
+	      case SQL_REAL:
+	      case SQL_FLOAT:
+	      case SQL_DOUBLE:
+	      case SQL_TYPE_DATE:
+	      case SQL_TYPE_TIME:
+		break;
+
+	      default:
+		if(ColumnSize >= BufferLength)
+		  stmt->current_ap->recs.ap[ParameterNumber].octet_length
+		    = ColumnSize;
+	      }
+
             stmt->current_ap->recs.ap[ParameterNumber].data_ptr=
 				ParameterValuePtr;
 			stmt->current_ap->recs.ap[ParameterNumber].bind_target_type=
@@ -170,22 +198,4 @@ if(ENABLE_TRACE){
 */
 }
     return status;
-}
-
-SQLRETURN SQL_API SQLBindParameter(
-    SQLHSTMT            StatementHandle,
-    SQLUSMALLINT        ParameterNumber,
-    SQLSMALLINT            InputOutputType,
-    SQLSMALLINT            ValueType,
-    SQLSMALLINT            ParameterType,
-    SQLUINTEGER            ColumnSize,
-    SQLSMALLINT            DecimalDigits,
-    SQLPOINTER            ParameterValuePtr,
-    SQLINTEGER            BufferLength,
-    SQLINTEGER            *StrLen_or_IndPtr )
-{
-
-return _SQLBindParameter(StatementHandle,ParameterNumber,InputOutputType,
-        ValueType,ParameterType,ColumnSize,DecimalDigits,ParameterValuePtr,
-        BufferLength,StrLen_or_IndPtr );
 }
