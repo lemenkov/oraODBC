@@ -2,25 +2,25 @@
  *
  * Copyright (c) 2000 Easysoft Ltd
  *
- * The contents of this file are subject to the Easysoft Public License 
- * Version 1.0 (the "License"); you may not use this file except in compliance 
- * with the License. 
+ * The contents of this file are subject to the Easysoft Public License
+ * Version 1.0 (the "License"); you may not use this file except in compliance
+ * with the License.
  *
- * You may obtain a copy of the License at http://www.easysoft.org/EPL.html 
+ * You may obtain a copy of the License at http://www.easysoft.org/EPL.html
  *
- * Software distributed under the License is distributed on an "AS IS" basis, 
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for 
- * the specific language governing rights and limitations under the License. 
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ * the specific language governing rights and limitations under the License.
  *
- * The Original Code was created by Easysoft Limited and its successors. 
+ * The Original Code was created by Easysoft Limited and its successors.
  *
- * Contributor(s): Tom Fosdick (Easysoft) 
+ * Contributor(s): Tom Fosdick (Easysoft)
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.10 2004/08/27 19:50:47 dbox Exp $
+ * $Id: common.h,v 1.11 2005/03/17 01:45:41 dbox Exp $
  *
- * $Log: common.h,v $
+ *
  * Revision 1.10  2004/08/27 19:50:47  dbox
  * re worked handle init/reset functions
  *
@@ -115,8 +115,8 @@
 #define _COMMON_H
 
 /*
- * The symbol UNIX_DEBUG turns on some heavy (and pretty random) debugging, 
- * useful for debugging the driver and possibly may help with debugging apps. 
+ * The symbol UNIX_DEBUG turns on some heavy (and pretty random) debugging,
+ * useful for debugging the driver and possibly may help with debugging apps.
  * It may be more useful to define it at the top of the relevent source files
  * rather than here.
  */
@@ -142,7 +142,7 @@
  */
 #define TRACE_FUNCTION_ENTRY 1
 #define TRACE_FUNCTION_EXIT 2
- 
+
 /*
  * Product name etc
  */
@@ -197,9 +197,9 @@ typedef uint64_t u_int64_t;
 #endif
 
 
-/* 
+/*
  * A lot of apps try to handle segmentation fault and exit in
- * a controlled way, giving no indication of where the actual 
+ * a controlled way, giving no indication of where the actual
  * failure was. For this reason there are a few signal resets
  * in the debugging code.
  */
@@ -245,7 +245,7 @@ typedef struct hgeneric_TAG
 #define HANDLE_MUTEX(h) (((hgeneric*)h)->mutex)
 #define HANDLE_MUTEX_PTR(h) &(((hgeneric*)h)->mutex)
 
-/* 
+/*
  * Special case macros for mutex's
  */
 #if defined(HAVE_LIBPTHREAD)
@@ -261,7 +261,7 @@ typedef struct hgeneric_TAG
 #else
 #define THREAD_MUTEX_LOCK(h)
 #define THREAD_MUTEX_UNLOCK(h)
-#define GLOBAL_MUTEX_LOCK(h) 
+#define GLOBAL_MUTEX_LOCK(h)
 #define GLOBAL_MUTEX_UNLOCK(h)
 #endif
 
@@ -282,7 +282,7 @@ typedef struct hgeneric_TAG
 #define ERROR_PRODUCT "[Oracle]"
 
 
-/* 
+/*
  * Identifiers for possible types of descriptors
  */
 #define DESC_AP 0
@@ -342,6 +342,7 @@ struct ar_TAG
   SQLINTEGER  display_size;
   SQLSMALLINT fixed_prec_scale;
   SQLINTEGER *bind_indicator; /* for bound columns */
+  SQLINTEGER  bind_indicator_malloced;
   SQLINTEGER  length;
   SQLCHAR*    literal_prefix;
   SQLCHAR*    literal_suffix;
@@ -359,7 +360,7 @@ struct ar_TAG
   SQLCHAR*    type_name;
   SQLSMALLINT un_signed;
   SQLSMALLINT updateable;
-  
+
   SQLINTEGER buffer_length;
   SQLSMALLINT bind_target_type;
   SQLSMALLINT valid_flag;
@@ -372,7 +373,7 @@ struct ir_TAG
 {
   ub2 data_type;
   ub2 orig_type;
-  ub2 data_size;
+  ub4 data_size;
   ub4 col_num;
   SQLRETURN (*default_copy)();
   SQLRETURN (*to_string)();
@@ -389,7 +390,7 @@ struct ir_TAG
   ub4 posn;  /* the current posistion in the data */
   ub4 lobsiz; /* the size of the lob */
   SQLSMALLINT valid_flag;
-};  
+};
 
 /*
  * Environment Handle
@@ -397,7 +398,7 @@ struct ir_TAG
 struct hEnv_TAG
 {
   hgeneric base_handle;
-  
+
   SQLHANDLE parent;
   SQLINTEGER odbc_ver;
   SQLSMALLINT valid_flag;
@@ -409,28 +410,28 @@ struct hEnv_TAG
 struct hDbc_TAG
 {
   hgeneric base_handle;
-  
+
   char UID[32];
   char PWD[64];
   char DB[128];
   char DSN[64];
-  
+
   OCIEnv *oci_env;
   OCIError *oci_err;
   OCIServer *oci_srv;
   OCISvcCtx *oci_svc;
   OCISession *oci_ses;
-  
+
   SQLUINTEGER metadata_id;
   SQLUINTEGER trace;
   SQLCHAR tracefile[FILENAME_MAX];
-  
+
   ub4 autocommit;
-  
+
   struct hStmt_TAG *stmt_list;
   struct hDesc_TAG *desc_list;
-  
-  struct hEnv_TAG *env;  
+
+  struct hEnv_TAG *env;
   SQLSMALLINT valid_flag;
 
 };
@@ -465,10 +466,10 @@ struct hDesc_TAG
 /*
  * Statement Handle
  */
-struct hStmt_TAG 
+struct hStmt_TAG
 {
   hgeneric base_handle;
-  
+
   struct hDesc_TAG *implicit_ap;
   struct hDesc_TAG *implicit_ip;
   struct hDesc_TAG *implicit_ar;
@@ -477,23 +478,23 @@ struct hStmt_TAG
   struct hDesc_TAG *current_ip;
   struct hDesc_TAG *current_ar;
   struct hDesc_TAG *current_ir;
-  
+
   OCIStmt *oci_stmt;
   struct hStmt_TAG *next;
   struct hStmt_TAG *prev;
-  
+
   ub2 stmt_type; /* The Oracle stmt type ie select, update*/
   int num_result_rows; /* The number of the result rows */
   int num_fetched_rows; /* we need this data anyway */
   int bookmark;
   int current_row;
   sword (*alt_fetch)(struct hStmt_TAG*); /*alternative fetch func */
-  void *alt_fetch_data; /* Extra things alt_fetch needs, 
+  void *alt_fetch_data; /* Extra things alt_fetch needs,
 			   is ORAFREEd so must  be malloc'd */
   SQLRETURN fetch_status; /* to return next */
   char *sql;
   struct hDbc_TAG *dbc;
-  
+
   SQLPOINTER row_bind_offset_ptr;
   SQLPOINTER param_bind_offset_ptr;
   SQLUINTEGER row_array_size;
@@ -552,7 +553,7 @@ SQLRETURN _SQLGetDiagRec(SQLSMALLINT,SQLHANDLE,SQLSMALLINT,SQLCHAR*,
 
 /*SQLFreeHandle.c*/
 void ood_ap_free(ap_T *ap);
-void ood_ar_free(ar_T *ar);
+void ood_ar_free(ar_T *ar, int num_recs);
 void ood_ip_free(ip_T *ip, int num_recs);
 void ood_ir_free(ir_T *ir, int num_recs);
 SQLRETURN _SQLFreeHandle(SQLSMALLINT,SQLHANDLE);
@@ -596,7 +597,7 @@ sword ood_fetch_sqlspecialcolumns(struct hStmt_TAG* stmt);
 /* Not worth having an h file for this fn alone... from sqllex.l */
 char* ood_lex_parse(char *, int, int *);
 
-/* 
+/*
  * Include the prototypes from other source files
  */
 #include "string_functions.h"

@@ -1,5 +1,5 @@
 #include "common.h"
-/* $Id: common.c,v 1.8 2004/08/27 19:50:47 dbox Exp $*/
+/* $Id: common.c,v 1.9 2005/03/17 01:45:41 dbox Exp $*/
 
 static  int g_Debug_Oracle_ODBC;
 
@@ -24,7 +24,7 @@ void ood_ar_init (ar_T *t)
 {
   t->auto_unique = SQLSMALLINT_DEFAULT;
   t->base_column_name = SQLCHAR_DEFAULT;
-  t->base_table_name = SQLCHAR_DEFAULT; 
+  t->base_table_name = SQLCHAR_DEFAULT;
   t->case_sensitive = SQL_FALSE;
   t->catalog_name = SQLCHAR_DEFAULT;
   t->concise_type = SQL_C_DEFAULT;
@@ -32,6 +32,7 @@ void ood_ar_init (ar_T *t)
   t->display_size = SQLINTEGER_DEFAULT;
   t->fixed_prec_scale = SQLSMALLINT_DEFAULT;
   t->bind_indicator = SQLINTEGER_DEFAULT;
+  t->bind_indicator_malloced = 0;
   t->length = SQLINTEGER_DEFAULT;
   t->literal_prefix = SQLCHAR_DEFAULT;
   t->literal_suffix = SQLCHAR_DEFAULT;
@@ -95,7 +96,7 @@ void ood_ir_init (ir_T *t, ub4 col_num, hDesc_T *desc)
 {
   t->data_type = ub2_DEFAULT;
   t->orig_type = ub2_DEFAULT;
-  t->data_size = ub2_DEFAULT;
+  t->data_size = ub4_DEFAULT;
   t->col_num = col_num;
   t->default_copy = FUNCTION_DEFAULT;
   t->to_string =  FUNCTION_DEFAULT;
