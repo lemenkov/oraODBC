@@ -19,7 +19,7 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.9 2002/05/22 22:05:31 dbox Exp $
+ * $Id: oracle_functions.c,v 1.10 2002/06/06 21:11:11 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -28,7 +28,7 @@
 #include "common.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.9 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.10 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -41,6 +41,18 @@ int slpmprodstab;
 
 int epc_exit_handler()
 {
+	/* in oracle 8.1.6 and 8.1.7 libclntsh.so registers an
+	 * exit handler function  epc_exit_handler when it is 
+         * dynamically loaded  (like an ODBC driver 
+         * might do, for instance) but fails to 
+         * un-register it when libclntsh.so is unloaded.  This causes a
+         * core dump unless this function stub is here to be called.
+	 *
+         * setting DEBUG or VERBOSE env variables allows  it to gloat.
+	 *
+         */
+
+	if(getenv("DEBUG") || getenv("VERBOSE"))
 	printf("neener neener caught the exit handler bug!\n");
 	return 0;
 }

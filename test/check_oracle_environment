@@ -136,40 +136,40 @@ else
     echo $HOME/.odbc.ini  not found! check your unixODBC installation
     exit -1
 fi
-
-#-------------------------------------------
-echo -n "checking oracle library version... "
-#-------------------------------------------
-
-cmd="$ORACLE_HOME/bin/sqlplus /nolog "
-rslt=`$cmd < /dev/null`;
-rslt2=`echo $rslt | grep '8.1.[67]'  `;
-
-
-if [ -n "$rslt2" ] ; then
-	echo
-	echo
-        echo 8.1.6 and 8.1.7 libraries are subject to a  bug
-        echo which causes a core dump on exit.  This can be
-	echo fixed with the following command:
-	echo
-	echo '(csh)$ setenv LD_PRELOAD $ORACLE_HOME/lib/libclntsh.so'
-	echo '  -or- '
-	echo '(sh)$ export LD_PRELOAD=$ORACLE_HOME/lib/libclntsh.so'
-	echo
-	echo -n checking LD_PRELOAD.....
-	if [ -n "$LD_PRELOAD" ]  ; then
-	    echo OK
-	else
-	    echo LD_PRELOAD  not found! \'make check\' targets will core
-	    echo dump on exit
-	    exit -1
-	fi
-   else
-        echo OK
-  
-fi
-
+#
+##-------------------------------------------
+#echo -n "checking oracle library version... "
+##-------------------------------------------
+#
+#cmd="$ORACLE_HOME/bin/sqlplus /nolog "
+#rslt=`$cmd < /dev/null`;
+#rslt2=`echo $rslt | grep '8.1.[67]'  `;
+#
+#
+#if [ -n "$rslt2" ] ; then
+#	echo
+#	echo
+#        echo 8.1.6 and 8.1.7 libraries are subject to a  bug
+#        echo which causes a core dump on exit.  This can be
+#	echo fixed with the following command:
+#	echo
+#	echo '(csh)$ setenv LD_PRELOAD $ORACLE_HOME/lib/libclntsh.so'
+#	echo '  -or- '
+#	echo '(sh)$ export LD_PRELOAD=$ORACLE_HOME/lib/libclntsh.so'
+#	echo
+#	echo -n checking LD_PRELOAD.....
+#	if [ -n "$LD_PRELOAD" ]  ; then
+#	    echo OK
+#	else
+#	    echo LD_PRELOAD  not found! \'make check\' targets will core
+#	    echo dump on exit
+#	    exit -1
+#	fi
+#   else
+#        echo OK
+#  
+#fi
+#
 echo
 echo ENVIRONMENT LOOKS OK!  you still need to make sure that 
 echo user $ORACLE_USER has a valid login on $TWO_TASK database 
