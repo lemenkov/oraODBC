@@ -32,15 +32,13 @@
  *
  *******************************************************************************
  *
- * $Id: config.h.in,v 1.4 2002/06/26 21:02:22 dbox Exp $
+ * $Id: config.h.in,v 1.5 2002/12/11 21:39:23 dbox Exp $
  *
  * $Log: config.h.in,v $
- * Revision 1.4  2002/06/26 21:02:22  dbox
- * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
- * setenv DEBUG 3 traces through OCIxxx functions
- *
- *
- * VS: ----------------------------------------------------------------------
+ * Revision 1.5  2002/12/11 21:39:23  dbox
+ * patches contributed by Stefan.Radman@ctbto.org
+ * mostly automake cleanup, and a fix to oracle_functions.c/
+ * /ocivnu_sqlnts/OCINumberToText
  *
  * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
  * second try, importing code into directories

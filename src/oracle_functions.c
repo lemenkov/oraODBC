@@ -16,10 +16,12 @@
  *
  * Contributor(s): Tom Fosdick (Easysoft) 
 		   Dennis Box (Ferm Nat Accelerator Lab)
+                   Stefan.Radman@ctbto.org
+
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.14 2002/11/14 22:28:36 dbox Exp $
+ * $Id: oracle_functions.c,v 1.15 2002/12/11 21:39:23 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -29,7 +31,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.14 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.15 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -1711,17 +1713,19 @@ SQLRETURN ocivnu_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
    *
    * In other news, the 8.0.5 version of the Oracle client doesn't have
    * the "text minimum" number conversion.
+   * but the conditional LIBCLNTSH8 does a half-hearted job since this
+   * feature was introduced in 8.1.x (seems like 8.1.5)
+   * for this case we should determine at runtime what version we deal with
+   * or even if this specific conversion works (btw. idef/else was wrong way round)
    */
+
+ ret=OCINumberToText(ir->desc->dbc->oci_err, (OCINumber*)ir->data_ptr,
 #ifdef LIBCLNTSH8
-  ret=OCINumberToText(ir->desc->dbc->oci_err,
-		      (OCINumber*)src,(unsigned char*)"TM",
-		      2,(unsigned char*)"",0,&len,(unsigned char*)txt);
+		     (unsigned char*)"TM", 2,
 #else
-  ret=OCINumberToText(ir->desc->dbc->oci_err,
-		      (OCINumber*)ir->data_ptr,
-		      (unsigned char*)"9999999999999999990.99999999999",
-		      30,(unsigned char*)"",0,&len,(unsigned char*)txt);
+		     (unsigned char*)"9999999999999999990.99999999999", 30,
 #endif
+		     (unsigned char*)"",0,&len,(unsigned char*)txt);
 #ifdef UNIX_DEBUG
   errcheck(__FILE__,__LINE__,ret,ir->desc->dbc->oci_err);
 #endif

@@ -8,9 +8,9 @@ EXTRA_DIST = \
 	oracle_functions.h \
 	string_functions.h \
 	common_functions.h \
-	acconfig.h \
 	mem_functions.h \
-	ocitrace.h
+	ocitrace.h \
+	odbcdriver.exp
 
 liboraodbc_la_LIBADD =  @LD_ODBCINSTLIB@
 
@@ -90,4 +90,4 @@ liboraodbc_la_SOURCES = \
 	mem_functions.c \
 	common.c
 
-CLEANFILES= .deps/*.P *.lo
+CLEANFILES= .deps/*.P* *.lo
