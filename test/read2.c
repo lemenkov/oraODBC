@@ -7,6 +7,7 @@
 /*              SQLConnect()                                       */      
 /*              SQLDisconnect()                                    */
 /*              SQLExecDirect()                                    */
+/*              SQLGetData()                                       */
 /*              SQLFreeHandle()                                    */
 /*              SQLNumResultCols()                                 */
 /*              SQLNumDescribeCol()                                */
@@ -123,25 +124,25 @@ int main()
 
 
 
-    rc = SQLBindCol(StmtHandle, 1, SQL_C_SLONG, 
-             &an_int, sizeof(an_int), NULL);
-    assert(rc == SQL_SUCCESS);
 
-    rc = SQLBindCol(StmtHandle, 2, SQL_C_FLOAT, 
-             &a_float, sizeof(a_float), NULL);
-    assert(rc == SQL_SUCCESS);
+    while(SQLFetch(StmtHandle)==SQL_SUCCESS){
 
-    rc = SQLBindCol(StmtHandle, 3, SQL_C_CHAR, 
-            (SQLPOINTER) buf1, sizeof(buf1), NULL);
-    assert(rc == SQL_SUCCESS);
+      rc = SQLGetData(StmtHandle, 1, SQL_C_SLONG, 
+                     &an_int, sizeof(an_int), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
 
+      rc = SQLGetData(StmtHandle, 2, SQL_C_FLOAT, 
+                     &a_float, sizeof(a_float), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
 
-    do{
-      rc = SQLFetch(StmtHandle);
-      VERBOSE("an_int=%d a_float=%f a_string=%s\n",an_int,a_float,buf1);
-    }while(rc==SQL_SUCCESS);
+      rc = SQLGetData(StmtHandle, 3, SQL_C_CHAR, 
+                    (SQLPOINTER) buf1, sizeof(buf1), NULL);
+      assert( rc == SQL_SUCCESS || rc == SQL_NO_DATA );
 
-    assert(rc==SQL_NO_DATA);
+     VERBOSE("an_int=%d a_float=%f a_string=%s\n",an_int,a_float,buf1);
+
+    }
+
 
     rc = SQLDisconnect(ConHandle);
     assert(rc == SQL_SUCCESS);

@@ -1,0 +1,22 @@
+% grep 'rc = SQL' *.c | perl -ne '@a=split(/\s+/); @b=split(/\(/,$a[3]); print "$b[0]\n";' | sort | uniq
+
+SQLAllocHandle
+SQLAllocStmt
+SQLBindCol
+SQLBindParameter
+SQLColAttribute
+SQLConnect
+SQLDescribeCol
+SQLDisconnect
+SQLDriverConnect
+SQLExecDirect
+SQLExecute
+SQLFetch
+SQLFreeHandle
+SQLGetData
+SQLNumResultCols
+SQLParamOptions
+SQLPrepare
+SQLSetEnvAttr
+SQLSetStmtAttr
+

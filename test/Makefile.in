@@ -87,7 +87,7 @@ PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
 VERSION = @VERSION@
 
-check_PROGRAMS =  connect1 connect2 insert1 insert2 direct_exec1 read1 malloctest 
+check_PROGRAMS =  connect1 connect2 insert1 insert2 direct_exec1 read1 read2 malloctest 
 
 
 INCLUDES = -I${ODBCIDIR} -I../src
@@ -133,6 +133,11 @@ read1_OBJECTS =  read1.o
 read1_LDADD = $(LDADD)
 read1_DEPENDENCIES = 
 read1_LDFLAGS = 
+read2_SOURCES = read2.c
+read2_OBJECTS =  read2.o
+read2_LDADD = $(LDADD)
+read2_DEPENDENCIES = 
+read2_LDFLAGS = 
 malloctest_SOURCES = malloctest.c
 malloctest_OBJECTS =  malloctest.o
 malloctest_LDADD = $(LDADD)
@@ -151,9 +156,10 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = gtar
 GZIP_ENV = --best
 DEP_FILES =  .deps/connect1.P .deps/connect2.P .deps/direct_exec1.P \
-.deps/insert1.P .deps/insert2.P .deps/malloctest.P .deps/read1.P
-SOURCES = connect1.c connect2.c insert1.c insert2.c direct_exec1.c read1.c malloctest.c
-OBJECTS = connect1.o connect2.o insert1.o insert2.o direct_exec1.o read1.o malloctest.o
+.deps/insert1.P .deps/insert2.P .deps/malloctest.P .deps/read1.P \
+.deps/read2.P
+SOURCES = connect1.c connect2.c insert1.c insert2.c direct_exec1.c read1.c read2.c malloctest.c
+OBJECTS = connect1.o connect2.o insert1.o insert2.o direct_exec1.o read1.o read2.o malloctest.o
 
 all: all-redirect
 .SUFFIXES:
@@ -230,6 +236,10 @@ direct_exec1: $(direct_exec1_OBJECTS) $(direct_exec1_DEPENDENCIES)
 read1: $(read1_OBJECTS) $(read1_DEPENDENCIES)
 	@rm -f read1
 	$(LINK) $(read1_LDFLAGS) $(read1_OBJECTS) $(read1_LDADD) $(LIBS)
+
+read2: $(read2_OBJECTS) $(read2_DEPENDENCIES)
+	@rm -f read2
+	$(LINK) $(read2_LDFLAGS) $(read2_OBJECTS) $(read2_LDADD) $(LIBS)
 
 malloctest: $(malloctest_OBJECTS) $(malloctest_DEPENDENCIES)
 	@rm -f malloctest

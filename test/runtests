@@ -3,7 +3,7 @@
 set LD_PRELOAD $ORACLE_HOME/lib/libclntsh.so
 export LD_PRELOAD
 
-should_pass='connect1 connect2 direct_exec1 insert1 read1'
+should_pass='connect1 connect2 direct_exec1 insert1 read1 read2'
 should_not_pass='malloctest'
 should_pass_but_wont='insert2 '
 

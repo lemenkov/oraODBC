@@ -5,6 +5,7 @@ insert1 \
 insert2 \
 direct_exec1 \
 read1 \
+read2 \
 malloctest 
 
 
