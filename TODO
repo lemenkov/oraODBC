@@ -8,9 +8,9 @@ The Oracle Driver is still far from complete. Among the tasks left are
 
  National Language Support (WCHARS). 
 
- Transactions.
+ Transactions. (DONE!!!!!! dbox)
 
- Bulk Operations.
+ Bulk Operations. (started, bulk reads seem to work dbox)
 
  The rest of the handle attribute/field/recs functions.
 
