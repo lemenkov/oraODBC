@@ -25,7 +25,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.33 2004/11/23 23:02:11 dbox Exp $
+ * $Id: oracle_functions.c,v 1.34 2005/02/21 19:43:53 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -35,7 +35,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.33 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.34 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -735,8 +735,12 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
       ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
 		      &precision,
 		      0,OCI_ATTR_PRECISION,stmt->dbc->oci_err);
-      stmt->current_ar->recs.ar[i].precision=(SQLSMALLINT)precision;
-      
+      if(precision==0 && stmt->current_ir->recs.ir[i].data_type==SQLT_NUM)
+	stmt->current_ar->recs.ar[i].precision=38;
+      else
+	stmt->current_ar->recs.ar[i].precision=(SQLSMALLINT)precision;
+             
+
       /* AR scale (aka decimal digits) */
       ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
 		      &scale,
