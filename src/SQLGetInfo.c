@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLGetInfo.c,v 1.6 2002/11/14 22:28:36 dbox Exp $
+ * $Id: SQLGetInfo.c,v 1.7 2003/01/08 22:30:30 dbox Exp $
  *
  * $Log: SQLGetInfo.c,v $
+ * Revision 1.7  2003/01/08 22:30:30  dbox
+ * fixed some functionality for SQLGetInfo
+ *
  * Revision 1.6  2002/11/14 22:28:36  dbox
  * %$@*&%$??!
  *
@@ -81,7 +84,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetInfo.c,v $ $Revision: 1.6 $";
+static char const rcsid[]= "$RCSfile: SQLGetInfo.c,v $ $Revision: 1.7 $";
 
 SQLRETURN SQL_API SQLGetInfo(
 			     SQLHDBC                ConnectionHandle,
@@ -116,8 +119,17 @@ SQLRETURN SQL_API SQLGetInfo(
 	SQL_AF_MAX|SQL_AF_MIN|SQL_AF_SUM;
       break;
 
-    case SQL_ALTER_DOMAIN: /* TODO */
+    case SQL_ALTER_DOMAIN: /* ALTER DOMAIN not supported*/
+     *(SQLUSMALLINT*)InfoValuePtr=0;
+      break;
+
+
     case SQL_ALTER_TABLE:
+      *(SQLUINTEGER*)InfoValuePtr=SQL_AT_ADD_COLUMN_DEFAULT |
+	SQL_AT_ADD_CONSTRAINT | SQL_AT_CONSTRAINT_NAME_DEFINITION |
+	SQL_AT_DROP_COLUMN_CASCADE | SQL_AT_DROP_TABLE_CONSTRAINT_CASCADE |
+	SQL_AT_SET_COLUMN_DEFAULT | SQL_AT_CONSTRAINT_INITIALLY_IMMEDIATE |
+	SQL_AT_CONSTRAINT_DEFERRABLE;
       break;
 
     case SQL_ASYNC_MODE:
@@ -569,7 +581,12 @@ SQLRETURN SQL_API SQLGetInfo(
     case SQL_MAX_COLUMN_NAME_LEN:
     case SQL_MAX_SCHEMA_NAME_LEN:
     case SQL_MAX_USER_NAME_LEN:
-    case SQL_MAX_TABLE_NAME_LEN:
+    case SQL_MAX_TABLE_NAME_LEN:    
+    case SQL_MAX_IDENTIFIER_LEN:
+    case SQL_MAX_CURSOR_NAME_LEN:
+    case SQL_MAX_PROCEDURE_NAME_LEN:
+
+
       *(SQLUSMALLINT*)InfoValuePtr=30;
       break;
 
@@ -585,21 +602,63 @@ SQLRETURN SQL_API SQLGetInfo(
       *(SQLUSMALLINT*)InfoValuePtr=SQL_TXN_CAPABLE;
       break;
 
+    case SQL_SCHEMA_TERM:      
+      strcpy(InfoValuePtr,"owner");
+      break;
+
+    case SQL_TABLE_TERM:
+      strcpy(InfoValuePtr,"table");
+      break;
+
+
+    case SQL_SCHEMA_USAGE:
+      *(SQLUSMALLINT*)InfoValuePtr=SQL_SU_DML_STATEMENTS |
+	SQL_SU_PROCEDURE_INVOCATION | SQL_SU_PRIVILEGE_DEFINITION;
+     break;
+
+   case SQL_UNION:
+     *(SQLUSMALLINT*)InfoValuePtr=SQL_U_UNION | SQL_U_UNION_ALL;
+     break;
+
+    case SQL_MAX_ROW_SIZE:
+     *(SQLUSMALLINT*)InfoValuePtr=0;
+     break;
+
+
+    case SQL_MAX_ROW_SIZE_INCLUDES_LONG:
+      strcpy(InfoValuePtr,"N");
+      break;
+
+    case SQL_NUMERIC_FUNCTIONS:
+    *(SQLUSMALLINT*)InfoValuePtr=SQL_FN_NUM_ABS |
+      SQL_FN_NUM_ACOS | 
+      SQL_FN_NUM_ATAN |
+      SQL_FN_NUM_ATAN2 |
+      SQL_FN_NUM_CEILING |
+      SQL_FN_NUM_COS |
+      SQL_FN_NUM_EXP |
+      SQL_FN_NUM_FLOOR |
+      SQL_FN_NUM_LOG |
+      SQL_FN_NUM_MOD |
+      SQL_FN_NUM_POWER |
+      SQL_FN_NUM_ROUND |
+      SQL_FN_NUM_SIGN |
+      SQL_FN_NUM_SIN |
+      SQL_FN_NUM_SQRT |
+      SQL_FN_NUM_TAN |
+      SQL_FN_NUM_TRUNCATE ;
+     break;
+
       /* TODO :- the rest of these! - see the ODBC 3 Book Vol2 page 791 */
     case SQL_MAX_CONCURRENT_ACTIVITIES:
-    case SQL_MAX_CURSOR_NAME_LEN:
     case SQL_MAX_DRIVER_CONNECTIONS:
-    case SQL_MAX_IDENTIFIER_LEN:
     case SQL_MAX_INDEX_SIZE:
-    case SQL_MAX_PROCEDURE_NAME_LEN:
-    case SQL_MAX_ROW_SIZE_INCLUDES_LONG:
     case SQL_MAX_STATEMENT_LEN:
     case SQL_MULT_RESULT_SETS:
     case SQL_MULTIPLE_ACTIVE_TXN:
     case SQL_NEED_LONG_DATA_LEN:
     case SQL_NON_NULLABLE_COLUMNS:
     case SQL_NULL_COLLATION:
-    case SQL_NUMERIC_FUNCTIONS:
     case SQL_ODBC_INTERFACE_CONFORMANCE:
     case SQL_ODBC_API_CONFORMANCE:
     case SQL_OJ_CAPABILITIES:
@@ -610,8 +669,6 @@ SQLRETURN SQL_API SQLGetInfo(
     case SQL_PROCEDURES:
     case SQL_QUOTED_IDENTIFIER_CASE:
     case SQL_ROW_UPDATES:
-    case SQL_SCHEMA_TERM:
-    case SQL_SCHEMA_USAGE:
     case SQL_SCROLL_OPTIONS:
     case SQL_SEARCH_PATTERN_ESCAPE:
     case SQL_SERVER_NAME:
@@ -633,12 +690,10 @@ SQLRETURN SQL_API SQLGetInfo(
     case SQL_STRING_FUNCTIONS:
     case SQL_SUBQUERIES:
     case SQL_SYSTEM_FUNCTIONS:
-    case SQL_TABLE_TERM:
     case SQL_TIMEDATE_ADD_INTERVALS:
     case SQL_TIMEDATE_DIFF_INTERVALS:
     case SQL_TIMEDATE_FUNCTIONS:
     case SQL_TXN_ISOLATION_OPTION:
-    case SQL_UNION:
     case SQL_USER_NAME:
     case SQL_XOPEN_CLI_YEAR:
     default:
