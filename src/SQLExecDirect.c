@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLExecDirect.c,v 1.2 2002/06/26 21:02:23 dbox Exp $
+ * $Id: SQLExecDirect.c,v 1.3 2004/05/04 22:41:51 dbox Exp $
  *
  * $Log: SQLExecDirect.c,v $
+ * Revision 1.3  2004/05/04 22:41:51  dbox
+ * fixed error return code for bad select statement
+ *
  * Revision 1.2  2002/06/26 21:02:23  dbox
  * changed trace functions, setenv DEBUG 2 traces through SQLxxx functions
  * setenv DEBUG 3 traces through OCIxxx functions
@@ -66,7 +69,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLExecDirect(
     SQLHSTMT        StatementHandle,
@@ -111,7 +114,7 @@ if(ENABLE_TRACE){
     status|=ood_driver_execute_describe(stmt);
 
 	if(stmt->stmt_type==OCI_STMT_SELECT)
-		stmt->fetch_status=ood_driver_prefetch(stmt);
+		status|=stmt->fetch_status=ood_driver_prefetch(stmt);
 
     ood_mutex_unlock_stmt(stmt);
 
