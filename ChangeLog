@@ -7,6 +7,14 @@ http://home.fnal.gov/~dbox/oracle/odbc/devlog.html
 
 begin dbox@fnal.gov (and contributers)  changes:
 
+2004/12/01
+	Changes to SQLBindCol (was incorrectly setting an 
+	internal flag to SQL_NULL_DATA) and SQLSetStmtAttr (was
+	NOT resetting internals when SQL_ATTR_ROWS_FETCHED_PTR
+	indicated it should).  These changes make the driver work
+	*much* better with libodbc++, so much that a new release
+	is warranted. 
+
 2004/8/2
      Unit tests modified to exercise SQLCancel, SQLColumns, SQLGetStmtAttr,
      SQLParamData, SQLPutData
