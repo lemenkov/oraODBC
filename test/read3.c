@@ -1,7 +1,7 @@
 /* test reads data from some_numeric_types table inserted by insert3.c
  *
  * author: Dennis Box, dbox@fnal.gov
- * $Id: read3.c,v 1.9 2003/01/18 14:16:31 dbox Exp $
+ * $Id: read3.c,v 1.10 2003/01/30 19:16:35 dbox Exp $
  */
 
 /*      test following functions:                                  */
@@ -131,10 +131,10 @@ int main()
 	VERBOSE("SQLDescribeCol col=%d name:%s len=%d type=%d size=%d scale_si=%d nullable=%d\n"
 		,col_usi,buf1_cp,len_si,type_si,sz_ui,scale_si,nullable_si);
 	
-	if(col_usi<3) assert(type_si==SQL_C_SLONG);
-	if(col_usi==6)assert(type_si==SQL_C_DOUBLE);
-	if(col_usi==8)assert(type_si==SQL_C_FLOAT);
-	if(col_usi==4||col_usi==5||col_usi==7)  assert(type_si==SQL_C_NUMERIC);
+	if(col_usi<=3) assert(type_si==SQL_INTEGER);
+	if(col_usi==4||col_usi==5)  assert(type_si==SQL_NUMERIC);
+	if(col_usi==6)assert(type_si==SQL_DOUBLE);
+	if(col_usi>=7)assert(type_si==SQL_FLOAT);
 	
 	
 
@@ -149,28 +149,36 @@ int main()
 			      NULL, 0 ,NULL,(SQLPOINTER)&type_i);
 	assert(rc==SQL_SUCCESS);
 	VERBOSE("SQLColAttribute col %d type %d \n", col_usi, type_i );
-	if(col_usi<3) assert(type_i==SQL_C_SLONG);
-	if(col_usi==6)assert(type_i==SQL_C_DOUBLE);
-	if(col_usi==8)assert(type_i==SQL_C_FLOAT);
-	if(col_usi==4||col_usi==5||col_usi==7)  assert(type_i==SQL_C_NUMERIC);
+
+	if(col_usi<=3) assert(type_i==SQL_INTEGER);
+	if(col_usi==4||col_usi==5)  assert(type_i==SQL_NUMERIC);
+	if(col_usi==6)assert(type_i==SQL_DOUBLE);
+	if(col_usi>=7)assert(type_i==SQL_FLOAT);
 
         type_i=0;
         rc = SQLColAttribute(StmtHandle, col_usi, SQL_DESC_CONCISE_TYPE,
                               NULL, 0 ,NULL,(SQLPOINTER)&type_i);
         assert(rc==SQL_SUCCESS);
 	VERBOSE("SQLColAttribute col %d concise type %d \n", col_usi, type_i );
-        if(col_usi<3) assert(type_i==SQL_C_NUMERIC);
-        if(col_usi==6)assert(type_i==SQL_C_DOUBLE);
-        if(col_usi==8)assert(type_i==SQL_C_FLOAT);
-        if(col_usi==4||col_usi==5||col_usi==7)  assert(type_i==SQL_C_NUMERIC);
+
+	if(col_usi<=3) assert(type_i==SQL_INTEGER);
+	if(col_usi==4||col_usi==5)  assert(type_i==SQL_NUMERIC);
+	if(col_usi==6)assert(type_i==SQL_DOUBLE);
+	if(col_usi>=7)assert(type_i==SQL_FLOAT);
+
+
+     rc = SQLColAttribute(StmtHandle, col_usi, SQL_DESC_TYPE_NAME,
+			   buf2_cp, MAX_LEN ,&sz_si,(SQLPOINTER)NULL);
+
+      assert(rc==SQL_SUCCESS);
+      VERBOSE("col %d DESC_TYPE_NAME= %s\n",col_usi,buf2_cp);
+      if(col_usi<4) assert(strcmp(buf2_cp,"INTEGER")==0);
+      if(col_usi==4 || col_usi==5) assert(strcmp(buf2_cp,"NUMBER")==0);
+      if(col_usi>5) assert(strcmp(buf2_cp,"FLOAT")==0);
 
 
       }
 
-
-
-
-    /*SQLGetData does not seem to work for SQL_NUMBERIC or SQL_DOUBLE */
 
     while(SQLFetch(StmtHandle)==SQL_SUCCESS){
 

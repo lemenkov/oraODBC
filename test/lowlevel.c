@@ -2,7 +2,7 @@
 /* test of low_level 'constructors' for   ar_T * , ir_T * and  hEnv_T * */
 
  /* author: Dennis Box, dbox@fnal.gov
- * $Id: lowlevel.c,v 1.2 2002/05/31 19:55:00 dbox Exp $
+ * $Id: lowlevel.c,v 1.3 2003/01/30 19:16:35 dbox Exp $
  */
 
 #include <mem_functions.h>
@@ -32,9 +32,14 @@ int main()
 
   art = make_ar_T();
   assert(IS_VALID(art));
+  if(getenv("VERBOSE"))
+    dump_ar_T(art);
 
   irt =  make_ir_T();
   assert(irt->valid_flag==VALID_FLAG_DEFAULT);
+ if(getenv("VERBOSE"))
+    dump_ir_T(irt);
+
   ret = irt->to_string();
   assert(ret==SQL_ERROR);
 

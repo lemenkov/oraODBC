@@ -2,7 +2,7 @@
  * and insert4.c
  *
  * author: Dennis Box, dbox@fnal.gov
- * $Id: read1.c,v 1.6 2002/05/31 19:55:00 dbox Exp $
+ * $Id: read1.c,v 1.7 2003/01/30 19:16:35 dbox Exp $
  */
 
 /*      test following functions:                                  */
@@ -102,9 +102,9 @@ int main()
 	VERBOSE("col=%d name:%s len=%d type=%d size=%d scale=%d nullable=%d\n"
 		,col,buf1,col_len,type,sz,scale,can_null);
 
-	if(col==1)assert(type==SQL_C_SLONG);
+	if(col==1)assert(type==SQL_INTEGER);
 	if(col==2)assert(type==SQL_C_DOUBLE);
-	if(col==3)assert(type==SQL_C_CHAR);
+	if(col==3)assert(type==SQL_VARCHAR);
 	
 	rc = SQLColAttribute(StmtHandle, col, SQL_DESC_NAME,
 			      buf2, sizeof(buf2), &type, NULL);
