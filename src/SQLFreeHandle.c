@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLFreeHandle.c,v 1.3 2002/05/14 23:01:05 dbox Exp $
+ * $Id: SQLFreeHandle.c,v 1.4 2002/06/19 22:21:37 dbox Exp $
  *
  * $Log: SQLFreeHandle.c,v $
+ * Revision 1.4  2002/06/19 22:21:37  dbox
+ * more tweaks to OCI calls to report what happens when DEBUG level is set
+ *
  * Revision 1.3  2002/05/14 23:01:05  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -92,7 +95,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.4 $";
 
 void ood_ap_free(ap_T *ap)
 {
@@ -109,6 +112,7 @@ void ood_ar_free(ar_T *ar)
 void ood_ip_free(ip_T *ip, int num_recs)
 {
     int i;
+    sword ret;
     if(ip)
     {
         for(i=0;i<=num_recs;i++)
@@ -121,7 +125,7 @@ void ood_ip_free(ip_T *ip, int num_recs)
 					unsigned j;
 					for(j=0;j<ip->desc->stmt->row_array_size;j++)
 					{
-					    OCIDescriptorFree(ip[i].locator[j],OCI_DTYPE_LOB);
+					    OCIDescriptorFree_log(ip[i].locator[j],OCI_DTYPE_LOB);
 					}
                     ORAFREE(ip[i].locator);
 				}
@@ -140,6 +144,7 @@ void ood_ip_free(ip_T *ip, int num_recs)
 void ood_ir_free(ir_T *ir, int num_recs)
 {
     int i;
+    sword ret;
     if(ir)
     {
         for(i=0;i<=num_recs;i++)
@@ -152,7 +157,7 @@ void ood_ir_free(ir_T *ir, int num_recs)
 					unsigned j;
 					for(j=0;j<ir->desc->stmt->row_array_size;j++)
 					{
-					    OCIDescriptorFree(ir[i].locator[j],OCI_DTYPE_LOB);
+					    OCIDescriptorFree_log(ir[i].locator[j],OCI_DTYPE_LOB);
 					}
                     ORAFREE(ir[i].locator);
 				}
@@ -258,6 +263,7 @@ SQLRETURN _SQLFreeHandle(
     SQLSMALLINT            HandleType,
     SQLHANDLE            Handle )
 {
+    sword ret;
     if(!Handle)
         return SQL_INVALID_HANDLE;
 
@@ -294,13 +300,13 @@ SQLRETURN _SQLFreeHandle(
 		ood_free_diag((hgeneric*)dbc);
 		THREAD_MUTEX_LOCK(dbc);
 		if(dbc->oci_err)
-		  OCIHandleFree(dbc->oci_err,OCI_HTYPE_ERROR);
+		  OCIHandleFree_log_stat(dbc->oci_err,OCI_HTYPE_ERROR,ret);
 		if(dbc->oci_srv)
-		  OCIHandleFree(dbc->oci_srv,OCI_HTYPE_SERVER);
+		  OCIHandleFree_log_stat(dbc->oci_srv,OCI_HTYPE_SERVER,ret);
 		if(dbc->oci_svc)
-		  OCIHandleFree(dbc->oci_svc,OCI_HTYPE_SVCCTX);
+		  OCIHandleFree_log_stat(dbc->oci_svc,OCI_HTYPE_SVCCTX,ret);
 		if(dbc->oci_ses)
-		  OCIHandleFree(dbc->oci_ses,OCI_HTYPE_SESSION);
+		  OCIHandleFree_log_stat(dbc->oci_ses,OCI_HTYPE_SESSION,ret);
 		if(dbc->oci_env)
 		  {
 				/*
@@ -310,7 +316,7 @@ SQLRETURN _SQLFreeHandle(
 				 * results. ORAFREE() seems OK on UNIX
 				 */
 #ifdef WIN32
-		    OCIHandleFree(dbc->oci_env,OCI_HTYPE_ENV);
+		    OCIHandleFree_log_stat(dbc->oci_env,OCI_HTYPE_ENV,ret);
 #else
 		    ORAFREE(dbc->oci_env);
 #endif
@@ -337,7 +343,7 @@ SQLRETURN _SQLFreeHandle(
 #endif
             ood_free_diag((hgeneric*)stmt);
             if(stmt->oci_stmt)
-                OCIHandleFree(stmt->oci_stmt,OCI_HTYPE_STMT);
+                OCIHandleFree_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,ret);
             /*
              * Free our Descriptors
              */

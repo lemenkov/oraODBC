@@ -18,11 +18,11 @@
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.3 2002/06/19 15:21:04 dbox Exp $
+ * $Id: common.h,v 1.4 2002/06/19 22:21:37 dbox Exp $
  *
  * $Log: common.h,v $
- * Revision 1.3  2002/06/19 15:21:04  dbox
- * added trace macros from DBD:Oracle project
+ * Revision 1.4  2002/06/19 22:21:37  dbox
+ * more tweaks to OCI calls to report what happens when DEBUG level is set
  *
  * Revision 1.2  2002/05/14 23:01:06  dbox
  * added a bunch of error checking and some 'constructors' for the
@@ -106,9 +106,10 @@
 
 #if defined(HAVE_CONFIG_H)
 #include "config.h"
-#include "ocitrace.h"
+
 #endif
 
+#include "ocitrace.h"
 /*
  * Some constants for Oracle.
  */
@@ -194,6 +195,8 @@ typedef uint64_t u_int64_t;
 #include <sqlext.h>
 
 struct hgeneric_TAG;
+static  int g_Debug_Oracle_ODBC;
+
 #define IS_VALID(x) (x->valid_flag==VALID_FLAG_DEFAULT)
 #include "diagnostics.h"
 #include "mem_functions.h"
@@ -503,7 +506,10 @@ hEnv_T * make_hEnv_T();
 hDbc_T * make_hDbc_T();
 hDesc_T * make_hDesc_T();
 hStmt_T * make_hStmt_T();
-
+int debugLevel();
+int debugLevel2();
+int debugLevel3();
+void setDebugLevel(int i);
 
 /*
  * FUDGE dm functions

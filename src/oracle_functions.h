@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.h,v 1.2 2002/03/08 22:07:19 dbox Exp $
+ * $Id: oracle_functions.h,v 1.3 2002/06/19 22:21:37 dbox Exp $
  *
  * $Log: oracle_functions.h,v $
+ * Revision 1.3  2002/06/19 22:21:37  dbox
+ * more tweaks to OCI calls to report what happens when DEBUG level is set
+ *
  * Revision 1.2  2002/03/08 22:07:19  dbox
  * added commit/rollback, more tests for SQLColAttribute
  *
@@ -158,3 +161,6 @@ SQLRETURN ocinul_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 #endif
 
 sword ood_driver_bind_param(hStmt_T*,int);
+char * oci_hdtype_name(ub4 hdtype);
+char * oci_stmt_type_name(int stmt_type);
+char * oci_status_name(sword status);

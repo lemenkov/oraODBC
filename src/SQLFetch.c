@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: SQLFetch.c,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: SQLFetch.c,v 1.2 2002/06/19 22:21:37 dbox Exp $
  *
  * $Log: SQLFetch.c,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2002/06/19 22:21:37  dbox
+ * more tweaks to OCI calls to report what happens when DEBUG level is set
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.18  2000/07/21 10:07:23  tom
  * Re-organsised for SQLExtendedFetch/SQLFetchScroll and LOBS added
@@ -80,12 +83,13 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFetch.c,v $ $Revision: 1.1 $";
+static char const rcsid[]= "$RCSfile: SQLFetch.c,v $ $Revision: 1.2 $";
 
 SQLRETURN ood_SQLFetch( 
     hStmt_T* stmt )
 {
     sword ret=OCI_SUCCESS;
+    sword tmp=OCI_SUCCESS;
     int offset;
 	unsigned int i,row;
 
@@ -133,16 +137,16 @@ SQLRETURN ood_SQLFetch(
 		     * result set. If we were to call OCIStmtFetch now we'd get 
 		     * an error.
 		     */
-             ret=OCIStmtFetch(stmt->oci_stmt,stmt->dbc->oci_err,
+             ret=OCIStmtFetch_log_stat(stmt->oci_stmt,stmt->dbc->oci_err,
 			        stmt->row_array_size,OCI_FETCH_NEXT,
-                    OCI_DEFAULT);
+                    OCI_DEFAULT,ret);
 #ifdef UNIX_DEBUG
 			 errcheck(__FILE__,__LINE__,ret,stmt->dbc->oci_err);
 #endif
 
-			 OCIAttrGet(stmt->oci_stmt,OCI_HTYPE_STMT,
+			 OCIAttrGet_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,
 				    &stmt->num_result_rows,0,OCI_ATTR_ROW_COUNT,
-				    stmt->dbc->oci_err);
+				    stmt->dbc->oci_err,tmp);
 	    }
 	    else if(status==SQL_NO_DATA&&!stmt->bookmark) 
 	    {

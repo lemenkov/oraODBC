@@ -9,7 +9,8 @@ EXTRA_DIST = \
 	string_functions.h \
 	common_functions.h \
 	acconfig.h \
-	mem_functions.h
+	mem_functions.h \
+	ocitrace.h
 
 liboraodbc_la_LIBADD =  @LD_ODBCINSTLIB@
 

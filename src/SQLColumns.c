@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLColumns.c,v 1.2 2002/05/14 12:03:19 dbox Exp $
+ * $Id: SQLColumns.c,v 1.3 2002/06/19 22:21:37 dbox Exp $
  *
  * $Log: SQLColumns.c,v $
+ * Revision 1.3  2002/06/19 22:21:37  dbox
+ * more tweaks to OCI calls to report what happens when DEBUG level is set
+ *
  * Revision 1.2  2002/05/14 12:03:19  dbox
  * fixed some malloc/free syntax
  *
@@ -86,7 +89,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.3 $";
 
 /*
  * Due to the fact that Oracle returns the data type as a varchar and
@@ -96,6 +99,7 @@ static char const rcsid[]= "$RCSfile: SQLColumns.c,v $ $Revision: 1.2 $";
 sword ood_fetch_sqlcolumns(struct hStmt_TAG* stmt)
 {
 	sword ret=OCI_SUCCESS;
+	sword tmp_ret=OCI_SUCCESS;
 	unsigned int row;
 	SQLINTEGER dtype,*indie;
 	SQLRETURN status=stmt->fetch_status;
@@ -103,9 +107,9 @@ sword ood_fetch_sqlcolumns(struct hStmt_TAG* stmt)
 
 	if(stmt->fetch_status==SQL_NO_DATA&&stmt->bookmark)
 	{
-		OCIAttrGet(stmt->oci_stmt,OCI_HTYPE_STMT,
+		OCIAttrGet_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,
 			    &stmt->num_result_rows,0,OCI_ATTR_ROW_COUNT,
-			    stmt->dbc->oci_err);
+			    stmt->dbc->oci_err,ret);
 		stmt->num_fetched_rows=0;
 
 		return(OCI_NO_DATA);
@@ -120,13 +124,13 @@ sword ood_fetch_sqlcolumns(struct hStmt_TAG* stmt)
 	     * result set. If we were to call OCIStmtFetch now we'd get 
 	     * an error.
 	     */
-         ret=OCIStmtFetch(stmt->oci_stmt,stmt->dbc->oci_err,
+         ret=OCIStmtFetch_log_stat(stmt->oci_stmt,stmt->dbc->oci_err,
 	            stmt->row_array_size,OCI_FETCH_NEXT,
-                OCI_DEFAULT);
+                OCI_DEFAULT,ret);
 
-		 OCIAttrGet(stmt->oci_stmt,OCI_HTYPE_STMT,
+		 OCIAttrGet_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,
 			    &stmt->num_result_rows,0,OCI_ATTR_ROW_COUNT,
-			    stmt->dbc->oci_err);
+			    stmt->dbc->oci_err,tmp_ret);
 
 		 if(ret==OCI_NO_DATA)
 		 {
@@ -144,9 +148,9 @@ sword ood_fetch_sqlcolumns(struct hStmt_TAG* stmt)
 		 * OCIStmtFetch returning OCI_NO_DATA at the end of a larger 
 		 * result set. 
 	     */
-		 OCIAttrGet(stmt->oci_stmt,OCI_HTYPE_STMT,
+		 OCIAttrGet_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,
 			    &stmt->num_result_rows,0,OCI_ATTR_ROW_COUNT,
-			    stmt->dbc->oci_err);
+			    stmt->dbc->oci_err,ret);
 
 		stmt->num_fetched_rows=stmt->num_result_rows;
 	    stmt->fetch_status=SQL_NO_DATA;

@@ -2291,7 +2291,7 @@ fi
 orandir=""
 echo $ac_n "checking for nzt.h""... $ac_c" 1>&6
 echo "configure:2294: checking for nzt.h" >&5
-for d in $oraclehome/network/public $oraclehome/oci/include /usr/include /usr/local/include $oraclehome/public
+for d in $oraclehome/network/public $oraclehome/oci/include /usr/include /usr/local/include $oraclehome/public $oraclehome/rdbms/public
 do
 if test -f $d/nzt.h
 then

@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLAllocHandle.c,v 1.3 2002/05/14 23:01:05 dbox Exp $
+ * $Id: SQLAllocHandle.c,v 1.4 2002/06/19 22:21:37 dbox Exp $
  *
  * $Log: SQLAllocHandle.c,v $
+ * Revision 1.4  2002/06/19 22:21:37  dbox
+ * more tweaks to OCI calls to report what happens when DEBUG level is set
+ *
  * Revision 1.3  2002/05/14 23:01:05  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -89,7 +92,7 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.3 $";
+static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.4 $";
 
 #include "common.h"
 
@@ -422,5 +425,8 @@ SQLRETURN SQL_API SQLAllocHandle(
     SQLHANDLE         InputHandle,
     SQLHANDLE        *OutputHandlePtr )
 {
+    setDebugLevel(0);
+    if(getenv("DEBUG"))	
+	setDebugLevel(atoi(getenv("DEBUG")));
     return _SQLAllocHandle( HandleType, InputHandle, OutputHandlePtr );
 }

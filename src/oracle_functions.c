@@ -19,16 +19,17 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.10 2002/06/06 21:11:11 dbox Exp $
+ * $Id: oracle_functions.c,v 1.11 2002/06/19 22:21:37 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
  ******************************************************************************/
 
 #include "common.h"
+#include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.10 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.11 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -52,7 +53,7 @@ int epc_exit_handler()
 	 *
          */
 
-	if(getenv("DEBUG") || getenv("VERBOSE"))
+	if(debugLevel()>0 || getenv("VERBOSE"))
 	printf("neener neener caught the exit handler bug!\n");
 	return 0;
 }
@@ -294,13 +295,13 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
         OCIEnvCreate((OCIEnv**)&dbc->oci_env,OCI_THREADED|OCI_OBJECT,
                   0,0,0,0,0,0);
 #else
-        OCIInitialize(OCI_OBJECT|OCI_THREADED, 0,0,0,0 );
-		OCIEnvInit(&dbc->oci_env,OCI_DEFAULT,0,0);
+        OCIInitialize_log_stat(OCI_OBJECT|OCI_THREADED, 0,0,0,0,ret );
+	OCIEnvInit_log_stat(&dbc->oci_env,OCI_DEFAULT,0,0,ret);
 #endif
     }
 
-    ret=OCIHandleAlloc(dbc->oci_env,(dvoid**)&dbc->oci_err,
-            OCI_HTYPE_ERROR, 0,0);
+    ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_err,
+            OCI_HTYPE_ERROR, 0,0,ret);
     if(ret)
     {
         /*
@@ -319,8 +320,8 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
             return SQL_ERROR;
     }
 
-    ret=OCIHandleAlloc(dbc->oci_env,(dvoid**)&dbc->oci_srv,
-            OCI_HTYPE_SERVER,0,0);
+    ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_srv,
+            OCI_HTYPE_SERVER,0,0,ret);
     if(ret)
     {
 		THREAD_MUTEX_UNLOCK(dbc);
@@ -330,8 +331,8 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
     }
 	
     return_to_space(dbc->DB);
-    ret=OCIServerAttach(dbc->oci_srv,dbc->oci_err,(text*)dbc->DB,
-            strlen(dbc->DB),(ub4)OCI_DEFAULT);
+    ret=OCIServerAttach_log_stat(dbc->oci_srv,dbc->oci_err,(text*)dbc->DB,
+            strlen(dbc->DB),(ub4)OCI_DEFAULT,ret);
     if(ret)
     {
 		THREAD_MUTEX_UNLOCK(dbc);
@@ -344,8 +345,8 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
 #ifdef UNIX_DEBUG
 	    fprintf(stderr,"Connect to [%s] OK\n",dbc->DB);
 #endif
-        ret=OCIHandleAlloc(dbc->oci_env,(dvoid**)&dbc->oci_svc,
-                OCI_HTYPE_SVCCTX,0,0);
+        ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_svc,
+                OCI_HTYPE_SVCCTX,0,0,ret);
         if(ret)
 		{
 			THREAD_MUTEX_UNLOCK(dbc);
@@ -355,8 +356,8 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
 		}
         else
         {
-            ret=OCIHandleAlloc(dbc->oci_env,(dvoid**)&dbc->oci_ses,
-                    OCI_HTYPE_SESSION,0,0);
+            ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_ses,
+                    OCI_HTYPE_SESSION,0,0,ret);
             if(ret)
 			{
 			    THREAD_MUTEX_UNLOCK(dbc);
@@ -366,14 +367,14 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
 			}
         }
 
-        ret=OCIAttrSet(dbc->oci_svc,OCI_HTYPE_SVCCTX,dbc->oci_srv,0,
-                OCI_ATTR_SERVER,dbc->oci_err);
+        ret=OCIAttrSet_log_stat(dbc->oci_svc,OCI_HTYPE_SVCCTX,dbc->oci_srv,0,
+                OCI_ATTR_SERVER,dbc->oci_err,ret);
 
-        ret|=OCIAttrSet(dbc->oci_ses,OCI_HTYPE_SESSION,dbc->UID,
-				strlen(dbc->UID), OCI_ATTR_USERNAME,dbc->oci_err);
+        ret|=OCIAttrSet_log_stat(dbc->oci_ses,OCI_HTYPE_SESSION,dbc->UID,
+				strlen(dbc->UID), OCI_ATTR_USERNAME,dbc->oci_err,ret);
 
-        ret|=OCIAttrSet(dbc->oci_ses,OCI_HTYPE_SESSION,dbc->PWD,
-				strlen(dbc->PWD), OCI_ATTR_PASSWORD,dbc->oci_err);
+        ret|=OCIAttrSet_log_stat(dbc->oci_ses,OCI_HTYPE_SESSION,dbc->PWD,
+				strlen(dbc->PWD), OCI_ATTR_PASSWORD,dbc->oci_err,ret);
         if(ret)
         {
 			THREAD_MUTEX_UNLOCK(dbc);
@@ -381,8 +382,8 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
 			THREAD_MUTEX_LOCK(dbc);
             return SQL_ERROR;
         }
-        ret=OCISessionBegin(dbc->oci_svc,dbc->oci_err,dbc->oci_ses,
-                OCI_CRED_RDBMS,OCI_DEFAULT);
+        ret=OCISessionBegin_log_stat(dbc->oci_svc,dbc->oci_err,dbc->oci_ses,
+                OCI_CRED_RDBMS,OCI_DEFAULT,ret);
 #ifdef UNIX_DEBUG
 	    fprintf(stderr,"Session Begin returns %d\n",ret);
 #endif
@@ -394,8 +395,8 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
             return SQL_ERROR;
         }
 
-        ret=OCIAttrSet(dbc->oci_svc,OCI_HTYPE_SVCCTX,dbc->oci_ses,0,
-                OCI_ATTR_SESSION,dbc->oci_err);
+        ret=OCIAttrSet_log_stat(dbc->oci_svc,OCI_HTYPE_SVCCTX,dbc->oci_ses,0,
+                OCI_ATTR_SESSION,dbc->oci_err,ret);
         if(ret)
         {
 		    THREAD_MUTEX_UNLOCK(dbc);
@@ -414,7 +415,7 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
 SQLRETURN ood_driver_disconnect(hDbc_T *dbc)
 {
     sword ret;
-    ret=OCISessionEnd(dbc->oci_svc,dbc->oci_err,dbc->oci_ses,0);
+    ret=OCISessionEnd_log_stat(dbc->oci_svc,dbc->oci_err,dbc->oci_ses,0,ret);
     /*ret|=OCIServerDetach(dbc->oci_srv,dbc->oci_err,OCI_DEFAULT);
 	*/
     if(ret)
@@ -438,12 +439,12 @@ SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
 {
     sword ret;
 
-	/*
+    /*
      * Allocate the Oracle statement handle 
      */
 
-    ret=OCIHandleAlloc(stmt->dbc->oci_env,(dvoid**)&stmt->oci_stmt,
-            OCI_HTYPE_STMT,0,0);
+    ret=OCIHandleAlloc_log_stat(stmt->dbc->oci_env,(dvoid**)&stmt->oci_stmt,
+            OCI_HTYPE_STMT,0,0,ret);
     if(ret)
     {
         ood_driver_error(stmt->dbc,ret,__FILE__,__LINE__);
@@ -461,8 +462,8 @@ SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
             (SQLHANDLE)stmt->dbc,0,"s",
 			"ood_driver_prepare",sql_in);
 #endif
-    ret=OCIStmtPrepare(stmt->oci_stmt,stmt->dbc->oci_err,sql_in,
-            strlen((const char*)sql_in),OCI_NTV_SYNTAX,OCI_DEFAULT);
+    ret=OCIStmtPrepare_log_stat(stmt->oci_stmt,stmt->dbc->oci_err,sql_in,
+            strlen((const char*)sql_in),OCI_NTV_SYNTAX,OCI_DEFAULT,ret);
     if(ret)
     {
         ood_driver_error(stmt,ret,__FILE__,__LINE__);
@@ -493,18 +494,31 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
 		}
 	}
 	
-    ret=OCIAttrGet(stmt->oci_stmt,OCI_HTYPE_STMT,
-            (dvoid*)&stmt->stmt_type,NULL,OCI_ATTR_STMT_TYPE,
-            stmt->dbc->oci_err);
+    ret=OCIAttrGet_log_stat(stmt->oci_stmt,
+			    OCI_HTYPE_STMT,
+			    (dvoid*)&stmt->stmt_type,
+			    NULL,
+			    OCI_ATTR_STMT_TYPE,
+			    stmt->dbc->oci_err,
+			    ret);
+
     if(stmt->stmt_type==OCI_STMT_SELECT)
     {
-	    if(stmt->row_array_size)
-            ret=OCIStmtExecute(stmt->dbc->oci_svc,stmt->oci_stmt,
-					stmt->dbc->oci_err,
-					stmt->row_array_size,0,0,0,OCI_DESCRIBE_ONLY);
-		else
-            ret=OCIStmtExecute(stmt->dbc->oci_svc,stmt->oci_stmt,
-					stmt->dbc->oci_err,0,0,0,0,OCI_DEFAULT);
+      if(stmt->row_array_size){
+	      
+	ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc , 
+				    stmt->oci_stmt , 
+				    stmt->dbc->oci_err , 
+				    stmt->row_array_size , 
+				    0,0,0,OCI_DESCRIBE_ONLY,ret );
+	      
+	      
+      }else{
+	ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc ,
+				    stmt->oci_stmt ,
+				    stmt->dbc->oci_err ,
+				    0,0,0,0,OCI_DEFAULT,ret );
+      }
     }
     else
     {
@@ -512,8 +526,8 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
         THREAD_MUTEX_LOCK(stmt->dbc);
 		commit_mode=stmt->dbc->autocommit;
 		THREAD_MUTEX_UNLOCK(stmt->dbc);
-        ret=OCIStmtExecute(stmt->dbc->oci_svc,stmt->oci_stmt,stmt->dbc->oci_err,
-            1,0,0,0,commit_mode);
+        ret=OCIStmtExecute_log_stat(stmt->dbc->oci_svc,stmt->oci_stmt,stmt->dbc->oci_err,
+            1,0,0,0,commit_mode,ret);
     }
     if(ret)
     {
@@ -521,9 +535,9 @@ SQLRETURN ood_driver_execute(hStmt_T* stmt)
         if(ret==OCI_ERROR)
             return SQL_ERROR;
     }
-	OCIAttrGet(stmt->oci_stmt,OCI_HTYPE_STMT,
+	OCIAttrGet_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,
 					&stmt->num_result_rows,NULL,
-                    OCI_ATTR_ROW_COUNT,stmt->dbc->oci_err);
+                    OCI_ATTR_ROW_COUNT,stmt->dbc->oci_err,ret);
     return SQL_SUCCESS;
 }
 
@@ -536,9 +550,9 @@ SQLRETURN ood_driver_transaction(hDbc_T *dbc, SQLSMALLINT action)
   switch(action){
   case SQL_COMMIT: 
     THREAD_MUTEX_LOCK(dbc);
-    ret = OCITransCommit((OCISvcCtx *)dbc->oci_svc,
+    ret = OCITransCommit_log_stat((OCISvcCtx *)dbc->oci_svc,
 			 (OCIError*)dbc->oci_err,
-			 (ub4)OCI_DEFAULT);
+			 (ub4)OCI_DEFAULT,ret);
     if(ret) {
       ood_driver_error(dbc,ret,__FILE__,__LINE__);
       stat=SQL_ERROR;
@@ -549,9 +563,9 @@ SQLRETURN ood_driver_transaction(hDbc_T *dbc, SQLSMALLINT action)
     break;
   case SQL_ROLLBACK:
     THREAD_MUTEX_LOCK(dbc);
-    ret = OCITransRollback((OCISvcCtx *)dbc->oci_svc,
+    ret = OCITransRollback_log_stat((OCISvcCtx *)dbc->oci_svc,
 			   (OCIError*)dbc->oci_err,
-			   (ub4)OCI_DEFAULT);
+			   (ub4)OCI_DEFAULT,ret);
     if(ret){
       ood_driver_error(dbc,ret,__FILE__,__LINE__);
       stat=SQL_ERROR;
@@ -589,9 +603,9 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
 	if(stmt->stmt_type!=OCI_STMT_SELECT)
 		return SQL_SUCCESS;
 
-    ret=OCIAttrGet((dvoid*)stmt->oci_stmt,OCI_HTYPE_STMT,
+    ret=OCIAttrGet_log_stat((dvoid*)stmt->oci_stmt,OCI_HTYPE_STMT,
             (dvoid**)&num_cols,
-            0,OCI_ATTR_PARAM_COUNT,stmt->dbc->oci_err);
+            0,OCI_ATTR_PARAM_COUNT,stmt->dbc->oci_err,ret);
     if(ret)
     {
         ood_driver_error(stmt,ret,__FILE__,__LINE__);
@@ -614,8 +628,8 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
         /*
          * Make sure we can see the parent descriptor
          */
-        ret=OCIParamGet((dvoid*)stmt->oci_stmt,OCI_HTYPE_STMT,
-                stmt->dbc->oci_err,(dvoid*)&parm,i);
+        ret=OCIParamGet_log_stat((dvoid*)stmt->oci_stmt,OCI_HTYPE_STMT,
+                stmt->dbc->oci_err,(dvoid*)&parm,i,ret);
 
         /* IR data type (AR types may be derived from this later) */
 	/* 
@@ -627,17 +641,17 @@ SQLRETURN ood_driver_execute_describe(hStmt_T* stmt)
 	 * was.
 	 */
         if(!stmt->current_ir->recs.ir[i].data_type)
-            ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
+            ret|=OCIAttrGet_log_stat((dvoid*)parm,OCI_DTYPE_PARAM,
                     &stmt->current_ir->recs.ir[i].orig_type,
-                    0,OCI_ATTR_DATA_TYPE,stmt->dbc->oci_err);
+                    0,OCI_ATTR_DATA_TYPE,stmt->dbc->oci_err,ret);
         stmt->current_ir->recs.ir[i].data_type
 			=stmt->current_ir->recs.ir[i].orig_type;
         
         /* IR data size */
         if(!stmt->current_ir->recs.ir[i].data_size)
-	  ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
+	  ret|=OCIAttrGet_log_stat((dvoid*)parm,OCI_DTYPE_PARAM,
 			  &stmt->current_ir->recs.ir[i].data_size,
-			  0,OCI_ATTR_DATA_SIZE,stmt->dbc->oci_err);
+			  0,OCI_ATTR_DATA_SIZE,stmt->dbc->oci_err,ret);
 	
         /* AR column name :- can be set elsewhere */
         ret|=OCIAttrGet((dvoid*)parm,OCI_DTYPE_PARAM,
@@ -2629,7 +2643,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 	 * There are several types where no converswions that Oracle can't do
 	 * are likely to arise. 
 	 */
-	if(getenv("DEBUG")){
+	if(debugLevel()>0){
 	  printf("ood_driver_bind_param::line %d concise_type=%d %s\n"
 		 ,__LINE__,ap->concise_type,odbc_var_type(ap->concise_type));
 	}
@@ -2949,7 +2963,7 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 			"bind_ptr",bind_ptr
 			);
 #endif
-	if(getenv("DEBUG")){
+	if(debugLevel()>0){
 	  printf("ood_driver_bind_param::OCIBindByPos parm=%d size=%d type=%d %s\n",
 		 parmnum,ip->data_size,ip->data_type,oci_var_type(ip->data_type));
 	}
@@ -2959,4 +2973,72 @@ sword ood_driver_bind_param(hStmt_T *stmt,int parmnum)
 			 /*&ap->bind_indicator*/ 0,
 			0,0,0,0,OCI_DEFAULT);
 	return(ret);
+}
+char *
+oci_status_name(sword status)
+{
+    
+    switch (status) {
+    case OCI_SUCCESS:		return "SUCCESS";
+    case OCI_SUCCESS_WITH_INFO:	return "SUCCESS_WITH_INFO";
+    case OCI_NEED_DATA:		return "NEED_DATA";
+    case OCI_NO_DATA:		return "NO_DATA";
+    case OCI_ERROR:		return "ERROR";
+    case OCI_INVALID_HANDLE:	return "INVALID_HANDLE";
+    case OCI_STILL_EXECUTING:	return "STILL_EXECUTING";
+    case OCI_CONTINUE:		return "CONTINUE";
+    }
+    return "UNKNOWN OCI STATUS";
+}
+
+
+char *
+oci_stmt_type_name(int stmt_type)
+{
+   
+    switch (stmt_type) {
+    case OCI_STMT_SELECT:	return "SELECT";
+    case OCI_STMT_UPDATE:	return "UPDATE";
+    case OCI_STMT_DELETE:	return "DELETE";
+    case OCI_STMT_INSERT:	return "INSERT";
+    case OCI_STMT_CREATE:	return "CREATE";
+    case OCI_STMT_DROP:		return "DROP";
+    case OCI_STMT_ALTER:	return "ALTER";
+    case OCI_STMT_BEGIN:	return "BEGIN";
+    case OCI_STMT_DECLARE:	return "DECLARE";
+    }
+
+    return "UNKOWN OCI STMT TYPE";
+}
+
+
+char *
+oci_hdtype_name(ub4 hdtype)
+{
+    
+    switch (hdtype) {
+    /* Handles */
+    case OCI_HTYPE_ENV:                 return "OCI_HTYPE_ENV";
+    case OCI_HTYPE_ERROR:               return "OCI_HTYPE_ERROR";
+    case OCI_HTYPE_SVCCTX:              return "OCI_HTYPE_SVCCTX";
+    case OCI_HTYPE_STMT:                return "OCI_HTYPE_STMT";
+    case OCI_HTYPE_BIND:                return "OCI_HTYPE_BIND";
+    case OCI_HTYPE_DEFINE:              return "OCI_HTYPE_DEFINE";
+    case OCI_HTYPE_DESCRIBE:            return "OCI_HTYPE_DESCRIBE";
+    case OCI_HTYPE_SERVER:              return "OCI_HTYPE_SERVER";
+    case OCI_HTYPE_SESSION:             return "OCI_HTYPE_SESSION";
+    case OCI_HTYPE_TRANS:               return "OCI_HTYPE_TRANS";
+    case OCI_HTYPE_COMPLEXOBJECT:       return "OCI_HTYPE_COMPLEXOBJECT";
+    case OCI_HTYPE_SECURITY:            return "OCI_HTYPE_SECURITY";
+    
+    /* Descriptors */
+    case OCI_DTYPE_LOB:			return "OCI_DTYPE_LOB";
+    case OCI_DTYPE_SNAP:		return "OCI_DTYPE_SNAP";
+    case OCI_DTYPE_RSET:		return "OCI_DTYPE_RSET";
+    case OCI_DTYPE_PARAM:		return "OCI_DTYPE_PARAM";
+    case OCI_DTYPE_ROWID:		return "OCI_DTYPE_ROWID";
+    case OCI_DTYPE_COMPLEXOBJECTCOMP:	return "OCI_DTYPE_COMPLEXOBJECTCOMP";
+    case OCI_DTYPE_FILE:		return "OCI_DTYPE_FILE";
+    }
+    return "UNKNOWN HD TYPE";
 }

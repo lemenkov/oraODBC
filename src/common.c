@@ -3,7 +3,7 @@
 #define IS_VALID(x) (x->valid_flag==VALID_FLAG_DEFAULT)
 SQLRETURN not_implemented()
 {
-  fprintf(stderr,"you have called an unimplemented function!\n");
+  fprintf(stderr,"you have followed a pointer to an unimplemented function!\n");
   return SQL_ERROR;
 }
 
@@ -174,4 +174,26 @@ hStmt_T * make_hStmt_T()
   t->query_timeout = (SQLUINTEGER)NULL;
   t->valid_flag = VALID_FLAG_DEFAULT;
   return t;
+}
+
+
+
+int debugLevel()
+{
+  return g_Debug_Oracle_ODBC;
+}
+
+int debugLevel2()
+{
+  return (g_Debug_Oracle_ODBC>1);
+}
+
+int debugLevel3()
+{
+  return (g_Debug_Oracle_ODBC>2);
+}
+
+void setDebugLevel(int i)
+{
+  g_Debug_Oracle_ODBC = i;
 }

@@ -1,13 +1,19 @@
-#ifdef OCI_V8_SYNTAX
-
+#ifndef OCI_TRACE_H
+#define OCI_TRACE_H
 /* OCI functions "wrapped" to produce tracefile dumps (may be handy when giving
   diagnostic info to Oracle Support, or just learning about OCI)
   Macros are named "_log" as a mnemonic that they log to the tracefile if needed
   Macros named "_log_stat" return status in last parameter.
 */
 
+#ifdef USE_ORIGINAL_DBD_DEFINITIONS
 #define DBD_OCI_TRACEON	(DBIS->debug >= 6)
 #define DBD_OCI_TRACEFP	(DBILOGFP)
+#else
+#define DBD_OCI_TRACEON	( debugLevel3() )
+#define DBD_OCI_TRACEFP	stderr
+#endif
+
 #define OciTp		("OCI")			/* OCI Trace Prefix */
 #define OciTstr(s)	((s) ? (text*)(s) : (text*)"<NULL>")
 #define ul_t(v)		((unsigned long)(v))
@@ -101,10 +107,10 @@
 
 #define OCIDescriptorFree_log(d,t)                                     \
 	if (DBD_OCI_TRACEON) fprintf(DBD_OCI_TRACEFP,			\
-	  "%sDescriptorFree(%p,%s)\n", OciTp, (void*)d,oci_hdtype_name(t));	\
+	  "%sDescriptorFree(%p,%s)\n", OciTp, (void*)d,oci_hdtype_name(t));  \
 	OCIDescriptorFree(d,t)
 
-#define OCIEnvInit_log_stat(ev,md,xm,um,stat)                          \
+#define OCIEnvInit_log_stat(ev,md,xm,um,stat)                      \
 	stat=OCIEnvInit(ev,md,xm,um);					\
 	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,			\
 	  "%sEnvInit(%p,%lu,%lu,%p)=%s\n",				\
@@ -181,13 +187,13 @@
 	  OciTp, (void*)hp,ul_t((ht)),(void*)eh,(void*)pp,ul_t(ps),	\
 	  oci_status_name(stat)),stat : stat
 
-#define OCIServerAttach_log_stat(imp_dbh, dbname,stat)                 \
-	stat=OCIServerAttach( imp_dbh->srvhp, imp_dbh->errhp,		\
-	  (text*)dbname, strlen(dbname), 0);				\
+#define OCIServerAttach_log_stat(srvhp,errhp, dbname, len, x, stat)                 \
+	stat=OCIServerAttach( srvhp, errhp,		\
+	  (text*)dbname, len, x);				\
 	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,			\
 	  "%sServerAttach(%p, %p, \"%s\", %d, 0)=%s\n",			\
-	  OciTp, (void*)imp_dbh->srvhp,(void*)imp_dbh->errhp, dbname,	\
-	  strlen(dbname), oci_status_name(stat)),stat : stat
+	  OciTp, (void*)srvhp,(void*)errhp, dbname,	\
+	  x, oci_status_name(stat)),stat : stat
 
 #define OCIStmtExecute_log_stat(sv,st,eh,i,ro,si,so,md,stat)           \
 	stat=OCIStmtExecute(sv,st,eh,i,ro,si,so,md);			\
@@ -246,4 +252,19 @@
 	  OciTp, (void*)sh,(void*)eh,ul_t(md),				\
 	  oci_status_name(stat)),stat : stat
 
-#endif /* OCI_V8_SYNTAX */
+#define OCIBreak_log(sh,eh)                       \
+	OCIBreak(sh,eh);				\
+	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,			\
+	  "%sBreak(%p,%p)\n",				\
+	  OciTp, (void*)sh,(void*)eh)
+
+
+/*begin dbox definitions*/
+
+#define OCIDateFromText_log_stat OCIDateFromText
+#define OCIDateGetDate_log_stat OCIDateGetDate
+#define OCIDateGetTime_log_stat OCIDateGetTime
+#define OCINumberToInt_log_stat OCINumberToInt
+#define OCINumberToText_log_stat OCINumberToText
+#define OCINumberToReal_log_stat OCINumberToReal
+#endif /* OCI_TRACE_H */

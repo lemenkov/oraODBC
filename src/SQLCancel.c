@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: SQLCancel.c,v 1.2 2002/02/20 03:09:05 dbox Exp $
+ * $Id: SQLCancel.c,v 1.3 2002/06/19 22:21:37 dbox Exp $
  *
  * $Log: SQLCancel.c,v $
+ * Revision 1.3  2002/06/19 22:21:37  dbox
+ * more tweaks to OCI calls to report what happens when DEBUG level is set
+ *
  * Revision 1.2  2002/02/20 03:09:05  dbox
  * changed error reporting for stubbed out functions.  Added function calls
  * to 'test' subdirectory programs
@@ -57,8 +60,9 @@
  ******************************************************************************/
 
 #include "common.h"
+#include "ocitrace.h"
 
-static char const rcsid[]= "$RCSfile: SQLCancel.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLCancel.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLCancel(
     SQLHSTMT     StatementHandle )
@@ -72,7 +76,7 @@ SQLRETURN SQL_API SQLCancel(
 #endif
     ood_clear_diag((hgeneric*)stmt);
     ood_mutex_unlock_stmt(stmt);
-	OCIBreak(stmt->oci_stmt,stmt->dbc->oci_err);
+	OCIBreak( stmt->oci_stmt , stmt->dbc->oci_err );
     ood_mutex_lock_stmt(stmt);
 #ifdef ENABLE_TRACE
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
