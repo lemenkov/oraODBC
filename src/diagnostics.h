@@ -18,11 +18,14 @@
  *
  ********************************************************************************
  *
- * $Id: diagnostics.h,v 1.1 2002/02/11 19:48:07 dbox Exp $
+ * $Id: diagnostics.h,v 1.2 2004/08/06 20:45:16 dbox Exp $
  *
  * $Log: diagnostics.h,v $
- * Revision 1.1  2002/02/11 19:48:07  dbox
- * Initial revision
+ * Revision 1.2  2004/08/06 20:45:16  dbox
+ * add error code sqlerror_07002, wrong number of bound parameters or conversion error in binding parameter
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:07  dbox
+ * second try, importing code into directories
  *
  * Revision 1.7  2000/07/10 08:24:35  tom
  * tweaks for less tolerant compilers
@@ -99,6 +102,7 @@ enum error_codes {
  sqlerror_01S02,
  sqlerror_01S07,
  sqlerror_01S09,
+ sqlerror_07002,
  sqlerror_07005,
  sqlerror_07006,
  sqlerror_07009,
@@ -162,6 +166,7 @@ enum error_codes {
 #define ERROR_MESSAGE_01S09 error_messages[sqlerror_01S09]
 #define ERROR_MESSAGE_40001 error_messages[sqlerror_40001]
 #define ERROR_MESSAGE_42000 error_messages[sqlerror_42000]
+#define ERROR_MESSAGE_07002 error_messages[sqlerror_07002]
 #define ERROR_MESSAGE_07005 error_messages[sqlerror_07005]
 #define ERROR_MESSAGE_07006 error_messages[sqlerror_07006]
 #define ERROR_MESSAGE_07009 error_messages[sqlerror_07009]
@@ -225,6 +230,7 @@ extern char *error_states[];
 #define ERROR_STATE_01S09 error_states[sqlerror_01S09]
 #define ERROR_STATE_40001 error_states[sqlerror_40001]
 #define ERROR_STATE_42000 error_states[sqlerror_42000]
+#define ERROR_STATE_07002 error_states[sqlerror_07002]
 #define ERROR_STATE_07005 error_states[sqlerror_07005]
 #define ERROR_STATE_07006 error_states[sqlerror_07006]
 #define ERROR_STATE_07009 error_states[sqlerror_07009]
@@ -294,6 +300,7 @@ enum origin_codes {
 #define ERROR_ORIGIN_01S09 error_origins[sqloriginODBC3_0]
 #define ERROR_ORIGIN_40001 error_origins[sqloriginISO9075]
 #define ERROR_ORIGIN_42000 error_origins[sqloriginISO9075]
+#define ERROR_ORIGIN_07002 error_origins[sqloriginISO9075]
 #define ERROR_ORIGIN_07005 error_origins[sqloriginISO9075]
 #define ERROR_ORIGIN_07006 error_origins[sqloriginISO9075]
 #define ERROR_ORIGIN_07009 error_origins[sqloriginISO9075]
