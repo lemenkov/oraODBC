@@ -18,9 +18,13 @@
  *
  *******************************************************************************
  *
- * $Id: SQLDescribeParam.c,v 1.2 2002/05/14 23:01:05 dbox Exp $
+ * $Id: SQLDescribeParam.c,v 1.3 2002/06/19 15:24:21 dbox Exp $
  *
  * $Log: SQLDescribeParam.c,v $
+ * Revision 1.3  2002/06/19 15:24:21  dbox
+ * changed 'unknown' behavior for var type to make libodbc++ happier, better
+ * fix is in works
+ *
  * Revision 1.2  2002/05/14 23:01:05  dbox
  * added a bunch of error checking and some 'constructors' for the
  * environment handles
@@ -54,7 +58,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDescribeParam.c,v $ $Revision: 1.2 $";
+static char const rcsid[]= "$RCSfile: SQLDescribeParam.c,v $ $Revision: 1.3 $";
 
 SQLRETURN SQL_API SQLDescribeParam(
     SQLHSTMT            StatementHandle,
@@ -99,7 +103,7 @@ SQLRETURN SQL_API SQLDescribeParam(
 	if(DataTypePtr){
 	  if(!ap->concise_type)
 	    return SQL_ERROR;
-	  *DataTypePtr=ap->concise_type;
+	  *DataTypePtr=ap->concise_type==SQL_C_DEFAULT?SQL_C_CHAR: ap->concise_type;
 	}
 	if(ParameterSizePtr)
 		*ParameterSizePtr=ap->length;
