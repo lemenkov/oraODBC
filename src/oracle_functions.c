@@ -25,7 +25,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.37 2005/05/25 00:57:39 dbox Exp $
+ * $Id: oracle_functions.c,v 1.38 2005/05/25 01:15:44 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -35,7 +35,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.37 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.38 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -217,6 +217,8 @@ SQLRETURN ood_driver_error(void *hH, sword ret,char *file, int line)
 			      errcodep,0,server_name,ERROR_STATE_HY000,
 			      file,line);
 		break;
+/* integrity constraints which oracle seems to do a better job
+   of diagnosing than this ood_post_diag does....
 		
 	      case 1 :
 		
@@ -227,7 +229,6 @@ SQLRETURN ood_driver_error(void *hH, sword ret,char *file, int line)
 	      case 2290 :
 		
 	      case 2291 :
-/*
 		
 	      case 2292 :
 		ood_post_diag((hgeneric*)hH,ERROR_ORIGIN_23000,0,NULL,
