@@ -170,8 +170,8 @@ else
     AC_CHECK_LIB(clntsh,OCIEnvCreate,AC_DEFINE(LIBCLNTSH8),,
     "-L$oraldir")
 
-    ORALIB="-lclntsh"
-    AC_SUBST(ORALIB)
+    dnl ORALIB="-lclntsh"
+    dnl AC_SUBST(ORALIB)
     
     dnl Compile time options.
     

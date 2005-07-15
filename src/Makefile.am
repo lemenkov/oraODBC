@@ -14,11 +14,9 @@ EXTRA_DIST = \
 
 liboraodbc_la_LIBADD =  @LD_ODBCINSTLIB@
 
-liboraodbc_la_LDFLAGS = \
-	-version-info @LIB_VERSION@ \
-    -export-dynamic \
-	-export-symbols odbcdriver.exp \
-	-L${ORALDIR} ${ORALIB}
+
+liboraodbc_la_LDFLAGS = 
+
 
 liboraodbc_la_DEPENDENCIES =
 
