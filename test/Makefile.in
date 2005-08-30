@@ -91,6 +91,7 @@ ODBCLDIR = @ODBCLDIR@
 ODBCLIB = @ODBCLIB@
 ORAIDIR = @ORAIDIR@
 ORALDIR = @ORALDIR@
+ORALIB = @ORALIB@
 ORANDIR = @ORANDIR@
 ORAPDIR = @ORAPDIR@
 PACKAGE = @PACKAGE@
@@ -101,7 +102,7 @@ am__include = @am__include@
 am__quote = @am__quote@
 install_sh = @install_sh@
 
-# $Id: Makefile.in,v 1.25 2005/07/15 18:05:55 dbox Exp $
+# $Id: Makefile.in,v 1.26 2005/08/30 00:44:44 dbox Exp $
 check_PROGRAMS = \
 connect1 \
 connect2 \

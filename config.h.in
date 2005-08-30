@@ -19,13 +19,11 @@
  *
  *******************************************************************************
  *
- * $Id: config.h.in,v 1.13 2005/07/15 18:05:55 dbox Exp $
+ * $Id: config.h.in,v 1.14 2005/08/30 00:44:44 dbox Exp $
  *
  * $Log: config.h.in,v $
- * Revision 1.13  2005/07/15 18:05:55  dbox
- * unlink libclntsh and liboraodbc.so .   This library does not need to be
- * linked to specific oracle client, can be determined at app link time or
- * possibly run time.
+ * Revision 1.14  2005/08/30 00:44:44  dbox
+ * fixed another core dump on exit problem
  *
  * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
  * second try, importing code into directories
