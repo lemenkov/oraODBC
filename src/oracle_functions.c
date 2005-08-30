@@ -25,7 +25,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.38 2005/05/25 01:15:44 dbox Exp $
+ * $Id: oracle_functions.c,v 1.39 2005/08/30 00:45:23 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -35,7 +35,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.38 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.39 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
