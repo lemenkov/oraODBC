@@ -25,7 +25,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.39 2005/08/30 00:45:23 dbox Exp $
+ * $Id: oracle_functions.c,v 1.40 2005/11/01 20:48:56 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -35,7 +35,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.39 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.40 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -304,18 +304,20 @@ SQLRETURN ood_driver_error(void *hH, sword ret,char *file, int line)
 SQLRETURN ood_driver_connect(hDbc_T *dbc)
 {
   sword ret;
-  if(!dbc->oci_env)
+  if(!gOCIEnv_p)
     {
 #ifdef LIBCLNTSH8
-      OCIEnvCreate((OCIEnv**)&dbc->oci_env,OCI_THREADED|OCI_OBJECT,
-		   0,0,0,0,0,0);
+      OCIEnvCreate_log_stat(&gOCIEnv_p,OCI_THREADED|OCI_OBJECT,
+		   0,0,0,0,0,0,ret);
 #else
       OCIInitialize_log_stat(OCI_OBJECT|OCI_THREADED, 0,0,0,0,ret );
-      OCIEnvInit_log_stat(&dbc->oci_env,OCI_DEFAULT,0,0,ret);
+      OCIEnvInit_log_stat(&gOCIEnv_p,OCI_DEFAULT,0,0,ret);
 #endif
+      
     }
   
-  ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_err,
+
+  ret=OCIHandleAlloc_log_stat((dvoid*)gOCIEnv_p,(dvoid**)&dbc->oci_err,
 			      OCI_HTYPE_ERROR, 0,0,ret);
   if(ret)
     {
@@ -324,7 +326,7 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
        */
       sb4 errcodep;
       text txt[512];
-      OCIErrorGet(dbc->oci_env,
+      OCIErrorGet((dvoid*)gOCIEnv_p,
 		  1,NULL,&errcodep,txt,512,OCI_HTYPE_ENV);
       THREAD_MUTEX_UNLOCK(dbc);
       ood_post_diag((hgeneric*)dbc,ERROR_ORIGIN_HY000,0,dbc->DB,
@@ -335,7 +337,7 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
       return SQL_ERROR;
     }
   
-  ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_srv,
+  ret=OCIHandleAlloc_log_stat((dvoid*)gOCIEnv_p,(dvoid**)&dbc->oci_srv,
 			      OCI_HTYPE_SERVER,0,0,ret);
   if(ret)
     {
@@ -360,7 +362,7 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
 #ifdef UNIX_DEBUG
       fprintf(stderr,"Connect to [%s] OK\n",dbc->DB);
 #endif
-      ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_svc,
+      ret=OCIHandleAlloc_log_stat((dvoid*)gOCIEnv_p,(dvoid**)&dbc->oci_svc,
 				  OCI_HTYPE_SVCCTX,0,0,ret);
       if(ret)
 	{
@@ -371,7 +373,7 @@ SQLRETURN ood_driver_connect(hDbc_T *dbc)
 	}
       else
         {
-	  ret=OCIHandleAlloc_log_stat(dbc->oci_env,(dvoid**)&dbc->oci_ses,
+	  ret=OCIHandleAlloc_log_stat((dvoid*)gOCIEnv_p,(dvoid**)&dbc->oci_ses,
 				      OCI_HTYPE_SESSION,0,0,ret);
 	  if(ret)
 	    {
@@ -433,8 +435,8 @@ SQLRETURN ood_driver_disconnect(hDbc_T *dbc)
 {
   sword ret;
   ret=OCISessionEnd_log_stat(dbc->oci_svc,dbc->oci_err,dbc->oci_ses,0,ret);
-  /*ret|=OCIServerDetach(dbc->oci_srv,dbc->oci_err,OCI_DEFAULT);
-   */
+  ret|=OCIServerDetach(dbc->oci_srv,dbc->oci_err,OCI_DEFAULT);
+   
   if(ret)
     {
       THREAD_MUTEX_UNLOCK(dbc);
@@ -467,7 +469,7 @@ SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql_in)
       OCIHandleFree_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,ret);
       stmt->oci_stmt = (OCIStmt *)0;
   }
-  ret=OCIHandleAlloc_log_stat(stmt->dbc->oci_env,(dvoid**)&stmt->oci_stmt,
+  ret=OCIHandleAlloc_log_stat((dvoid*)gOCIEnv_p,(dvoid**)&stmt->oci_stmt,
 			      OCI_HTYPE_STMT,0,0,ret);
   if(ret)
     {
@@ -1150,7 +1152,7 @@ SQLRETURN ood_driver_define_col(ir_T* ir)
 				 ir->desc->stmt->row_array_size);
 	  for(i=0;i<ir->desc->stmt->row_array_size;i++)
 	    {
-	      OCIDescriptorAlloc(ir->desc->stmt->dbc->oci_env,
+	      OCIDescriptorAlloc((dvoid*)gOCIEnv_p,
 				 (dvoid*)&ir->locator[i],OCI_DTYPE_LOB,0,0);
 	      ((OCILobLocator**)ir->data_ptr)[i]=ir->locator[i];
 	    }

@@ -18,7 +18,7 @@
  *
  *******************************************************************************
  *
- * $Id: SQLFreeHandle.c,v 1.9 2005/08/30 00:44:44 dbox Exp $
+ * $Id: SQLFreeHandle.c,v 1.10 2005/11/01 20:48:56 dbox Exp $
  *
  * $Log: SQLFreeHandle.c,v 
  * Revision 1.7  2004/08/27 19:42:40  dbo
@@ -125,7 +125,7 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.9 $";
+static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.10 $";
 
 void ood_ap_free(ap_T *ap)
 {
@@ -358,9 +358,16 @@ SQLRETURN _SQLFreeHandle(
 		OCIHandleFree_log_stat(dbc->oci_ses,OCI_HTYPE_SESSION,ret);
 		dbc->oci_ses=NULL;
 	      }
-	      
 	      if(dbc->oci_env)
 		{
+		/*Turns out ORAFREE() followed by repeated OCIEnvCreate 
+		* leaks memory.  Code has been 
+ 		* modified so OCIEnvCreate is called only once, a
+		* global var gOCIEnv_p initialized  and then used 
+		* everywhere dbc->oci_env and all its leak-alikes
+		* were used previously.  The ORAFREE below should
+		* never be called but if it does its harmless
+		*/
 		  /*
 		   * I can't find any documentation on what should be done
 		   * with the Oracle environment handle at 
@@ -368,12 +375,10 @@ SQLRETURN _SQLFreeHandle(
 		   * Using OCIHandleFree on it seems to yield unpredicatable
 		   * results. ORAFREE() seems OK on UNIX
 		   */
-#ifdef WIN32
-		  OCIHandleFree_log_stat(dbc->oci_env,OCI_HTYPE_ENV,ret);
-		  dbc->oci_env=NULL;
-#else
+
 		  ORAFREE(dbc->oci_env);
-#endif
+
+
 		}
 	      THREAD_MUTEX_UNLOCK(dbc);
 	      free_statement_list(dbc->stmt_list);

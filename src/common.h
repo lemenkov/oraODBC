@@ -18,7 +18,7 @@
  *
  *******************************************************************************
  *
- * $Id: common.h,v 1.11 2005/03/17 01:45:41 dbox Exp $
+ * $Id: common.h,v 1.12 2005/11/01 20:48:56 dbox Exp $
  *
  *
  * Revision 1.10  2004/08/27 19:50:47  dbox
@@ -314,6 +314,7 @@ struct hDbc_TAG;
 struct hStmt_TAG;
 struct hDesc_TAG;
 
+OCIEnv * gOCIEnv_p;
 
 /*
  * Application Parameter Descriptor

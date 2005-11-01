@@ -115,6 +115,13 @@
 	  "%sDescriptorFree(%p,%s)\n", OciTp, (void*)d,oci_hdtype_name(t));  \
 	OCIDescriptorFree(d,t)
 
+#define OCIEnvCreate_log_stat(p1,p2,p3,p4,p5,p6,p7,p8,stat)		\
+	stat=OCIEnvCreate(p1,p2,p3,p4,p5,p6,p7,p8);    			\
+	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,			\
+	  "%sEnvCreate(%p,%d,%d,%d,%d,%d,%d,%d)=%s\n",			\
+		       OciTp,p1,p2,p3,p4,p5,p6,p7,p8,	    \
+	  oci_status_name(stat)),stat : stat
+
 #define OCIEnvInit_log_stat(ev,md,xm,um,stat)                      \
 	stat=OCIEnvInit(ev,md,xm,um);					\
 	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,			\

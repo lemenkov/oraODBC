@@ -87,7 +87,7 @@ AC_ARG_WITH( orahome,
 
 orahdir=""
 AC_MSG_CHECKING(for oci.h)
-for d in $oraclehome/rdbms/demo $oraclehome/rdbms/public $oraclehome/oci/include /usr/include /usr/local/include
+for d in $oraclehome/rdbms/demo $oraclehome/rdbms/public $oraclehome/oci/include /usr/include /usr/local/include $oraclehome/include
 do
 if test -f $d/oci.h
 then
@@ -104,7 +104,7 @@ fi
 
 orandir=""
 AC_MSG_CHECKING(for nzt.h)
-for d in $oraclehome/network/public $oraclehome/oci/include /usr/include /usr/local/include $oraclehome/public $oraclehome/rdbms/public
+for d in $oraclehome/network/public $oraclehome/oci/include /usr/include /usr/local/include $oraclehome/public $oraclehome/rdbms/public $oraclehome/include
 do
 if test -f $d/nzt.h
 then
@@ -121,7 +121,7 @@ fi
 
 orapdir=""
 AC_MSG_CHECKING(for ociextp.h)
-for d in $oraclehome/rdbms/public $oraclehome/rdbms/demo $oraclehome/plsql/public $oraclehome/oci/include /usr/include /usr/local/include
+for d in $oraclehome/rdbms/public $oraclehome/rdbms/demo $oraclehome/plsql/public $oraclehome/oci/include /usr/include /usr/local/include $oraclehome/include
 do
 if test -f $d/ociextp.h
 then
