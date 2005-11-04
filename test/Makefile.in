@@ -102,7 +102,7 @@ am__include = @am__include@
 am__quote = @am__quote@
 install_sh = @install_sh@
 
-# $Id: Makefile.in,v 1.26 2005/08/30 00:44:44 dbox Exp $
+# $Id: Makefile.in,v 1.27 2005/11/04 16:42:08 dbox Exp $
 check_PROGRAMS = \
 connect1 \
 connect2 \
