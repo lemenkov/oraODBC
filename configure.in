@@ -204,6 +204,26 @@ else
     fi
 fi
 
+dnl AC_ARG_WITH( ora_version,
+dnl 	[  --with-oracle_version[ =major ] default = 9,
+dnl 	[ ora_version="$withval" ] )
+dnl if test x$withval = xno
+dnl then
+
+
+
+
+AC_ARG_ENABLE(binary_float,
+[  --enable-binary-float[=yes|no]  support Oracle 10 IEEE 754 floating point numbers [default=no]],
+[if test x$enableval = xno
+then    	
+    AC_MSG_RESULT(disabling BINARY_FLOAT support )	
+else
+    AC_DEFINE(IEEE_754_FLT)
+    AC_MSG_RESULT(enabling BINARY_FLOAT support)	
+fi
+])
+
 AC_MSG_CHECKING(whether to enable ODBC tracing)
 AC_ARG_ENABLE( trace, 
 [  --enable-trace[=yes|no]          Include ODBC tracing (slow) [default=no] ],

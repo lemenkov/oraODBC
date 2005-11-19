@@ -25,17 +25,19 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.41 2005/11/04 16:42:08 dbox Exp $
+ * $Id: oracle_functions.c,v 1.42 2005/11/19 01:21:10 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
  ******************************************************************************/
 
+
+
 #include "common.h"
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.41 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.42 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -842,6 +844,14 @@ SQLRETURN ood_ocitype_to_sqltype(ub2 data_type)
     case SQLT_INT:
       return SQL_INTEGER;
         
+#ifdef IEEE_754_FLT
+    case SQLT_IBFLOAT:
+    case SQLT_BFLOAT:
+      return SQL_C_FLOAT;
+
+    case SQLT_IBDOUBLE:
+    case SQLT_BDOUBLE:
+#endif
     case SQLT_FLT:
       return SQL_C_DOUBLE;
         
@@ -1202,6 +1212,14 @@ SQLRETURN (*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
   switch(drvtype)
     {
       /*varchar*/
+#ifdef IEEE_754_FLT
+    case SQLT_BFLOAT:
+    case SQLT_BDOUBLE:
+    case SQLT_IBFLOAT:
+    case SQLT_IBDOUBLE:
+      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	ocibflt_sqlflt;
+#endif        
     case SQLT_STR:
     case SQLT_VST:
       return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
@@ -1269,7 +1287,6 @@ SQLRETURN (*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
 	    ociint_sqlslong;
         }
       break;
-        
     case SQLT_FLT:
       switch(sqltype)
         {
@@ -1391,6 +1408,7 @@ SQLRETURN (*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
 	ocilob_sqllvb;
 
       /* LONGs, LOBs and binaries*/
+
     case SQLT_LNG:
     case SQLT_VBI:
     case SQLT_BIN:
@@ -1545,6 +1563,25 @@ SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar)
       ir->data_size=sizeof(double);
       ir->to_string=ociflt_sqlnts;
       break;
+
+#ifdef IEEE_754_FLT
+
+    case SQLT_IBDOUBLE:
+    case SQLT_BDOUBLE:
+      ir->data_type=SQLT_BDOUBLE;
+      ir->data_size=sizeof(double);
+      ir->to_string=ocistr_memcpy;
+      break;
+
+    case SQLT_IBFLOAT:
+    case SQLT_BFLOAT:
+      ir->data_type=SQLT_BFLOAT;
+      ir->data_size=sizeof(float);
+      ir->to_string=ocistr_memcpy;
+      break;
+ 
+#endif
+
 			
       /* VNU etc */
     case SQLT_NUM:
@@ -1607,7 +1644,6 @@ SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar)
     {
       ar->data_type=ood_ocitype_to_sqltype(ir->orig_type);
       /*hack alert!! */
-
       if(ar->precision!=0 && ar->scale==0){
 	if(ar->precision<=9)
 	  ar->data_type=SQL_INTEGER;
@@ -1672,6 +1708,37 @@ SQLRETURN ocistr_sqlnts(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
   }
   return SQL_SUCCESS;
 }
+
+
+SQLRETURN ocibflt_sqlflt(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
+			SQLINTEGER* indi)
+{
+  int i;
+  int ret;
+  unsigned char* src;
+  src=((unsigned char*)ir->data_ptr)+(row*ir->data_size);
+  
+  for(i=0;i<4;i++)
+    {
+      ((unsigned char*)target)[i]=src[i];
+    }
+  
+  /*
+    ret=OCINumberToReal(ir->desc->dbc->oci_err,
+    (OCINumber*)src,ir->data_size,/*sizeof(float),
+    target);
+    if(ret)
+    {
+    ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
+    return SQL_ERROR;
+    }
+    if(indi)
+    *indi=sizeof(double);
+    */
+  
+  return SQL_SUCCESS;
+}
+
 
 /*
  *  * ocistr_memcpy =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=- *
@@ -2746,7 +2813,6 @@ sword ood_driver_bind_param(hStmt_T *stmt, ub4 parmnum)
       
 	case SQL_C_FLOAT:
 	  ip->data_size=sizeof(float);
-	  ip->data_type=SQLT_FLT;
 	  ip->data_ptr=NULL;
 	  bind_ptr=ap->data_ptr;
 	  break;

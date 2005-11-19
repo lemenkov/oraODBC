@@ -18,11 +18,14 @@
  *
  *******************************************************************************
  *
- * $Id: acconfig.h,v 1.1 2002/02/11 19:48:06 dbox Exp $
+ * $Id: acconfig.h,v 1.2 2005/11/19 01:21:10 dbox Exp $
  *
  * $Log: acconfig.h,v $
- * Revision 1.1  2002/02/11 19:48:06  dbox
- * Initial revision
+ * Revision 1.2  2005/11/19 01:21:10  dbox
+ * changes to support BINARY_FLOAT and BINARY_DOUBLE oracle 10 data types
+ *
+ * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
+ * second try, importing code into directories
  *
  * Revision 1.5  2000/07/07 07:47:56  tom
  * Changes for user catalog
@@ -57,11 +60,15 @@
  * libclntsh.so version switching
  */
 #undef LIBCLNTSH8
+/* Oracle 10 IEEE_754 floating point support
+*/
+#undef IEEE_754_FLT
 /*
  * There is an oddity in oratypes.h; it expects LINUX to be
  * defined on linux systems... but most compilers define 
  * __linux__
  */
+
 #if defined (__linux__) || defined (__linux) && !defined(LINUX)
 #define LINUX 1
 #endif

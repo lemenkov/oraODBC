@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.h,v 1.7 2005/03/17 02:37:32 dbox Exp $
+ * $Id: oracle_functions.h,v 1.8 2005/11/19 01:21:10 dbox Exp $
  *
  * $Log: oracle_functions.h,v $
+ * Revision 1.8  2005/11/19 01:21:10  dbox
+ * changes to support BINARY_FLOAT and BINARY_DOUBLE oracle 10 data types
+ *
  * Revision 1.7  2005/03/17 02:37:32  dbox
  * added function ocistr_memcpy to handle binary output
  *
@@ -87,6 +90,7 @@
 
 #ifndef _ORACLE_FUNCTIONS_H
 #define _ORACLE_FUNCTIONS_H
+
 SQLRETURN ood_driver_error(void *hH, sword ret,char*,int);
 SQLRETURN ood_driver_connect(hDbc_T *dbc);
 SQLRETURN ood_driver_disconnect(hDbc_T *dbc);
@@ -157,6 +161,15 @@ SQLRETURN ociflt_sqlfloat(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 SQLRETURN ociflt_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 SQLRETURN ociflt_sqlnumeric(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 
+#ifdef IEEE_754_FLT
+SQLRETURN ocibflt_sqlflt(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+#ifdef DONT_DO_YET
+SQLRETURN ocibflt_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN ocibdbl_sqlfloat(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN ocibbdl_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+#endif
+#endif
+
 /* DAT */
 SQLRETURN ocidat_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 SQLRETURN ocidat_sqltimestamp(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
@@ -172,6 +185,7 @@ SQLRETURN ocidty_sqlint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 SQLRETURN ocidty_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 SQLRETURN ocinul_sqlint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 SQLRETURN ocinul_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+
 
 #endif
 

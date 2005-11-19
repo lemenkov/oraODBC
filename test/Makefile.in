@@ -102,7 +102,7 @@ am__include = @am__include@
 am__quote = @am__quote@
 install_sh = @install_sh@
 
-# $Id: Makefile.in,v 1.27 2005/11/04 16:42:08 dbox Exp $
+# $Id: Makefile.in,v 1.28 2005/11/19 01:21:10 dbox Exp $
 check_PROGRAMS = \
 connect1 \
 connect2 \
@@ -126,7 +126,8 @@ insert7 \
 read4 \
 readchars \
 SQLColumns1 \
-SQLPutTest
+SQLPutTest \
+cleanup
 
 
 INCLUDES = -I${ODBCIDIR} -I../src \
@@ -150,7 +151,7 @@ check_PROGRAMS = connect1$(EXEEXT) connect2$(EXEEXT) \
 	insert2$(EXEEXT) insert4$(EXEEXT) lowlevel$(EXEEXT) \
 	getinfo1$(EXEEXT) insert5$(EXEEXT) insert6$(EXEEXT) \
 	insert7$(EXEEXT) read4$(EXEEXT) readchars$(EXEEXT) \
-	SQLColumns1$(EXEEXT) SQLPutTest$(EXEEXT)
+	SQLColumns1$(EXEEXT) SQLPutTest$(EXEEXT) cleanup$(EXEEXT)
 SQLColumns1_SOURCES = SQLColumns1.c
 SQLColumns1_OBJECTS = SQLColumns1.$(OBJEXT)
 SQLColumns1_LDADD = $(LDADD)
@@ -161,6 +162,11 @@ SQLPutTest_OBJECTS = SQLPutTest.$(OBJEXT)
 SQLPutTest_LDADD = $(LDADD)
 SQLPutTest_DEPENDENCIES =
 SQLPutTest_LDFLAGS =
+cleanup_SOURCES = cleanup.c
+cleanup_OBJECTS = cleanup.$(OBJEXT)
+cleanup_LDADD = $(LDADD)
+cleanup_DEPENDENCIES =
+cleanup_LDFLAGS =
 commit1_SOURCES = commit1.c
 commit1_OBJECTS = commit1.$(OBJEXT)
 commit1_LDADD = $(LDADD)
@@ -274,9 +280,9 @@ LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/SQLColumns1.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/SQLPutTest.Po ./$(DEPDIR)/commit1.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/connect1.Po ./$(DEPDIR)/connect2.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/direct_exec1.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/SQLPutTest.Po ./$(DEPDIR)/cleanup.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/commit1.Po ./$(DEPDIR)/connect1.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/connect2.Po ./$(DEPDIR)/direct_exec1.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/direct_exec2.Po ./$(DEPDIR)/getinfo1.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/insert1.Po ./$(DEPDIR)/insert2.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/insert3.Po ./$(DEPDIR)/insert4.Po \
@@ -294,13 +300,13 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 CFLAGS = @CFLAGS@
-DIST_SOURCES = SQLColumns1.c SQLPutTest.c commit1.c connect1.c \
+DIST_SOURCES = SQLColumns1.c SQLPutTest.c cleanup.c commit1.c connect1.c \
 	connect2.c direct_exec1.c direct_exec2.c getinfo1.c insert1.c \
 	insert2.c insert3.c insert4.c insert5.c insert6.c insert7.c \
 	lowlevel.c malloctest.c read1.c read2.c read3.c read4.c \
 	readchars.c rollback1.c
 DIST_COMMON = Makefile.am Makefile.in
-SOURCES = SQLColumns1.c SQLPutTest.c commit1.c connect1.c connect2.c direct_exec1.c direct_exec2.c getinfo1.c insert1.c insert2.c insert3.c insert4.c insert5.c insert6.c insert7.c lowlevel.c malloctest.c read1.c read2.c read3.c read4.c readchars.c rollback1.c
+SOURCES = SQLColumns1.c SQLPutTest.c cleanup.c commit1.c connect1.c connect2.c direct_exec1.c direct_exec2.c getinfo1.c insert1.c insert2.c insert3.c insert4.c insert5.c insert6.c insert7.c lowlevel.c malloctest.c read1.c read2.c read3.c read4.c readchars.c rollback1.c
 
 all: all-am
 
@@ -324,6 +330,9 @@ SQLColumns1$(EXEEXT): $(SQLColumns1_OBJECTS) $(SQLColumns1_DEPENDENCIES)
 SQLPutTest$(EXEEXT): $(SQLPutTest_OBJECTS) $(SQLPutTest_DEPENDENCIES) 
 	@rm -f SQLPutTest$(EXEEXT)
 	$(LINK) $(SQLPutTest_LDFLAGS) $(SQLPutTest_OBJECTS) $(SQLPutTest_LDADD) $(LIBS)
+cleanup$(EXEEXT): $(cleanup_OBJECTS) $(cleanup_DEPENDENCIES) 
+	@rm -f cleanup$(EXEEXT)
+	$(LINK) $(cleanup_LDFLAGS) $(cleanup_OBJECTS) $(cleanup_LDADD) $(LIBS)
 commit1$(EXEEXT): $(commit1_OBJECTS) $(commit1_DEPENDENCIES) 
 	@rm -f commit1$(EXEEXT)
 	$(LINK) $(commit1_LDFLAGS) $(commit1_OBJECTS) $(commit1_LDADD) $(LIBS)
@@ -396,6 +405,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SQLColumns1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SQLPutTest.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cleanup.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/commit1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connect1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connect2.Po@am__quote@

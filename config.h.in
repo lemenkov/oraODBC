@@ -19,12 +19,11 @@
  *
  *******************************************************************************
  *
- * $Id: config.h.in,v 1.15 2005/11/04 16:42:08 dbox Exp $
+ * $Id: config.h.in,v 1.16 2005/11/19 01:21:10 dbox Exp $
  *
  * $Log: config.h.in,v $
- * Revision 1.15  2005/11/04 16:42:08  dbox
- * fix to oracle_functions.c to recognize SQL_BIGINT for larger
- * oracle integers
+ * Revision 1.16  2005/11/19 01:21:10  dbox
+ * changes to support BINARY_FLOAT and BINARY_DOUBLE oracle 10 data types
  *
  * Revision 1.1.1.1  2002/02/11 19:48:06  dbox
  * second try, importing code into directories
@@ -62,11 +61,15 @@
  * libclntsh.so version switching
  */
 #undef LIBCLNTSH8
+/* Oracle 10 IEEE_754 floating point support
+*/
+#undef IEEE_754_FLT
 /*
  * There is an oddity in oratypes.h; it expects LINUX to be
  * defined on linux systems... but most compilers define 
  * __linux__
  */
+
 #if defined (__linux__) || defined (__linux) && !defined(LINUX)
 #define LINUX 1
 #endif
