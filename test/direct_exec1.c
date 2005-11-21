@@ -1,6 +1,6 @@
 /*test function: SQLExecDirect to create table 'some_types' 
  * author: Dennis Box, dbox@fnal.gov
- * $Id: direct_exec1.c,v 1.7 2005/11/19 01:21:10 dbox Exp $
+ * $Id: direct_exec1.c,v 1.8 2005/11/21 23:05:45 dbox Exp $
  */
 
 
@@ -58,7 +58,7 @@ int main()
   rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
   
   sprintf(SQLStmt,"create table some_types (an_int integer primary key, ");
-  strcat(SQLStmt," a_float binary_float, a_string varchar(255)) ");
+  strcat(SQLStmt," a_float float, a_string varchar(255)) ");
   
   rc = SQLExecDirect(StmtHandle, SQLStmt, SQL_NTS);
   
