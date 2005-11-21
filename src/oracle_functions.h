@@ -18,9 +18,12 @@
  *
  *******************************************************************************
  *
- * $Id: oracle_functions.h,v 1.8 2005/11/19 01:21:10 dbox Exp $
+ * $Id: oracle_functions.h,v 1.9 2005/11/21 23:19:17 dbox Exp $
  *
  * $Log: oracle_functions.h,v $
+ * Revision 1.9  2005/11/21 23:19:17  dbox
+ * typo in function decl
+ *
  * Revision 1.8  2005/11/19 01:21:10  dbox
  * changes to support BINARY_FLOAT and BINARY_DOUBLE oracle 10 data types
  *
@@ -163,11 +166,9 @@ SQLRETURN ociflt_sqlnumeric(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 
 #ifdef IEEE_754_FLT
 SQLRETURN ocibflt_sqlflt(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-#ifdef DONT_DO_YET
 SQLRETURN ocibflt_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 SQLRETURN ocibdbl_sqlfloat(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocibbdl_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-#endif
+SQLRETURN ocibdbl_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
 #endif
 
 /* DAT */
