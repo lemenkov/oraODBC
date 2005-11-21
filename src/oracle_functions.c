@@ -25,7 +25,7 @@
 		   *
  *******************************************************************************
  *
- * $Id: oracle_functions.c,v 1.42 2005/11/19 01:21:10 dbox Exp $
+ * $Id: oracle_functions.c,v 1.43 2005/11/21 23:07:21 dbox Exp $
  * NOTE
  * There is no mutexing in these functions, it is assumed that the mutexing 
  * will be done at a higher level
@@ -37,7 +37,7 @@
 #include "ocitrace.h"
 #include <sqlext.h>
 
-static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.42 $";
+static char const rcsid[]= "$RCSfile: oracle_functions.c,v $ $Revision: 1.43 $";
 
 /*
  * There is a problem with a lot of libclntsh.so releases... an undefined
@@ -1214,11 +1214,32 @@ SQLRETURN (*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
       /*varchar*/
 #ifdef IEEE_754_FLT
     case SQLT_BFLOAT:
-    case SQLT_BDOUBLE:
     case SQLT_IBFLOAT:
+      switch(sqltype)
+	{
+	case SQL_REAL:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocibflt_sqlflt;
+	
+	case SQL_DOUBLE:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocibflt_sqldouble;
+	  
+	}
+    case SQLT_BDOUBLE:
     case SQLT_IBDOUBLE:
-      return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
-	ocibflt_sqlflt;
+      switch(sqltype)
+	{
+	case SQL_REAL:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocibdbl_sqlfloat;
+	
+	case SQL_DOUBLE:
+	  return (SQLRETURN(*)(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*))
+	    ocibdbl_sqldouble;
+	  
+	}
+
 #endif        
     case SQLT_STR:
     case SQLT_VST:
@@ -1718,27 +1739,68 @@ SQLRETURN ocibflt_sqlflt(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
   unsigned char* src;
   src=((unsigned char*)ir->data_ptr)+(row*ir->data_size);
   
-  for(i=0;i<4;i++)
+  for(i=0;i<ir->data_size;i++)
     {
       ((unsigned char*)target)[i]=src[i];
     }
   
-  /*
-    ret=OCINumberToReal(ir->desc->dbc->oci_err,
-    (OCINumber*)src,ir->data_size,/*sizeof(float),
-    target);
-    if(ret)
-    {
-    ood_driver_error(ir->desc->stmt,ret,__FILE__,__LINE__);
-    return SQL_ERROR;
-    }
-    if(indi)
-    *indi=sizeof(double);
-    */
   
   return SQL_SUCCESS;
 }
 
+
+SQLRETURN ocibflt_sqldouble(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
+			SQLINTEGER* indi)
+{
+  int i;
+  int ret;
+  unsigned char* src;
+  char tmp[8];
+  src=((unsigned char*)ir->data_ptr)+(row*ir->data_size);
+  
+  for(i=0;i<ir->data_size;i++)
+    {
+      ((unsigned char*)tmp)[i]=src[i];
+    }
+  
+  *((double*)target)=*((float*)tmp);
+  return SQL_SUCCESS;
+}
+
+SQLRETURN ocibdbl_sqlfloat(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
+			SQLINTEGER* indi)
+{
+  int i;
+  int ret;
+  unsigned char* src;
+  unsigned char tmp[8];
+  src=((unsigned char*)ir->data_ptr)+(row*ir->data_size);
+  
+  for(i=0;i<ir->data_size;i++)
+    {
+      ((unsigned char*)tmp)[i]=src[i];
+    }
+  
+  *((float*)target)=*((double*)tmp);
+  return SQL_SUCCESS;
+}
+
+SQLRETURN ocibdbl_sqldouble(int row,ir_T* ir,SQLPOINTER target,SQLINTEGER buflen,
+			SQLINTEGER* indi)
+{
+  int i;
+  int ret;
+  unsigned char* src;
+  src=((unsigned char*)ir->data_ptr)+(row*ir->data_size);
+  
+  for(i=0;i<ir->data_size;i++)
+    {
+      ((unsigned char*)target)[i]=src[i];
+    }
+  
+  
+  return SQL_SUCCESS;
+}
 
 /*
  *  * ocistr_memcpy =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=- *
