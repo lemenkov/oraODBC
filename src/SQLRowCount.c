@@ -86,7 +86,7 @@ SQLRETURN SQL_API SQLRowCount(SQLHSTMT StatementHandle,
 	ood_clear_diag((hgeneric *) stmt);
 	ood_mutex_lock_stmt(stmt);
 
-	*RowCountPtr = (SQLINTEGER) abs(stmt->num_result_rows);
+	*RowCountPtr = (SQLINTEGER) (stmt->num_result_rows);
 
 	ood_mutex_unlock_stmt(stmt);
 	if (ENABLE_TRACE) {
