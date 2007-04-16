@@ -525,10 +525,12 @@ SQLRETURN ood_driver_prepare(hStmt_T * stmt, SQLCHAR * sql_in)
 #endif
 	/*filter out trailing blanks and ;'s */
 	len = strlen(sql_in);
+	/*
 	while (len >= 1 && sql_in[len - 1] == ';' || sql_in[len - 1] == ' ') {
 		sql_in[len - 1] = (char)0;
 		len--;
 	}
+	*/
 	ret =
 	    OCIStmtPrepare_log_stat(stmt->oci_stmt, stmt->dbc->oci_err, sql_in,
 				    len, OCI_NTV_SYNTAX, OCI_DEFAULT, ret);
