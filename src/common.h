@@ -120,7 +120,7 @@
  * It may be more useful to define it at the top of the relevent source files
  * rather than here.
  */
-/*#undef UNIX_DEBUG*/
+#undef UNIX_DEBUG
 
 #define DPRINT fprintf
 
