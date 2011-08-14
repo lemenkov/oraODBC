@@ -56,58 +56,54 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetEnvAttr.c,v $ $Revision: 1.1 $";
+static char const rcsid[] = "$RCSfile: SQLSetEnvAttr.c,v $ $Revision: 1.1 $";
 
-SQLRETURN SQL_API SQLSetEnvAttr(
-    SQLHENV            EnviromentHandle,
-    SQLINTEGER        Attribute,
-    SQLPOINTER        ValuePtr,
-    SQLINTEGER        StringLength )
+SQLRETURN SQL_API SQLSetEnvAttr(SQLHENV EnviromentHandle,
+				SQLINTEGER Attribute,
+				SQLPOINTER ValuePtr, SQLINTEGER StringLength)
 {
-    hEnv_T *env=(hEnv_T*)EnviromentHandle;
-    SQLRETURN status=SQL_SUCCESS;
+	hEnv_T *env = (hEnv_T *) EnviromentHandle;
+	SQLRETURN status = SQL_SUCCESS;
 
-    if(!env||HANDLE_TYPE(env)!=SQL_HANDLE_ENV)
-    {
-        status=SQL_INVALID_HANDLE;
-    }
-    ood_clear_diag((hgeneric*)env);
-    THREAD_MUTEX_LOCK(env);
+	if (!env || HANDLE_TYPE(env) != SQL_HANDLE_ENV) {
+		status = SQL_INVALID_HANDLE;
+	}
+	ood_clear_diag((hgeneric *) env);
+	THREAD_MUTEX_LOCK(env);
 
-    switch(Attribute)
-    {
-        case SQL_ATTR_CONNECTION_POOLING:
-            ood_post_diag((hgeneric*)env,ERROR_ORIGIN_HYC00,0,"",ERROR_MESSAGE_HYC00,
-                    __LINE__,0,"",ERROR_STATE_HYC00,
-                    __FILE__,__LINE__);
-            status=SQL_ERROR;
-            break;
+	switch (Attribute) {
+	case SQL_ATTR_CONNECTION_POOLING:
+		ood_post_diag((hgeneric *) env, ERROR_ORIGIN_HYC00, 0, "",
+			      ERROR_MESSAGE_HYC00, __LINE__, 0, "",
+			      ERROR_STATE_HYC00, __FILE__, __LINE__);
+		status = SQL_ERROR;
+		break;
 
-        case SQL_ATTR_CP_MATCH:
-            ood_post_diag((hgeneric*)env,ERROR_ORIGIN_HYC00,0,"",ERROR_MESSAGE_HYC00,
-                    __LINE__,0,"",ERROR_STATE_HYC00,
-                    __FILE__,__LINE__);
-            status=SQL_ERROR;
-            break;
+	case SQL_ATTR_CP_MATCH:
+		ood_post_diag((hgeneric *) env, ERROR_ORIGIN_HYC00, 0, "",
+			      ERROR_MESSAGE_HYC00, __LINE__, 0, "",
+			      ERROR_STATE_HYC00, __FILE__, __LINE__);
+		status = SQL_ERROR;
+		break;
 
-        case SQL_ATTR_ODBC_VERSION:
-            env->odbc_ver=(SQLINTEGER)ValuePtr;
-            status=SQL_SUCCESS;
-            break;
+	case SQL_ATTR_ODBC_VERSION:
+		env->odbc_ver = (SQLINTEGER) ValuePtr;
+		status = SQL_SUCCESS;
+		break;
 
-        case SQL_ATTR_OUTPUT_NTS:
-            ood_post_diag((hgeneric*)env,ERROR_ORIGIN_HYC00,-1,"",ERROR_MESSAGE_HYC00,
-                    __LINE__,-1,"",ERROR_STATE_HYC00,
-                    __FILE__,__LINE__);
-            status=SQL_ERROR;
-            break;
+	case SQL_ATTR_OUTPUT_NTS:
+		ood_post_diag((hgeneric *) env, ERROR_ORIGIN_HYC00, -1, "",
+			      ERROR_MESSAGE_HYC00, __LINE__, -1, "",
+			      ERROR_STATE_HYC00, __FILE__, __LINE__);
+		status = SQL_ERROR;
+		break;
 
-        default:
-            ood_post_diag((hgeneric*)env,ERROR_ORIGIN_HYC00,0,"",ERROR_MESSAGE_HYC00,
-                    __LINE__,0,"",ERROR_STATE_HYC00,
-                    __FILE__,__LINE__);
-            status=SQL_ERROR;
-    }
-    THREAD_MUTEX_UNLOCK(env);
-    return status;
+	default:
+		ood_post_diag((hgeneric *) env, ERROR_ORIGIN_HYC00, 0, "",
+			      ERROR_MESSAGE_HYC00, __LINE__, 0, "",
+			      ERROR_STATE_HYC00, __FILE__, __LINE__);
+		status = SQL_ERROR;
+	}
+	THREAD_MUTEX_UNLOCK(env);
+	return status;
 }

@@ -41,7 +41,6 @@
  * Fixed var init bug
  *
 
-
  * Revision 1.15  2000/07/10 08:24:35  tom
  * tweaks for less tolerant compilers
  *
@@ -90,288 +89,283 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLTables.c,v $ $Revision: 1.4 $";
+static char const rcsid[] = "$RCSfile: SQLTables.c,v $ $Revision: 1.4 $";
 
-static void ood_sqltables_construct_sql(hStmt_T* stmt,char* sql, char* schema, 
-		char *table, char *type, char* sql_end, int has_where_clause)
+static void ood_sqltables_construct_sql(hStmt_T * stmt, char *sql, char *schema,
+					char *table, char *type, char *sql_end,
+					int has_where_clause)
 {
 #ifdef ENABLE_USER_CATALOG
-	const char sql_base[]="SELECT NULL, '', TABLE_NAME, TABLE_TYPE, ' ' FROM USER_CATALOG ";
+	const char sql_base[] =
+	    "SELECT NULL, '', TABLE_NAME, TABLE_TYPE, ' ' FROM USER_CATALOG ";
 #else
-	const char sql_base[]="SELECT NULL, OWNER, TABLE_NAME, TABLE_TYPE, ' ' FROM ALL_CATALOG";
+	const char sql_base[] =
+	    "SELECT NULL, OWNER, TABLE_NAME, TABLE_TYPE, ' ' FROM ALL_CATALOG";
 #endif
-	sql_end=ood_fast_strcat(sql,(char*)sql_base,sql_end);
+	sql_end = ood_fast_strcat(sql, (char *)sql_base, sql_end);
 #ifndef ENABLE_USER_CATALOG
-    if(schema&&*schema)
-    {
-        sql_end=ood_fast_strcat(sql," WHERE OWNER",sql_end);
+	if (schema && *schema) {
+		sql_end = ood_fast_strcat(sql, " WHERE OWNER", sql_end);
 
-        if(stmt->dbc->metadata_id)
-            sql_end=ood_fast_strcat(sql," = ",sql_end);
-        else
-            sql_end=ood_fast_strcat(sql," LIKE ",sql_end);
+		if (stmt->dbc->metadata_id)
+			sql_end = ood_fast_strcat(sql, " = ", sql_end);
+		else
+			sql_end = ood_fast_strcat(sql, " LIKE ", sql_end);
 
-        if(*schema!='\'')
-        {
-            sql_end=ood_fast_strcat(sql,"'",sql_end);
-            sql_end=ood_fast_strcat(sql,schema,sql_end);
-            sql_end=ood_fast_strcat(sql,"'",sql_end);
-        }
-        else
-            sql_end=ood_fast_strcat(sql,schema,sql_end);
+		if (*schema != '\'') {
+			sql_end = ood_fast_strcat(sql, "'", sql_end);
+			sql_end = ood_fast_strcat(sql, schema, sql_end);
+			sql_end = ood_fast_strcat(sql, "'", sql_end);
+		} else
+			sql_end = ood_fast_strcat(sql, schema, sql_end);
 
-        if(!stmt->dbc->metadata_id)
-            sql_end=ood_fast_strcat(sql," ESCAPE \'\\\'",sql_end);
-        has_where_clause=1;
-    }
+		if (!stmt->dbc->metadata_id)
+			sql_end =
+			    ood_fast_strcat(sql, " ESCAPE \'\\\'", sql_end);
+		has_where_clause = 1;
+	}
 #endif
-    if(table&&*table)
-    {
-        if(has_where_clause)
-            sql_end=ood_fast_strcat(sql," AND TABLE_NAME",sql_end);
-        else
-            sql_end=ood_fast_strcat(sql," WHERE TABLE_NAME",
-					sql_end);
-        
-        if(stmt->dbc->metadata_id)
-            sql_end=ood_fast_strcat(sql," = ",sql_end);
-        else
-            sql_end=ood_fast_strcat(sql," LIKE ",sql_end);
+	if (table && *table) {
+		if (has_where_clause)
+			sql_end =
+			    ood_fast_strcat(sql, " AND TABLE_NAME", sql_end);
+		else
+			sql_end = ood_fast_strcat(sql, " WHERE TABLE_NAME",
+						  sql_end);
 
-        if(*table!='\'')
-        {
-            sql_end=ood_fast_strcat(sql,"'",sql_end);
-            sql_end=ood_fast_strcat(sql,table,sql_end);
-            sql_end=ood_fast_strcat(sql,"'",sql_end);
-        }
-        else
-            sql_end=ood_fast_strcat(sql,table,sql_end);
-    
-        if(!stmt->dbc->metadata_id)
-        sql_end=ood_fast_strcat(sql," ESCAPE \'\\\'",sql_end);
-        has_where_clause=1;
-    }
-    if(type&&*type)
-    {
-        char *cptr=type;
-        if(has_where_clause)
-            sql_end=ood_fast_strcat(sql," AND TABLE_TYPE = '",
-					sql_end);
-        else
-            sql_end=ood_fast_strcat(sql," WHERE TABLE_TYPE = '",
-					sql_end);
-        do
-        {
-            if(*cptr==',')
-	            break;
-            else
-            {
-                if(*cptr!='\'')
-                    *sql_end++=*cptr;
-            }
-            cptr++;
-        }while(*cptr);
-        *sql_end++='\'';
-        *sql_end='\0';
-		if(*cptr) 
-		{
+		if (stmt->dbc->metadata_id)
+			sql_end = ood_fast_strcat(sql, " = ", sql_end);
+		else
+			sql_end = ood_fast_strcat(sql, " LIKE ", sql_end);
+
+		if (*table != '\'') {
+			sql_end = ood_fast_strcat(sql, "'", sql_end);
+			sql_end = ood_fast_strcat(sql, table, sql_end);
+			sql_end = ood_fast_strcat(sql, "'", sql_end);
+		} else
+			sql_end = ood_fast_strcat(sql, table, sql_end);
+
+		if (!stmt->dbc->metadata_id)
+			sql_end =
+			    ood_fast_strcat(sql, " ESCAPE \'\\\'", sql_end);
+		has_where_clause = 1;
+	}
+	if (type && *type) {
+		char *cptr = type;
+		if (has_where_clause)
+			sql_end = ood_fast_strcat(sql, " AND TABLE_TYPE = '",
+						  sql_end);
+		else
+			sql_end = ood_fast_strcat(sql, " WHERE TABLE_TYPE = '",
+						  sql_end);
+		do {
+			if (*cptr == ',')
+				break;
+			else {
+				if (*cptr != '\'')
+					*sql_end++ = *cptr;
+			}
 			cptr++;
-			sql_end=ood_fast_strcat(sql," UNION ",sql_end);
-			ood_sqltables_construct_sql(stmt,sql,schema,table,cptr,
-					sql_end,has_where_clause);
+		} while (*cptr);
+		*sql_end++ = '\'';
+		*sql_end = '\0';
+		if (*cptr) {
+			cptr++;
+			sql_end = ood_fast_strcat(sql, " UNION ", sql_end);
+			ood_sqltables_construct_sql(stmt, sql, schema, table,
+						    cptr, sql_end,
+						    has_where_clause);
 		}
-    }
+	}
 }
 
-SQLRETURN SQL_API SQLTables( 
-    SQLHSTMT            StatementHandle,
-    SQLCHAR                *CatalogName,
-    SQLSMALLINT            NameLength1,
-    SQLCHAR                *SchemaName,
-    SQLSMALLINT            NameLength2,
-    SQLCHAR                *TableName,
-    SQLSMALLINT            NameLength3,
-    SQLCHAR                *TableType,
-    SQLSMALLINT            NameLength4 )
+SQLRETURN SQL_API SQLTables(SQLHSTMT StatementHandle,
+			    SQLCHAR * CatalogName,
+			    SQLSMALLINT NameLength1,
+			    SQLCHAR * SchemaName,
+			    SQLSMALLINT NameLength2,
+			    SQLCHAR * TableName,
+			    SQLSMALLINT NameLength3,
+			    SQLCHAR * TableType, SQLSMALLINT NameLength4)
 {
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
-    char *schema=NULL,*table=NULL,*type=NULL,*sql_end=NULL;
-    char sql[1024]="";
-    SQLRETURN status;
-    ir_T *ir;
-    ar_T *ar;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	char *schema = NULL, *table = NULL, *type = NULL, *sql_end = NULL;
+	char sql[1024] = "";
+	SQLRETURN status;
+	ir_T *ir;
+	ar_T *ar;
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"");
-}
-    ood_clear_diag((hgeneric*)stmt);
-
-    if(SchemaName&&!*SchemaName
-            &&TableName&&!*TableName
-            &&CatalogName&&!strcmp((const char*)CatalogName,SQL_ALL_CATALOGS))
-    {
-        /*
-         * This can never return any inormation, but there needs to
-         * be a query, so use one which will never return anything
-         */
-        strcpy(sql,"SELECT NULL,NULL,NULL,NULL,NULL FROM DUAL WHERE ROWNUM<0");
-    }
-    else if(TableName&&!*TableName
-            &&SchemaName&&!strcmp((const char*)SchemaName,SQL_ALL_SCHEMAS))
-    {
-        /*
-         * All schemas
-         */
-        strcpy(sql,
-              "SELECT DISTINCT NULL,OWNER,NULL,NULL,NULL FROM ALL_CATALOG");
-    }
-    else if(SchemaName&&!*SchemaName
-            &&TableName&&!*TableName
-            &&TableType&&!strcmp((const char*)TableType,SQL_ALL_TABLE_TYPES))
-    {
-        /*
-         * All table types 
-         */
-        strcpy(sql,
-          "SELECT DISTINCT NULL,NULL,NULL,TABLE_TYPE,NULL FROM ALL_CATALOG");
-    }
-    else
-	{
-        schema=ood_xtoSQLNTS(SchemaName,NameLength2);
-        table=ood_xtoSQLNTS(TableName,NameLength3);
-        type=ood_xtoSQLNTS(TableType,NameLength4);
-    
-	ood_sqltables_construct_sql(stmt,sql,schema,table,type,sql_end,0);
-        
-	if(debugLevel()> 2){
-	  fprintf(stderr,
-		  "SQLTables schema [%s][%d], table [%s][%d], type [%s][%d] SQL [%s]\n",
-		  schema,NameLength2,table,NameLength3,type,NameLength4,sql);
-	  fprintf(stderr,"schema [0x%.8lx] SchemaName [0x%.8lx] NameLength2 [%d]\n",
-		  (long)schema,(long)SchemaName,NameLength2);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
 	}
-        if(schema&&(schema!=(char*)SchemaName))/*malloc'd*/
-            ORAFREE(schema);
-        if(table&&(table!=(char*)TableName))/*malloc'd*/
-            ORAFREE(table);
-        if(type&&(type!=(char*)TableType))/*malloc'd*/
-            ORAFREE(type);
+	ood_clear_diag((hgeneric *) stmt);
+
+	if (SchemaName && !*SchemaName
+	    && TableName && !*TableName
+	    && CatalogName
+	    && !strcmp((const char *)CatalogName, SQL_ALL_CATALOGS)) {
+		/*
+		 * This can never return any inormation, but there needs to
+		 * be a query, so use one which will never return anything
+		 */
+		strcpy(sql,
+		       "SELECT NULL,NULL,NULL,NULL,NULL FROM DUAL WHERE ROWNUM<0");
+	} else if (TableName && !*TableName && SchemaName
+		   && !strcmp((const char *)SchemaName, SQL_ALL_SCHEMAS)) {
+		/*
+		 * All schemas
+		 */
+		strcpy(sql,
+		       "SELECT DISTINCT NULL,OWNER,NULL,NULL,NULL FROM ALL_CATALOG");
+	} else if (SchemaName && !*SchemaName
+		   && TableName && !*TableName
+		   && TableType
+		   && !strcmp((const char *)TableType, SQL_ALL_TABLE_TYPES)) {
+		/*
+		 * All table types 
+		 */
+		strcpy(sql,
+		       "SELECT DISTINCT NULL,NULL,NULL,TABLE_TYPE,NULL FROM ALL_CATALOG");
+	} else {
+		schema = ood_xtoSQLNTS(SchemaName, NameLength2);
+		table = ood_xtoSQLNTS(TableName, NameLength3);
+		type = ood_xtoSQLNTS(TableType, NameLength4);
+
+		ood_sqltables_construct_sql(stmt, sql, schema, table, type,
+					    sql_end, 0);
+
+		if (debugLevel() > 2) {
+			fprintf(stderr,
+				"SQLTables schema [%s][%d], table [%s][%d], type [%s][%d] SQL [%s]\n",
+				schema, NameLength2, table, NameLength3, type,
+				NameLength4, sql);
+			fprintf(stderr,
+				"schema [0x%.8lx] SchemaName [0x%.8lx] NameLength2 [%d]\n",
+				(long)schema, (long)SchemaName, NameLength2);
+		}
+		if (schema && (schema != (char *)SchemaName))	/*malloc'd */
+			ORAFREE(schema);
+		if (table && (table != (char *)TableName))	/*malloc'd */
+			ORAFREE(table);
+		if (type && (type != (char *)TableType))	/*malloc'd */
+			ORAFREE(type);
 	}
 
-    ood_mutex_lock_stmt(stmt);
-    status=ood_driver_prepare(stmt,(unsigned char*)sql);
-    status|=ood_driver_execute(stmt);
+	ood_mutex_lock_stmt(stmt);
+	status = ood_driver_prepare(stmt, (unsigned char *)sql);
+	status |= ood_driver_execute(stmt);
 
-    /* Clear old data out of stmt->current_ir so it can be rebound.
-       The data in stmt->current_ar must not be touched, since it
-       may contain already bound ODBC columns. */
+	/* Clear old data out of stmt->current_ir so it can be rebound.
+	   The data in stmt->current_ar must not be touched, since it
+	   may contain already bound ODBC columns. */
 
-    ood_ir_array_reset (stmt->current_ir->recs.ir, stmt->current_ir->num_recs,
-			stmt->current_ir);
-	
-    /*
-     * Now we have to set up the columns for retrieval
-     */
-    if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,5,stmt->current_ir,
-				stmt->current_ar))
-    {
-        ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-        ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                (SQLHANDLE)NULL,SQL_ERROR,"");
-}
-        return SQL_ERROR;
-    }
+	ood_ir_array_reset(stmt->current_ir->recs.ir,
+			   stmt->current_ir->num_recs, stmt->current_ir);
 
-    ir=stmt->current_ir->recs.ir;
-    ar=stmt->current_ar->recs.ar;
+	/*
+	 * Now we have to set up the columns for retrieval
+	 */
+	if (SQL_SUCCESS != ood_alloc_col_desc(stmt, 5, stmt->current_ir,
+					      stmt->current_ar)) {
+		ood_mutex_unlock_stmt(stmt);
+		if (ENABLE_TRACE) {
+			ood_log_message(stmt->dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+					SQL_ERROR, "");
+		}
+		return SQL_ERROR;
+	}
 
-    /* stmt->current_ir->num_recs is equal to the allocated size of the
-       ir and ar arrays. Shouldn't expect it to record the number of
-       bound parameters.  
-       stmt->current_ir->num_recs=5; */
+	ir = stmt->current_ir->recs.ir;
+	ar = stmt->current_ar->recs.ar;
 
-    /*
-     * Col 0 is bookmark, not implemented yet at all
-     */
-    ir++,ar++;
+	/* stmt->current_ir->num_recs is equal to the allocated size of the
+	   ir and ar arrays. Shouldn't expect it to record the number of
+	   bound parameters.  
+	   stmt->current_ir->num_recs=5; */
 
-    /*
-     * Col 1 is TABLE_CAT, varchar, always NULL
-     */
-    status|=ood_assign_ir(ir,SQLT_STR,2,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=1;
-    ar->octet_length=ar->length=30;
-	ar->nullable=SQL_NULLABLE;
-    strcpy((char*)ar->column_name,"TABLE_CAT");
-    status|=ood_driver_define_col(ir);
-    ir++,ar++;
+	/*
+	 * Col 0 is bookmark, not implemented yet at all
+	 */
+	ir++, ar++;
 
-    /* 
-     * Col 2 is TABLE_SHEM, varchar
-     */
-    status|=ood_assign_ir(ir,SQLT_STR,ORACLE_MAX_SCHEMA_LEN+1,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=ORACLE_MAX_SCHEMA_LEN;
-    ar->octet_length=ar->length=ORACLE_MAX_SCHEMA_LEN+1;
-	ar->nullable=SQL_NO_NULLS;
-    strcpy((char*)ar->column_name,"TABLE_SCHEM");
-    status|=ood_driver_define_col(ir);
+	/*
+	 * Col 1 is TABLE_CAT, varchar, always NULL
+	 */
+	status |= ood_assign_ir(ir, SQLT_STR, 2, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = 1;
+	ar->octet_length = ar->length = 30;
+	ar->nullable = SQL_NULLABLE;
+	strcpy((char *)ar->column_name, "TABLE_CAT");
+	status |= ood_driver_define_col(ir);
+	ir++, ar++;
 
-    ir++,ar++;
+	/* 
+	 * Col 2 is TABLE_SHEM, varchar
+	 */
+	status |= ood_assign_ir(ir, SQLT_STR, ORACLE_MAX_SCHEMA_LEN + 1, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = ORACLE_MAX_SCHEMA_LEN;
+	ar->octet_length = ar->length = ORACLE_MAX_SCHEMA_LEN + 1;
+	ar->nullable = SQL_NO_NULLS;
+	strcpy((char *)ar->column_name, "TABLE_SCHEM");
+	status |= ood_driver_define_col(ir);
 
-    /* 
-     * Col 3 is TABLE_NAME, varchar
-     */
-    status|=ood_assign_ir(ir,SQLT_STR,ORACLE_MAX_TABLE_LEN+1,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=ORACLE_MAX_TABLE_LEN;
-    ar->octet_length=ar->length=ORACLE_MAX_TABLE_LEN+1;
-	ar->nullable=SQL_NO_NULLS;
-    strcpy((char*)ar->column_name,"TABLE_NAME");
-    status|=ood_driver_define_col(ir);
+	ir++, ar++;
 
-    ir++,ar++;
+	/* 
+	 * Col 3 is TABLE_NAME, varchar
+	 */
+	status |= ood_assign_ir(ir, SQLT_STR, ORACLE_MAX_TABLE_LEN + 1, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = ORACLE_MAX_TABLE_LEN;
+	ar->octet_length = ar->length = ORACLE_MAX_TABLE_LEN + 1;
+	ar->nullable = SQL_NO_NULLS;
+	strcpy((char *)ar->column_name, "TABLE_NAME");
+	status |= ood_driver_define_col(ir);
 
-    /*
-     * Col 4 is TABLE_TYPE
-     */
-    status|=ood_assign_ir(ir,SQLT_STR,64,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=63;
-    ar->octet_length=ar->length=64;
-	ar->nullable=SQL_NO_NULLS;
-    strcpy((char*)ar->column_name,"TABLE_TYPE");
-    status|=ood_driver_define_col(ir);
+	ir++, ar++;
 
-    ir++,ar++;
+	/*
+	 * Col 4 is TABLE_TYPE
+	 */
+	status |= ood_assign_ir(ir, SQLT_STR, 64, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = 63;
+	ar->octet_length = ar->length = 64;
+	ar->nullable = SQL_NO_NULLS;
+	strcpy((char *)ar->column_name, "TABLE_TYPE");
+	status |= ood_driver_define_col(ir);
 
-    /* 
-     * Col 5 is REMARKS.
-     * This is expensive to bring back and not often used so we don't
-     * bother.
-     */
-    status|=ood_assign_ir(ir,SQLT_STR,32,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=32;
-    ar->octet_length=ar->length=33;
-	ar->nullable=SQL_NULLABLE;
-    strcpy((char*)ar->column_name,"REMARKS");
-    status|=ood_driver_define_col(ir);
+	ir++, ar++;
 
-	stmt->fetch_status=ood_driver_prefetch(stmt);
+	/* 
+	 * Col 5 is REMARKS.
+	 * This is expensive to bring back and not often used so we don't
+	 * bother.
+	 */
+	status |= ood_assign_ir(ir, SQLT_STR, 32, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = 32;
+	ar->octet_length = ar->length = 33;
+	ar->nullable = SQL_NULLABLE;
+	strcpy((char *)ar->column_name, "REMARKS");
+	status |= ood_driver_define_col(ir);
 
-    ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    return status;
+	stmt->fetch_status = ood_driver_prefetch(stmt);
+
+	ood_mutex_unlock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	return status;
 }

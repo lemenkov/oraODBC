@@ -67,25 +67,25 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLCloseCursor.c,v $ $Revision: 1.3 $";
+static char const rcsid[] = "$RCSfile: SQLCloseCursor.c,v $ $Revision: 1.3 $";
 
-SQLRETURN SQL_API SQLCloseCursor(
-    SQLHSTMT            StatementHandle )
+SQLRETURN SQL_API SQLCloseCursor(SQLHSTMT StatementHandle)
 {
-    SQLRETURN status=SQL_SUCCESS;
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
+	SQLRETURN status = SQL_SUCCESS;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"");
-}
-    ood_clear_diag((hgeneric*)stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
+	}
+	ood_clear_diag((hgeneric *) stmt);
 
-    status=_SQLFreeStmt(StatementHandle,SQL_CLOSE);
+	status = _SQLFreeStmt(StatementHandle, SQL_CLOSE);
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    return status;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	return status;
 }

@@ -73,149 +73,148 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetStmtAttr.c,v $ $Revision: 1.4 $";
+static char const rcsid[] = "$RCSfile: SQLGetStmtAttr.c,v $ $Revision: 1.4 $";
 
-SQLRETURN SQL_API SQLGetStmtAttr(
-				 SQLHSTMT            StatementHandle,
-				 SQLINTEGER            Attribute,
-				 SQLPOINTER            ValuePtr,
-				 SQLINTEGER            BufferLength,
-				 SQLINTEGER            *StringLengthPtr )
+SQLRETURN SQL_API SQLGetStmtAttr(SQLHSTMT StatementHandle,
+				 SQLINTEGER Attribute,
+				 SQLPOINTER ValuePtr,
+				 SQLINTEGER BufferLength,
+				 SQLINTEGER * StringLengthPtr)
 {
-  hStmt_T* stmt=(hStmt_T*)StatementHandle;
-  SQLRETURN status=SQL_SUCCESS;
-  if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-		    (SQLHANDLE)stmt,0,"i",
-		    "Attribute",Attribute);
-  }
-  ood_clear_diag((hgeneric*)stmt);
-  ood_mutex_lock_stmt(stmt);
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	SQLRETURN status = SQL_SUCCESS;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "i",
+				"Attribute", Attribute);
+	}
+	ood_clear_diag((hgeneric *) stmt);
+	ood_mutex_lock_stmt(stmt);
 
-  switch(Attribute)
-    {
-    case SQL_ATTR_METADATA_ID:
-      THREAD_MUTEX_LOCK(stmt->dbc);
-      *((SQLUINTEGER*)ValuePtr)=stmt->dbc->metadata_id;
-      THREAD_MUTEX_UNLOCK(stmt->dbc);
-      break;
+	switch (Attribute) {
+	case SQL_ATTR_METADATA_ID:
+		THREAD_MUTEX_LOCK(stmt->dbc);
+		*((SQLUINTEGER *) ValuePtr) = stmt->dbc->metadata_id;
+		THREAD_MUTEX_UNLOCK(stmt->dbc);
+		break;
 
-    case SQL_ATTR_APP_ROW_DESC:
-      *((SQLPOINTER*)ValuePtr)=(SQLPOINTER)stmt->current_ar;
-      break;
-    case SQL_ATTR_APP_PARAM_DESC:
-      *((SQLPOINTER*)ValuePtr)=(SQLPOINTER)stmt->current_ap;
-      break;
+	case SQL_ATTR_APP_ROW_DESC:
+		*((SQLPOINTER *) ValuePtr) = (SQLPOINTER) stmt->current_ar;
+		break;
+	case SQL_ATTR_APP_PARAM_DESC:
+		*((SQLPOINTER *) ValuePtr) = (SQLPOINTER) stmt->current_ap;
+		break;
 
-    case SQL_ATTR_IMP_PARAM_DESC:
-      *((SQLPOINTER*)ValuePtr)=(SQLPOINTER)stmt->current_ir;
-      break;
+	case SQL_ATTR_IMP_PARAM_DESC:
+		*((SQLPOINTER *) ValuePtr) = (SQLPOINTER) stmt->current_ir;
+		break;
 
-    case SQL_ATTR_IMP_ROW_DESC:
-      *((SQLPOINTER*)ValuePtr)=(SQLPOINTER)stmt->current_ip;
-      break;
+	case SQL_ATTR_IMP_ROW_DESC:
+		*((SQLPOINTER *) ValuePtr) = (SQLPOINTER) stmt->current_ip;
+		break;
 
-    case SQL_ATTR_QUERY_TIMEOUT:
-      *((SQLUINTEGER*)ValuePtr)=stmt->query_timeout;
-      break;
+	case SQL_ATTR_QUERY_TIMEOUT:
+		*((SQLUINTEGER *) ValuePtr) = stmt->query_timeout;
+		break;
 
-    case SQL_ATTR_PARAM_BIND_OFFSET_PTR:
-      *((SQLPOINTER*)ValuePtr)=(SQLPOINTER)stmt->param_bind_offset_ptr;
-      break;
+	case SQL_ATTR_PARAM_BIND_OFFSET_PTR:
+		*((SQLPOINTER *) ValuePtr) =
+		    (SQLPOINTER) stmt->param_bind_offset_ptr;
+		break;
 
-    case SQL_ATTR_ROW_BIND_OFFSET_PTR:
-      *((SQLPOINTER*)ValuePtr)=(SQLPOINTER)stmt->row_bind_offset_ptr;
-      break;
+	case SQL_ATTR_ROW_BIND_OFFSET_PTR:
+		*((SQLPOINTER *) ValuePtr) =
+		    (SQLPOINTER) stmt->row_bind_offset_ptr;
+		break;
 
-    case SQL_ATTR_ROW_ARRAY_SIZE:
-    case SQL_ROWSET_SIZE:
-      *((SQLUINTEGER*)ValuePtr)=stmt->row_array_size?
-	stmt->row_array_size:1;
-      break;
+	case SQL_ATTR_ROW_ARRAY_SIZE:
+	case SQL_ROWSET_SIZE:
+		*((SQLUINTEGER *) ValuePtr) = stmt->row_array_size ?
+		    stmt->row_array_size : 1;
+		break;
 
-    case SQL_ATTR_PARAM_BIND_TYPE:
-      *((SQLUINTEGER*)ValuePtr)=stmt->param_bind_type?
-	stmt->param_bind_type:SQL_PARAM_BIND_BY_COLUMN;
-      break;
-      
-   case SQL_ATTR_PARAMSET_SIZE:
-      *((SQLUINTEGER*)ValuePtr)=stmt->paramset_size;
-      break;
-      
+	case SQL_ATTR_PARAM_BIND_TYPE:
+		*((SQLUINTEGER *) ValuePtr) = stmt->param_bind_type ?
+		    stmt->param_bind_type : SQL_PARAM_BIND_BY_COLUMN;
+		break;
 
-    case SQL_ATTR_PARAM_OPERATION_PTR:
-      /*break;*/
+	case SQL_ATTR_PARAMSET_SIZE:
+		*((SQLUINTEGER *) ValuePtr) = stmt->paramset_size;
+		break;
 
-    case SQL_ATTR_PARAM_STATUS_PTR:
-      /*break;*/
+	case SQL_ATTR_PARAM_OPERATION_PTR:
+		/*break; */
 
-    case SQL_ATTR_PARAMS_PROCESSED_PTR:
-      /*break;*/
+	case SQL_ATTR_PARAM_STATUS_PTR:
+		/*break; */
 
- 
-    case SQL_ATTR_ROW_BIND_TYPE:
-      /*break;*/
+	case SQL_ATTR_PARAMS_PROCESSED_PTR:
+		/*break; */
 
-    case SQL_ATTR_ROW_OPERATION_PTR:
-      /*break;*/
+	case SQL_ATTR_ROW_BIND_TYPE:
+		/*break; */
 
-    case SQL_ATTR_ROW_STATUS_PTR:
-      /*break;*/
+	case SQL_ATTR_ROW_OPERATION_PTR:
+		/*break; */
 
-    case SQL_ATTR_ROWS_FETCHED_PTR:
-      /*break;*/
+	case SQL_ATTR_ROW_STATUS_PTR:
+		/*break; */
 
-    case SQL_ATTR_ASYNC_ENABLE:
-      /*break;*/
+	case SQL_ATTR_ROWS_FETCHED_PTR:
+		/*break; */
 
-    case SQL_ATTR_CONCURRENCY:
-      /*break;*/
+	case SQL_ATTR_ASYNC_ENABLE:
+		/*break; */
 
-    case SQL_ATTR_CURSOR_SCROLLABLE:
-      /*break;*/
+	case SQL_ATTR_CONCURRENCY:
+		/*break; */
 
-    case SQL_ATTR_CURSOR_SENSITIVITY:
-      /*break;*/
+	case SQL_ATTR_CURSOR_SCROLLABLE:
+		/*break; */
 
-    case SQL_ATTR_CURSOR_TYPE:
-      /*break;*/
+	case SQL_ATTR_CURSOR_SENSITIVITY:
+		/*break; */
 
-    case SQL_ATTR_ENABLE_AUTO_IPD:
-      /*break;*/
+	case SQL_ATTR_CURSOR_TYPE:
+		/*break; */
 
-    case SQL_ATTR_FETCH_BOOKMARK_PTR:
-      /*break;*/
+	case SQL_ATTR_ENABLE_AUTO_IPD:
+		/*break; */
 
-    case SQL_ATTR_KEYSET_SIZE:
-      /*break;*/
+	case SQL_ATTR_FETCH_BOOKMARK_PTR:
+		/*break; */
 
-    case SQL_ATTR_MAX_LENGTH:
-      /*break;*/
+	case SQL_ATTR_KEYSET_SIZE:
+		/*break; */
 
-    case SQL_ATTR_MAX_ROWS:
-      /*break;*/
+	case SQL_ATTR_MAX_LENGTH:
+		/*break; */
 
-    case SQL_ATTR_NOSCAN:
-      /*break;*/
+	case SQL_ATTR_MAX_ROWS:
+		/*break; */
 
-    case SQL_ATTR_SIMULATE_CURSOR:
-      /*break;*/
+	case SQL_ATTR_NOSCAN:
+		/*break; */
 
-    case SQL_ATTR_USE_BOOKMARKS:
-      /*break;*/
+	case SQL_ATTR_SIMULATE_CURSOR:
+		/*break; */
 
-    default:
-      ood_post_diag((hgeneric*)stmt->dbc,ERROR_ORIGIN_IM001,0,"",
-		    ERROR_MESSAGE_IM001,
-		    __LINE__,0,"",ERROR_STATE_IM001,
-		    __FILE__,__LINE__);
-      status=SQL_SUCCESS_WITH_INFO;
-    }
+	case SQL_ATTR_USE_BOOKMARKS:
+		/*break; */
 
-  ood_mutex_unlock_stmt(stmt);
-  if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-		    (SQLHANDLE)NULL,status,"");
-  }
-  return status;
+	default:
+		ood_post_diag((hgeneric *) stmt->dbc, ERROR_ORIGIN_IM001, 0, "",
+			      ERROR_MESSAGE_IM001,
+			      __LINE__, 0, "", ERROR_STATE_IM001,
+			      __FILE__, __LINE__);
+		status = SQL_SUCCESS_WITH_INFO;
+	}
+
+	ood_mutex_unlock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	return status;
 }

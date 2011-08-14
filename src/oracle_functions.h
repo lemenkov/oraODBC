@@ -94,104 +94,102 @@
 #ifndef _ORACLE_FUNCTIONS_H
 #define _ORACLE_FUNCTIONS_H
 
-SQLRETURN ood_driver_error(void *hH, sword ret,char*,int);
-SQLRETURN ood_driver_connect(hDbc_T *dbc);
-SQLRETURN ood_driver_disconnect(hDbc_T *dbc);
-SQLRETURN ood_driver_prepare(hStmt_T* stmt,SQLCHAR *sql);
-SQLRETURN ood_driver_execute(hStmt_T* stmt);
-SQLRETURN ood_driver_transaction(hDbc_T *dbc, SQLSMALLINT action);
-SQLRETURN ood_driver_execute_describe(hStmt_T* stmt);
-SQLRETURN ood_driver_prefetch(hStmt_T* stmt);
-SQLRETURN ood_driver_num_result_cols(hStmt_T* stmt,SQLSMALLINT* cols);
-SQLRETURN ood_driver_setup_fetch_env(ir_T *ir, ar_T* ar);
-void ood_ir_array_reset (ir_T *ir, size_t num_entries, hDesc_T *desc);
-SQLRETURN ood_driver_define_col(ir_T* ir);
+SQLRETURN ood_driver_error(void *hH, sword ret, char *, int);
+SQLRETURN ood_driver_connect(hDbc_T * dbc);
+SQLRETURN ood_driver_disconnect(hDbc_T * dbc);
+SQLRETURN ood_driver_prepare(hStmt_T * stmt, SQLCHAR * sql);
+SQLRETURN ood_driver_execute(hStmt_T * stmt);
+SQLRETURN ood_driver_transaction(hDbc_T * dbc, SQLSMALLINT action);
+SQLRETURN ood_driver_execute_describe(hStmt_T * stmt);
+SQLRETURN ood_driver_prefetch(hStmt_T * stmt);
+SQLRETURN ood_driver_num_result_cols(hStmt_T * stmt, SQLSMALLINT * cols);
+SQLRETURN ood_driver_setup_fetch_env(ir_T * ir, ar_T * ar);
+void ood_ir_array_reset(ir_T * ir, size_t num_entries, hDesc_T * desc);
+SQLRETURN ood_driver_define_col(ir_T * ir);
 SQLRETURN ood_ocitype_to_sqltype(ub2 data_type);
-SQLRETURN ood_ocitype_to_sqltype_imp(hStmt_T* stmt, int colNum);
-SQLRETURN ood_alloc_col_desc(hStmt_T *, ub4, hDesc_T*, hDesc_T*);
+SQLRETURN ood_ocitype_to_sqltype_imp(hStmt_T * stmt, int colNum);
+SQLRETURN ood_alloc_col_desc(hStmt_T *, ub4, hDesc_T *, hDesc_T *);
 
-SQLRETURN ood_assign_ir(ir_T *ir,ub2 data_type, ub2 data_size, sb2 indicator,
-    SQLRETURN (*default_copy)(), SQLRETURN (*to_string)());
-SQLRETURN (*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
-    (int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN ood_assign_ir(ir_T * ir, ub2 data_type, ub2 data_size, sb2 indicator,
+			SQLRETURN(*default_copy) (), SQLRETURN(*to_string) ());
+SQLRETURN(*ood_fn_default_copy(ub2 drvtype, SQLSMALLINT sqltype))
+    (int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
 
-SQLRETURN (*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
-    (int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN(*drv_type_to_string(ub2 drvtype, SQLSMALLINT sqltype))
+    (int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
 
-SQLRETURN ood_alloc_param_desc(hStmt_T *stmt,ub4 param_num,
-		hDesc_T *imp,hDesc_T* app);
-
-
+SQLRETURN ood_alloc_param_desc(hStmt_T * stmt, ub4 param_num,
+			       hDesc_T * imp, hDesc_T * app);
 
 /*
  * SQLGetData type conversions functions.
  */
 /* CHR */
-SQLRETURN ocistr_memcpy(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocistr_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocistr_sqlchr(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN ocistr_memcpy(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocistr_sqlnts(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocistr_sqlchr(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
 
 /* VNU */
-SQLRETURN ocivnu_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqlslong(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqlulong(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqlfloat(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqlsshort(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqlushort(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqlsbigint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqlubigint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqlutinyint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqlstinyint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocivnu_sqlnumeric(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN ocivnu_sqlnts(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqlslong(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqlulong(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqldouble(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqlfloat(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqlsshort(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqlushort(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqlsbigint(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqlubigint(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqlutinyint(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqlstinyint(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocivnu_sqlnumeric(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
 
 /* INT */
-SQLRETURN ociint_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociint_sqlslong(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociint_sqlulong(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociint_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociint_sqlfloat(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociint_sqlsshort(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociint_sqlushort(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociint_sqlsbigint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociint_sqlubigint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociint_sqlutinyint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociint_sqlstinyint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN ociint_sqlnts(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociint_sqlslong(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociint_sqlulong(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociint_sqldouble(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociint_sqlfloat(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociint_sqlsshort(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociint_sqlushort(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociint_sqlsbigint(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociint_sqlubigint(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociint_sqlutinyint(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociint_sqlstinyint(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
 
 /* FLT */
-SQLRETURN ociflt_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociflt_sqlfloat(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociflt_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ociflt_sqlnumeric(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN ociflt_sqlnts(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociflt_sqlfloat(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociflt_sqldouble(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ociflt_sqlnumeric(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
 
 #ifdef IEEE_754_FLT
-SQLRETURN ocibflt_sqlflt(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocibflt_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocibdbl_sqlfloat(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocibdbl_sqldouble(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN ocibflt_sqlflt(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocibflt_sqldouble(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocibdbl_sqlfloat(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocibdbl_sqldouble(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
 #endif
 
 /* DAT */
-SQLRETURN ocidat_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocidat_sqltimestamp(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocidat_sqltime(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocidat_sqldate(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN ocidat_sqlnts(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocidat_sqltimestamp(int, ir_T *, SQLPOINTER, SQLINTEGER,
+			      SQLINTEGER *);
+SQLRETURN ocidat_sqltime(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocidat_sqldate(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
 
 /* LOB */
-SQLRETURN ocilob_sqllvc(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocilob_sqllvb(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
+SQLRETURN ocilob_sqllvc(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocilob_sqllvb(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
 
 /* SPECIAL */
-SQLRETURN ocidty_sqlint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocidty_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocinul_sqlint(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-SQLRETURN ocinul_sqlnts(int,ir_T*,SQLPOINTER,SQLINTEGER,SQLINTEGER*);
-
+SQLRETURN ocidty_sqlint(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocidty_sqlnts(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocinul_sqlint(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
+SQLRETURN ocinul_sqlnts(int, ir_T *, SQLPOINTER, SQLINTEGER, SQLINTEGER *);
 
 #endif
 
 SQLRETURN ood_xlate_status(sword stat);
-sword ood_driver_bind_param(hStmt_T*,ub4);
-char * oci_hdtype_name(ub4 hdtype);
-char * oci_stmt_type_name(int stmt_type);
-char * oci_status_name(sword status);
+sword ood_driver_bind_param(hStmt_T *, ub4);
+char *oci_hdtype_name(ub4 hdtype);
+char *oci_stmt_type_name(int stmt_type);
+char *oci_status_name(sword status);

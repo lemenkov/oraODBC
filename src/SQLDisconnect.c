@@ -76,24 +76,23 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDisconnect.c,v $ $Revision: 1.3 $";
+static char const rcsid[] = "$RCSfile: SQLDisconnect.c,v $ $Revision: 1.3 $";
 
-SQLRETURN SQL_API SQLDisconnect(
-    SQLHDBC        ConnectionHandle )
+SQLRETURN SQL_API SQLDisconnect(SQLHDBC ConnectionHandle)
 {
-    hDbc_T *dbc=(hDbc_T*)ConnectionHandle;
-    SQLRETURN status;
-    assert(IS_VALID(dbc));
-    if(!dbc || HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
-        return SQL_INVALID_HANDLE;
-if(ENABLE_TRACE){
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)dbc,0,"");
-}
-    ood_clear_diag((hgeneric*)dbc);
+	hDbc_T *dbc = (hDbc_T *) ConnectionHandle;
+	SQLRETURN status;
+	assert(IS_VALID(dbc));
+	if (!dbc || HANDLE_TYPE(dbc) != SQL_HANDLE_DBC)
+		return SQL_INVALID_HANDLE;
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_ENTRY,
+				(SQLHANDLE) dbc, 0, "");
+	}
+	ood_clear_diag((hgeneric *) dbc);
 
-    THREAD_MUTEX_LOCK(dbc);
-    status=ood_driver_disconnect(dbc);
-    THREAD_MUTEX_UNLOCK(dbc);
-    return status;
+	THREAD_MUTEX_LOCK(dbc);
+	status = ood_driver_disconnect(dbc);
+	THREAD_MUTEX_UNLOCK(dbc);
+	return status;
 }

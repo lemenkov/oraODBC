@@ -65,67 +65,70 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDescribeParam.c,v $ $Revision: 1.4 $";
+static char const rcsid[] = "$RCSfile: SQLDescribeParam.c,v $ $Revision: 1.4 $";
 
-SQLRETURN SQL_API SQLDescribeParam(
-    SQLHSTMT            StatementHandle,
-    SQLUSMALLINT        ParameterNumber,
-    SQLSMALLINT            *DataTypePtr,
-    SQLUINTEGER            *ParameterSizePtr,
-    SQLSMALLINT            *DecimalDigitsPtr,
-    SQLSMALLINT            *NullablePtr )
+SQLRETURN SQL_API SQLDescribeParam(SQLHSTMT StatementHandle,
+				   SQLUSMALLINT ParameterNumber,
+				   SQLSMALLINT * DataTypePtr,
+				   SQLUINTEGER * ParameterSizePtr,
+				   SQLSMALLINT * DecimalDigitsPtr,
+				   SQLSMALLINT * NullablePtr)
 {
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
 	ap_T *ap;
-  
-    SQLRETURN status=SQL_SUCCESS;
+
+	SQLRETURN status = SQL_SUCCESS;
 	assert(IS_VALID(stmt));
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"");
-}
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
+	}
 
-    ood_clear_diag((hgeneric*)stmt);
-    ood_mutex_lock_stmt(stmt);
+	ood_clear_diag((hgeneric *) stmt);
+	ood_mutex_lock_stmt(stmt);
 
-	if(ParameterNumber>stmt->current_ap->num_recs)
-	{
-		ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_07009,ParameterNumber,
-                "",ERROR_MESSAGE_07009,
-                __LINE__,0,"",ERROR_STATE_07009,__FILE__,__LINE__);
-        ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-        ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                (SQLHANDLE)NULL,SQL_ERROR,"");
-}
+	if (ParameterNumber > stmt->current_ap->num_recs) {
+		ood_post_diag((hgeneric *) stmt, ERROR_ORIGIN_07009,
+			      ParameterNumber, "", ERROR_MESSAGE_07009,
+			      __LINE__, 0, "", ERROR_STATE_07009, __FILE__,
+			      __LINE__);
+		ood_mutex_unlock_stmt(stmt);
+		if (ENABLE_TRACE) {
+			ood_log_message(stmt->dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+					SQL_ERROR, "");
+		}
 		return SQL_ERROR;
 	}
 	assert(IS_VALID(stmt->current_ap));
-	ap=&stmt->current_ap->recs.ap[ParameterNumber];
+	ap = &stmt->current_ap->recs.ap[ParameterNumber];
 	assert(IS_VALID(ap));
-	if(!ap)
-	  return SQL_ERROR;
+	if (!ap)
+		return SQL_ERROR;
 
-	if(DataTypePtr){
-	  if(!ap->concise_type)
-	    return SQL_ERROR;
-	  *DataTypePtr=ap->concise_type==SQL_C_DEFAULT?SQL_C_CHAR: ap->concise_type;
+	if (DataTypePtr) {
+		if (!ap->concise_type)
+			return SQL_ERROR;
+		*DataTypePtr =
+		    ap->concise_type ==
+		    SQL_C_DEFAULT ? SQL_C_CHAR : ap->concise_type;
 	}
-	if(ParameterSizePtr)
-		*ParameterSizePtr=ap->length;
+	if (ParameterSizePtr)
+		*ParameterSizePtr = ap->length;
 
-	if(DecimalDigitsPtr)
-		*DecimalDigitsPtr=ap->precision;
+	if (DecimalDigitsPtr)
+		*DecimalDigitsPtr = ap->precision;
 
-	if(NullablePtr)
-		*NullablePtr=SQL_NULLABLE_UNKNOWN;
+	if (NullablePtr)
+		*NullablePtr = SQL_NULLABLE_UNKNOWN;
 
-    ood_mutex_unlock_stmt(stmt);
+	ood_mutex_unlock_stmt(stmt);
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    return SQL_SUCCESS;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	return SQL_SUCCESS;
 }

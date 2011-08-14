@@ -66,37 +66,36 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLExecute.c,v $ $Revision: 1.2 $";
+static char const rcsid[] = "$RCSfile: SQLExecute.c,v $ $Revision: 1.2 $";
 
-SQLRETURN SQL_API SQLExecute(
-    SQLHSTMT        StatementHandle )
+SQLRETURN SQL_API SQLExecute(SQLHSTMT StatementHandle)
 {
-    hStmt_T *stmt=(hStmt_T*)StatementHandle;
-    SQLRETURN status;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	SQLRETURN status;
 
-    if(!stmt||HANDLE_TYPE(stmt)!=SQL_HANDLE_STMT)
-        return SQL_INVALID_HANDLE;
+	if (!stmt || HANDLE_TYPE(stmt) != SQL_HANDLE_STMT)
+		return SQL_INVALID_HANDLE;
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"");
-}
-    ood_clear_diag((hgeneric*)stmt);
-    ood_mutex_lock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
+	}
+	ood_clear_diag((hgeneric *) stmt);
+	ood_mutex_lock_stmt(stmt);
 
-    status=ood_driver_execute(stmt);
-    if(status)
-    {
-        ood_mutex_unlock_stmt(stmt);
-        return status;
-    }
-    status=ood_driver_execute_describe(stmt);
-	if(stmt->stmt_type==OCI_STMT_SELECT)
-		stmt->fetch_status=ood_driver_prefetch(stmt);
-    ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    return status;
+	status = ood_driver_execute(stmt);
+	if (status) {
+		ood_mutex_unlock_stmt(stmt);
+		return status;
+	}
+	status = ood_driver_execute_describe(stmt);
+	if (stmt->stmt_type == OCI_STMT_SELECT)
+		stmt->fetch_status = ood_driver_prefetch(stmt);
+	ood_mutex_unlock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	return status;
 }

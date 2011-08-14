@@ -92,81 +92,80 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetConnectAttr.c,v $ $Revision: 1.6 $";
-SQLRETURN SQL_API SQLGetConnectAttr(
-    SQLHDBC                ConnectionHandle,
-    SQLINTEGER            Attribute,
-    SQLPOINTER            ValuePtr,
-    SQLINTEGER            BufferLength,
-    SQLINTEGER            *StringLengthPtr )
+static char const rcsid[] =
+    "$RCSfile: SQLGetConnectAttr.c,v $ $Revision: 1.6 $";
+SQLRETURN SQL_API SQLGetConnectAttr(SQLHDBC ConnectionHandle,
+				    SQLINTEGER Attribute, SQLPOINTER ValuePtr,
+				    SQLINTEGER BufferLength,
+				    SQLINTEGER * StringLengthPtr)
 {
-    hDbc_T* dbc=(hDbc_T*)ConnectionHandle;
-    SQLRETURN status=SQL_SUCCESS;
-    assert(IS_VALID(dbc));
-if(ENABLE_TRACE){
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)dbc,0,"i","Attribute",Attribute);
-}
-    ood_clear_diag((hgeneric*)dbc);
+	hDbc_T *dbc = (hDbc_T *) ConnectionHandle;
+	SQLRETURN status = SQL_SUCCESS;
+	assert(IS_VALID(dbc));
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_ENTRY,
+				(SQLHANDLE) dbc, 0, "i", "Attribute",
+				Attribute);
+	}
+	ood_clear_diag((hgeneric *) dbc);
 
-    switch(Attribute)
-    {
-        case SQL_ATTR_METADATA_ID:
-        THREAD_MUTEX_LOCK(dbc);
-        *((SQLUINTEGER*)ValuePtr)=dbc->metadata_id;
-        THREAD_MUTEX_UNLOCK(dbc);
-        break;
-
-        case SQL_ATTR_TRACE:
-        THREAD_MUTEX_LOCK(dbc);
-        *((SQLUINTEGER*)ValuePtr)=dbc->trace;
-        THREAD_MUTEX_UNLOCK(dbc);
-        break;
-
-        case SQL_ATTR_TRACEFILE:
-        {
-            SQLINTEGER i;
-            THREAD_MUTEX_LOCK(dbc);
-            i=ood_bounded_strcpy(ValuePtr,(char*)dbc->tracefile,BufferLength);
-            THREAD_MUTEX_UNLOCK(dbc);
-            if(!i)
-            {
-                ood_post_diag((hgeneric*)dbc,ERROR_ORIGIN_01004,0,"",
-                        ERROR_MESSAGE_01004,
-                        __LINE__,0,"",ERROR_STATE_01004,
-                        __FILE__,__LINE__);
-                status=SQL_SUCCESS_WITH_INFO;
-            }
-            else if(StringLengthPtr)
-                *StringLengthPtr=i;
-        }
-        break;
-
-		case SQL_ATTR_AUTOCOMMIT:
-        THREAD_MUTEX_LOCK(dbc);
-        *((SQLUINTEGER*)ValuePtr)=
-			(dbc->autocommit==OCI_DEFAULT)?SQL_AUTOCOMMIT_OFF:SQL_AUTOCOMMIT_ON;
-        THREAD_MUTEX_UNLOCK(dbc);
-        break;
-
-		case SQL_ATTR_CURRENT_CATALOG:
-		*((SQLCHAR*)ValuePtr)='\0';
-		if(StringLengthPtr)
-			*StringLengthPtr=0;
+	switch (Attribute) {
+	case SQL_ATTR_METADATA_ID:
+		THREAD_MUTEX_LOCK(dbc);
+		*((SQLUINTEGER *) ValuePtr) = dbc->metadata_id;
+		THREAD_MUTEX_UNLOCK(dbc);
 		break;
-		
 
-        default:
-        ood_post_diag((hgeneric*)dbc,ERROR_ORIGIN_IM001,0,"",
-                ERROR_MESSAGE_IM001,
-                __LINE__,0,"",ERROR_STATE_IM001,
-                __FILE__,__LINE__);
-        status=SQL_SUCCESS_WITH_INFO;
-    }
-if(ENABLE_TRACE){
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    return status;
+	case SQL_ATTR_TRACE:
+		THREAD_MUTEX_LOCK(dbc);
+		*((SQLUINTEGER *) ValuePtr) = dbc->trace;
+		THREAD_MUTEX_UNLOCK(dbc);
+		break;
+
+	case SQL_ATTR_TRACEFILE:
+		{
+			SQLINTEGER i;
+			THREAD_MUTEX_LOCK(dbc);
+			i = ood_bounded_strcpy(ValuePtr, (char *)dbc->tracefile,
+					       BufferLength);
+			THREAD_MUTEX_UNLOCK(dbc);
+			if (!i) {
+				ood_post_diag((hgeneric *) dbc,
+					      ERROR_ORIGIN_01004, 0, "",
+					      ERROR_MESSAGE_01004, __LINE__, 0,
+					      "", ERROR_STATE_01004, __FILE__,
+					      __LINE__);
+				status = SQL_SUCCESS_WITH_INFO;
+			} else if (StringLengthPtr)
+				*StringLengthPtr = i;
+		}
+		break;
+
+	case SQL_ATTR_AUTOCOMMIT:
+		THREAD_MUTEX_LOCK(dbc);
+		*((SQLUINTEGER *) ValuePtr) =
+		    (dbc->autocommit ==
+		     OCI_DEFAULT) ? SQL_AUTOCOMMIT_OFF : SQL_AUTOCOMMIT_ON;
+		THREAD_MUTEX_UNLOCK(dbc);
+		break;
+
+	case SQL_ATTR_CURRENT_CATALOG:
+		*((SQLCHAR *) ValuePtr) = '\0';
+		if (StringLengthPtr)
+			*StringLengthPtr = 0;
+		break;
+
+	default:
+		ood_post_diag((hgeneric *) dbc, ERROR_ORIGIN_IM001, 0, "",
+			      ERROR_MESSAGE_IM001,
+			      __LINE__, 0, "", ERROR_STATE_IM001,
+			      __FILE__, __LINE__);
+		status = SQL_SUCCESS_WITH_INFO;
+	}
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_EXIT,
+				(SQLHANDLE) NULL, status, "");
+	}
+	return status;
 
 }

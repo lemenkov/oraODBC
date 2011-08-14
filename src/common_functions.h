@@ -29,22 +29,22 @@
 #define ORAMALLOC(size)  ora_malloc(size)
 #define ORAREALLOC(ptr, size) ora_realloc(ptr,size)
 
-void* ora_malloc(size_t num);
-void* ora_realloc(void *ptr, size_t size);
-const char * odbc_var_type(SQLSMALLINT sqltype);
-const char * oci_var_type(SQLSMALLINT sqltype);
-const char * sql_get_info_type(SQLSMALLINT sqltype);
-const char * odbc_sql_attr_type( SQLINTEGER  attr);
-const char * odbc_desc_type(SQLSMALLINT sqltype);
+void *ora_malloc(size_t num);
+void *ora_realloc(void *ptr, size_t size);
+const char *odbc_var_type(SQLSMALLINT sqltype);
+const char *oci_var_type(SQLSMALLINT sqltype);
+const char *sql_get_info_type(SQLSMALLINT sqltype);
+const char *odbc_sql_attr_type(SQLINTEGER attr);
+const char *odbc_desc_type(SQLSMALLINT sqltype);
 
 SQLINTEGER sqltype_display_size(SQLSMALLINT a, int b);
-void ood_mutex_lock_stmt(hStmt_T *stmt);
-void ood_mutex_unlock_stmt(hStmt_T *stmt);
-int ood_mutex_init(hgeneric* handle);
-int ood_mutex_destroy(hgeneric* handle);
-sword ood_alt_fetch_no_data(hStmt_T* stmt);
+void ood_mutex_lock_stmt(hStmt_T * stmt);
+void ood_mutex_unlock_stmt(hStmt_T * stmt);
+int ood_mutex_init(hgeneric * handle);
+int ood_mutex_destroy(hgeneric * handle);
+sword ood_alt_fetch_no_data(hStmt_T * stmt);
 #ifdef ENABLE_TRACE
-void ood_log_message(hDbc_T* dbc,char *file,int line, int mask, 
-		SQLHANDLE handle, SQLRETURN ret, char *fmt, ... );
+void ood_log_message(hDbc_T * dbc, char *file, int line, int mask,
+		     SQLHANDLE handle, SQLRETURN ret, char *fmt, ...);
 #endif
 #endif

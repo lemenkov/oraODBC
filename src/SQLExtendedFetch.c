@@ -60,42 +60,40 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLExtendedFetch.c,v $ $Revision: 1.2 $";
+static char const rcsid[] = "$RCSfile: SQLExtendedFetch.c,v $ $Revision: 1.2 $";
 
-SQLRETURN SQL_API SQLExtendedFetch(
-    SQLHSTMT           hstmt,
-    SQLUSMALLINT       fFetchType,
-    SQLINTEGER         irow,
-    SQLUINTEGER           *pcrow,
-    SQLUSMALLINT          *rgfRowStatus)
+SQLRETURN SQL_API SQLExtendedFetch(SQLHSTMT hstmt,
+				   SQLUSMALLINT fFetchType,
+				   SQLINTEGER irow,
+				   SQLUINTEGER * pcrow,
+				   SQLUSMALLINT * rgfRowStatus)
 {
 	SQLRETURN status;
-	hStmt_T *stmt=(hStmt_T*)hstmt;
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,"SQLExtendedFetch->SQLFetchScroll",__LINE__,
-			TRACE_FUNCTION_ENTRY, (SQLHANDLE)hstmt,0,"");
-}
+	hStmt_T *stmt = (hStmt_T *) hstmt;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, "SQLExtendedFetch->SQLFetchScroll",
+				__LINE__, TRACE_FUNCTION_ENTRY,
+				(SQLHANDLE) hstmt, 0, "");
+	}
 	ood_mutex_lock_stmt(stmt);
 
-    if(rgfRowStatus)
-	{
-	    void *status_array_safe;
-		status_array_safe=stmt->row_status_ptr;
-		stmt->row_status_ptr=rgfRowStatus;
-	    status=ood_SQLFetchScroll(stmt,fFetchType,irow);
-		stmt->row_status_ptr=status_array_safe;
+	if (rgfRowStatus) {
+		void *status_array_safe;
+		status_array_safe = stmt->row_status_ptr;
+		stmt->row_status_ptr = rgfRowStatus;
+		status = ood_SQLFetchScroll(stmt, fFetchType, irow);
+		stmt->row_status_ptr = status_array_safe;
+	} else {
+		status = ood_SQLFetchScroll(stmt, fFetchType, irow);
 	}
-	else
-	{
-	    status=ood_SQLFetchScroll(stmt,fFetchType,irow);
+	if (pcrow)
+		*pcrow = stmt->num_fetched_rows;
+
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, "SQLExtendedFetch<-SQLFetchScroll",
+				__LINE__, TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+				status, "");
 	}
-	if(pcrow)
-		*pcrow=stmt->num_fetched_rows;
-    
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,"SQLExtendedFetch<-SQLFetchScroll",__LINE__,
-			TRACE_FUNCTION_EXIT, (SQLHANDLE)NULL,status,"");
-}
 	ood_mutex_unlock_stmt(stmt);
 	return status;
 }

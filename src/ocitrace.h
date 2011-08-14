@@ -19,7 +19,7 @@
 #endif
 #endif
 
-#define OciTp		("OCI")			/* OCI Trace Prefix */
+#define OciTp		("OCI")	/* OCI Trace Prefix */
 #define OciTstr(s)	((s) ? (text*)(s) : (text*)"<NULL>")
 #define ul_t(v)		((unsigned long)(v))
 #define pul_t(v)	((unsigned long *)(v))
@@ -46,7 +46,6 @@
 	appropriate an &, thus: "...,&p%ld,...",
 	If done well the log will read like a compilable program.
 */
-
 
 #define OCIAttrGet_log_stat(th,ht,ah,sp,at,eh,stat)                    \
 	stat = OCIAttrGet(th,ht,ah,sp,at,eh);				\
@@ -229,9 +228,6 @@
 	  OciTp, (void*)sh,(void*)eh,s1,ul_t(sl),ul_t(l),ul_t(m),	\
 	  oci_status_name(stat)),stat : stat
 
-
-
-
 #define OCIServerDetach_log_stat(sh,eh,md,stat)                  \
 	stat=OCIServerDetach(sh,eh,md);		    		\
 	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,	       	\
@@ -273,7 +269,6 @@
 	  "%sBreak(%p,%p)\n",				\
 	  OciTp, (void*)sh,(void*)eh)
 
-
 /*begin dbox definitions*/
 
 #define OCIDateFromText_log_stat OCIDateFromText
@@ -290,8 +285,6 @@
           OciTp, (void*)sh,(void*)eh,(void*)hp,typep(ht),in_outp(io),it,\
           id,piecep(p), oci_status_name(stat)),stat : stat
 
-
-
 #define OCIStmtSetPieceInfo_log_stat (s, t, e, b, l, p, i, r, stat ) \
         stat=OCIStmtSetPieceInfo_log_stat (s, t, e, b, l, p, i, r ); \
 	(DBD_OCI_TRACEON) ? fprintf(DBD_OCI_TRACEFP,\
@@ -300,10 +293,8 @@
 				    b, l, piecep(p), i, r, \
 				    oci_status_name(stat)),stat : stat
 
-	
-char* typep(unsigned char ivar);
-char* in_outp(unsigned char  ivar);
-char* piecep(unsigned char  ivar);
-
+char *typep(unsigned char ivar);
+char *in_outp(unsigned char ivar);
+char *piecep(unsigned char ivar);
 
 #endif /* OCI_TRACE_H */

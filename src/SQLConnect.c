@@ -82,141 +82,123 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLConnect.c,v $ $Revision: 1.4 $";
+static char const rcsid[] = "$RCSfile: SQLConnect.c,v $ $Revision: 1.4 $";
 
-SQLRETURN SQL_API SQLConnect(
-    SQLHDBC         ConnectionHandle,
-    SQLCHAR         *ServerName, 
-    SQLSMALLINT     NameLength1,
-    SQLCHAR         *UserName, 
-    SQLSMALLINT     NameLength2,
-    SQLCHAR         *Authentication, 
-    SQLSMALLINT     NameLength3 )
+SQLRETURN SQL_API SQLConnect(SQLHDBC ConnectionHandle,
+			     SQLCHAR * ServerName,
+			     SQLSMALLINT NameLength1,
+			     SQLCHAR * UserName,
+			     SQLSMALLINT NameLength2,
+			     SQLCHAR * Authentication, SQLSMALLINT NameLength3)
 {
-    hDbc_T *dbc=(hDbc_T*)ConnectionHandle;
-    SQLRETURN status=SQL_SUCCESS;
-    SQLCHAR trace_opt[4];
-    SQLSMALLINT ret;
-    assert(IS_VALID(dbc));
+	hDbc_T *dbc = (hDbc_T *) ConnectionHandle;
+	SQLRETURN status = SQL_SUCCESS;
+	SQLCHAR trace_opt[4];
+	SQLSMALLINT ret;
+	assert(IS_VALID(dbc));
 
-    
-    if(!dbc || HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
-    {
-        return SQL_INVALID_HANDLE;
-    }
-    ood_clear_diag((hgeneric*)dbc);
+	if (!dbc || HANDLE_TYPE(dbc) != SQL_HANDLE_DBC) {
+		return SQL_INVALID_HANDLE;
+	}
+	ood_clear_diag((hgeneric *) dbc);
 
+	if (!ServerName || NameLength1 == 0) {
+		ood_post_diag((hgeneric *) dbc, ERROR_ORIGIN_HY000, 0, "",
+			      "A DSN is required",
+			      __LINE__, 0, "", ERROR_STATE_HY000,
+			      __FILE__, __LINE__);
+	}
 
-    if(!ServerName || NameLength1==0)
-    {
-        ood_post_diag((hgeneric*)dbc,ERROR_ORIGIN_HY000,0,"",
-                "A DSN is required",
-                __LINE__,0,"",ERROR_STATE_HY000,
-                __FILE__,__LINE__);
-    }
-    
-    THREAD_MUTEX_LOCK(dbc);
-    if(NameLength1>0)
-    {
-        memcpy(dbc->DSN,ServerName,NameLength1 );
-        dbc->DSN[NameLength1]='\0';
-    }
-    else
-    {
-        strcpy(dbc->DSN,(const char*)ServerName);
-    }
+	THREAD_MUTEX_LOCK(dbc);
+	if (NameLength1 > 0) {
+		memcpy(dbc->DSN, ServerName, NameLength1);
+		dbc->DSN[NameLength1] = '\0';
+	} else {
+		strcpy(dbc->DSN, (const char *)ServerName);
+	}
 
-    /*
-     * Now see if we can get the DB
-     */
-    ret=SQLGetPrivateProfileString(dbc->DSN,"DB",
-            "",dbc->DB,128,"ODBC.INI");
-    if(!ret)
-	    ret=SQLGetPrivateProfileString(dbc->DSN,"Database",
-            "",dbc->DB,128,"ODBC.INI"); 
+	/*
+	 * Now see if we can get the DB
+	 */
+	ret = SQLGetPrivateProfileString(dbc->DSN, "DB",
+					 "", dbc->DB, 128, "ODBC.INI");
+	if (!ret)
+		ret = SQLGetPrivateProfileString(dbc->DSN, "Database",
+						 "", dbc->DB, 128, "ODBC.INI");
 
-    /*
-     * For UID and PWD the defaults in the odbc.ini are overridden 
-     * by the connection string.
-     */
-    if(NameLength2>0)
-    {
-        memcpy(dbc->UID,UserName,NameLength2 );
-        dbc->UID[NameLength2]='\0';
-    }
-    else if (NameLength2==SQL_NTS && UserName && *UserName)
-    {
-        strcpy(dbc->UID,(const char*)UserName);
-    }
-    else
-    {
-        ret=SQLGetPrivateProfileString(dbc->DSN,"USER",
-                "",dbc->UID,32,"ODBC.INI");
-	if(!ret)
-	  ret=SQLGetPrivateProfileString(dbc->DSN,"USERNAME",
-		      "",dbc->UID,32,"ODBC.INI");
-	if(!ret)
-	  ret=SQLGetPrivateProfileString(dbc->DSN,"UID",
-	               "",dbc->UID,32,"ODBC.INI");
+	/*
+	 * For UID and PWD the defaults in the odbc.ini are overridden 
+	 * by the connection string.
+	 */
+	if (NameLength2 > 0) {
+		memcpy(dbc->UID, UserName, NameLength2);
+		dbc->UID[NameLength2] = '\0';
+	} else if (NameLength2 == SQL_NTS && UserName && *UserName) {
+		strcpy(dbc->UID, (const char *)UserName);
+	} else {
+		ret = SQLGetPrivateProfileString(dbc->DSN, "USER",
+						 "", dbc->UID, 32, "ODBC.INI");
+		if (!ret)
+			ret = SQLGetPrivateProfileString(dbc->DSN, "USERNAME",
+							 "", dbc->UID, 32,
+							 "ODBC.INI");
+		if (!ret)
+			ret = SQLGetPrivateProfileString(dbc->DSN, "UID",
+							 "", dbc->UID, 32,
+							 "ODBC.INI");
 
-    }
-    
-    if(NameLength3>0)
-    {
-        memcpy(dbc->PWD,Authentication,NameLength3 );
-        dbc->PWD[NameLength3]='\0';
-    }
-    else if (NameLength3==SQL_NTS &&Authentication && *Authentication)
-    {
-        strcpy(dbc->PWD,(const char*)Authentication);
-    }
-    else
-    {
-        ret=SQLGetPrivateProfileString(dbc->DSN,"PASSWORD",
-                "",dbc->PWD,64,"ODBC.INI");
-	if(!ret)
-	  ret=SQLGetPrivateProfileString(dbc->DSN,"PWD",
-                  "",dbc->PWD,64,"ODBC.INI");
-	if(!ret)
-	  ret=SQLGetPrivateProfileString(dbc->DSN,"PASSWD",
-                  "",dbc->PWD,64,"ODBC.INI");
-    }
+	}
 
-if(ENABLE_TRACE){
-    /*
-     * Get the tracing options 
-     */
-     SQLGetPrivateProfileString(dbc->DSN,"Trace",
-             "No",trace_opt,4,"ODBC.INI");
-     if(*trace_opt=='Y'||*trace_opt=='y')
-     {
-         dbc->trace=SQL_OPT_TRACE_ON;
-     }
-     else if(*trace_opt=='N'||*trace_opt=='n')
-     {
-         dbc->trace=SQL_OPT_TRACE_OFF;
-     }
+	if (NameLength3 > 0) {
+		memcpy(dbc->PWD, Authentication, NameLength3);
+		dbc->PWD[NameLength3] = '\0';
+	} else if (NameLength3 == SQL_NTS && Authentication && *Authentication) {
+		strcpy(dbc->PWD, (const char *)Authentication);
+	} else {
+		ret = SQLGetPrivateProfileString(dbc->DSN, "PASSWORD",
+						 "", dbc->PWD, 64, "ODBC.INI");
+		if (!ret)
+			ret = SQLGetPrivateProfileString(dbc->DSN, "PWD",
+							 "", dbc->PWD, 64,
+							 "ODBC.INI");
+		if (!ret)
+			ret = SQLGetPrivateProfileString(dbc->DSN, "PASSWD",
+							 "", dbc->PWD, 64,
+							 "ODBC.INI");
+	}
 
-     SQLGetPrivateProfileString(dbc->DSN,"TraceFile",
-             TRACEFILE_DEFAULT,dbc->tracefile,FILENAME_MAX,"ODBC.INI");
+	if (ENABLE_TRACE) {
+		/*
+		 * Get the tracing options 
+		 */
+		SQLGetPrivateProfileString(dbc->DSN, "Trace",
+					   "No", trace_opt, 4, "ODBC.INI");
+		if (*trace_opt == 'Y' || *trace_opt == 'y') {
+			dbc->trace = SQL_OPT_TRACE_ON;
+		} else if (*trace_opt == 'N' || *trace_opt == 'n') {
+			dbc->trace = SQL_OPT_TRACE_OFF;
+		}
 
-}
+		SQLGetPrivateProfileString(dbc->DSN, "TraceFile",
+					   TRACEFILE_DEFAULT, dbc->tracefile,
+					   FILENAME_MAX, "ODBC.INI");
 
-    /*
-     * We now have all the information we need to be able to 
-     * do a connect :- so go for it...
-     */
-    status=ood_driver_connect(dbc);
-    THREAD_MUTEX_UNLOCK(dbc);
-if(ENABLE_TRACE){
-	ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-             (SQLHANDLE)dbc,0,"ssss",
-			 NULL,"New Connection",
-			 "DSN",dbc->DSN,
-			 "DB",dbc->DB,
-			 "USER",dbc->UID);
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    return(status);
+	}
+
+	/*
+	 * We now have all the information we need to be able to 
+	 * do a connect :- so go for it...
+	 */
+	status = ood_driver_connect(dbc);
+	THREAD_MUTEX_UNLOCK(dbc);
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_ENTRY,
+				(SQLHANDLE) dbc, 0, "ssss",
+				NULL, "New Connection",
+				"DSN", dbc->DSN,
+				"DB", dbc->DB, "USER", dbc->UID);
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_EXIT,
+				(SQLHANDLE) NULL, status, "");
+	}
+	return (status);
 }

@@ -88,175 +88,173 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDriverConnect.c,v $ $Revision: 1.6 $";
+static char const rcsid[] = "$RCSfile: SQLDriverConnect.c,v $ $Revision: 1.6 $";
 
-SQLRETURN ood_SQLDriverConnect(
-    SQLHDBC                ConnectionHandle,
-    SQLHWND                WindowHandle,
-    SQLCHAR                *InConnectionString,
-    SQLSMALLINT            StringLength1,
-    SQLCHAR                *OutConnectionString,
-    SQLSMALLINT            BufferLength,
-    SQLSMALLINT            *StringLength2Ptr,
-    SQLUSMALLINT        DriverCompletion )
+SQLRETURN ood_SQLDriverConnect(SQLHDBC ConnectionHandle,
+			       SQLHWND WindowHandle,
+			       SQLCHAR * InConnectionString,
+			       SQLSMALLINT StringLength1,
+			       SQLCHAR * OutConnectionString,
+			       SQLSMALLINT BufferLength,
+			       SQLSMALLINT * StringLength2Ptr,
+			       SQLUSMALLINT DriverCompletion)
 {
-    hDbc_T *dbc=(hDbc_T*)ConnectionHandle;
-    char *local_str,         /* Local copy of connection str */
-         *this_pair,         /* AAA=BBB to deal with now */
-         *next_pair;         /* the next AAA=BBB to deal with */
-    int len_constr;          /* real length of connection string */
-    SQLRETURN status=SQL_SUCCESS;
-    SQLSMALLINT ret;
-    SQLCHAR trace_opt[4];
-    assert(IS_VALID(dbc));
+	hDbc_T *dbc = (hDbc_T *) ConnectionHandle;
+	char *local_str,	/* Local copy of connection str */
+	*this_pair,		/* AAA=BBB to deal with now */
+	*next_pair;		/* the next AAA=BBB to deal with */
+	int len_constr;		/* real length of connection string */
+	SQLRETURN status = SQL_SUCCESS;
+	SQLSMALLINT ret;
+	SQLCHAR trace_opt[4];
+	assert(IS_VALID(dbc));
 
-    if(!dbc||HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
-    {
-        return SQL_INVALID_HANDLE;
-    }
-    ood_clear_diag((hgeneric*)dbc);
+	if (!dbc || HANDLE_TYPE(dbc) != SQL_HANDLE_DBC) {
+		return SQL_INVALID_HANDLE;
+	}
+	ood_clear_diag((hgeneric *) dbc);
 
-    if(StringLength1!=SQL_NTS)
-        len_constr=StringLength1;
-    else
-        len_constr=strlen((const char*)InConnectionString);
+	if (StringLength1 != SQL_NTS)
+		len_constr = StringLength1;
+	else
+		len_constr = strlen((const char *)InConnectionString);
 
-    local_str=ORAMALLOC(len_constr+1);
-    memcpy(local_str,InConnectionString,len_constr);
-    local_str[len_constr] = '\0';
-    
-    THREAD_MUTEX_LOCK(dbc);
-    
-    *dbc->UID='\0';
-    *dbc->PWD='\0';
-    *dbc->DB='\0';
-    *dbc->DSN='\0';
+	local_str = ORAMALLOC(len_constr + 1);
+	memcpy(local_str, InConnectionString, len_constr);
+	local_str[len_constr] = '\0';
 
-    this_pair=local_str;
-    do
-    {
-        next_pair=(char*)ood_con_strtok(this_pair);
+	THREAD_MUTEX_LOCK(dbc);
+
+	*dbc->UID = '\0';
+	*dbc->PWD = '\0';
+	*dbc->DB = '\0';
+	*dbc->DSN = '\0';
+
+	this_pair = local_str;
+	do {
+		next_pair = (char *)ood_con_strtok(this_pair);
 #if defined(WIN32)
 
-        if(!strnicmp(this_pair,"DSN=",4))
-            strcpy(dbc->DSN,&this_pair[4]);
-        
-        else if(!strnicmp(this_pair,"UID=",4))
-            strcpy(dbc->UID,&this_pair[4]);
+		if (!strnicmp(this_pair, "DSN=", 4))
+			strcpy(dbc->DSN, &this_pair[4]);
 
-        else if(!strnicmp(this_pair,"PWD=",4))
-            strcpy(dbc->PWD,&this_pair[4]);
-        
-        else if(!strnicmp(this_pair,"DB=",3))
-            strcpy(dbc->DB,&this_pair[3]);
+		else if (!strnicmp(this_pair, "UID=", 4))
+			strcpy(dbc->UID, &this_pair[4]);
+
+		else if (!strnicmp(this_pair, "PWD=", 4))
+			strcpy(dbc->PWD, &this_pair[4]);
+
+		else if (!strnicmp(this_pair, "DB=", 3))
+			strcpy(dbc->DB, &this_pair[3]);
 
 #else
-        if(!strncasecmp(this_pair,"DSN=",4)){
-            strcpy(dbc->DSN,&this_pair[4]);
-	}
-        else if(!strncasecmp(this_pair,"UID=",4)){
-            strcpy(dbc->UID,&this_pair[4]);
-	}
-        else if(!strncasecmp(this_pair,"PWD=",4)){
-            strcpy(dbc->PWD,&this_pair[4]);
-	}
-        else if(!strncasecmp(this_pair,"DB=",3)){
-            strcpy(dbc->DB,&this_pair[3]);
-	}
+		if (!strncasecmp(this_pair, "DSN=", 4)) {
+			strcpy(dbc->DSN, &this_pair[4]);
+		} else if (!strncasecmp(this_pair, "UID=", 4)) {
+			strcpy(dbc->UID, &this_pair[4]);
+		} else if (!strncasecmp(this_pair, "PWD=", 4)) {
+			strcpy(dbc->PWD, &this_pair[4]);
+		} else if (!strncasecmp(this_pair, "DB=", 3)) {
+			strcpy(dbc->DB, &this_pair[3]);
+		}
 #endif
 
-        this_pair=next_pair;
-    }while(this_pair);
-    ORAFREE(local_str);
+		this_pair = next_pair;
+	} while (this_pair);
+	ORAFREE(local_str);
 
-    if(!*dbc->DB){
-        ret=SQLGetPrivateProfileString(dbc->DSN,"DB",
-                "",dbc->DB,128,"ODBC.INI");
-	if(!ret)
-	  ret=SQLGetPrivateProfileString(dbc->DSN,"Database",
-                "",dbc->DB,128,"ODBC.INI");
+	if (!*dbc->DB) {
+		ret = SQLGetPrivateProfileString(dbc->DSN, "DB",
+						 "", dbc->DB, 128, "ODBC.INI");
+		if (!ret)
+			ret = SQLGetPrivateProfileString(dbc->DSN, "Database",
+							 "", dbc->DB, 128,
+							 "ODBC.INI");
 
-    }
-    if(!*dbc->UID){
-        ret=SQLGetPrivateProfileString(dbc->DSN,"USER",
-                "",dbc->UID,32,"ODBC.INI");
-	if(!ret)
-	  ret=SQLGetPrivateProfileString(dbc->DSN,"USERNAME",
-                "",dbc->UID,32,"ODBC.INI");
-	if(!ret)
-	  ret=SQLGetPrivateProfileString(dbc->DSN,"UID",
-                "",dbc->UID,32,"ODBC.INI");
-    }
-    if(!*dbc->PWD){
-        ret=SQLGetPrivateProfileString(dbc->DSN,"PASSWORD",
-                "",dbc->PWD,64,"ODBC.INI");
-	if(!ret)
-	  ret=SQLGetPrivateProfileString(dbc->DSN,"PWD",
-                "",dbc->PWD,64,"ODBC.INI");
-	if(!ret)
-	  ret=SQLGetPrivateProfileString(dbc->DSN,"PASSWD",
-                "",dbc->PWD,64,"ODBC.INI");
-    }
-    if(OutConnectionString&&BufferLength)
-    {
-        char OutTmp[512+FILENAME_MAX]; /* should be long enough */ 
-        /*SQLSMALLINT strlentmp;*/
+	}
+	if (!*dbc->UID) {
+		ret = SQLGetPrivateProfileString(dbc->DSN, "USER",
+						 "", dbc->UID, 32, "ODBC.INI");
+		if (!ret)
+			ret = SQLGetPrivateProfileString(dbc->DSN, "USERNAME",
+							 "", dbc->UID, 32,
+							 "ODBC.INI");
+		if (!ret)
+			ret = SQLGetPrivateProfileString(dbc->DSN, "UID",
+							 "", dbc->UID, 32,
+							 "ODBC.INI");
+	}
+	if (!*dbc->PWD) {
+		ret = SQLGetPrivateProfileString(dbc->DSN, "PASSWORD",
+						 "", dbc->PWD, 64, "ODBC.INI");
+		if (!ret)
+			ret = SQLGetPrivateProfileString(dbc->DSN, "PWD",
+							 "", dbc->PWD, 64,
+							 "ODBC.INI");
+		if (!ret)
+			ret = SQLGetPrivateProfileString(dbc->DSN, "PASSWD",
+							 "", dbc->PWD, 64,
+							 "ODBC.INI");
+	}
+	if (OutConnectionString && BufferLength) {
+		char OutTmp[512 + FILENAME_MAX];	/* should be long enough */
+		/*SQLSMALLINT strlentmp; */
 
-        sprintf(OutTmp,"DSN=%s;DB=%s;UID=%s;PWD=%s;",
-                dbc->DSN,dbc->DB,dbc->UID,dbc->PWD);
-        ood_bounded_strcpy((char*)OutConnectionString,OutTmp,BufferLength);
-        /*strlentmp=(SQLSMALLINT)strlen(OutTmp);*/
-        /**StringLength2Ptr=strlentmp>BufferLength?BufferLength:strlentmp;*/
-    }
+		sprintf(OutTmp, "DSN=%s;DB=%s;UID=%s;PWD=%s;",
+			dbc->DSN, dbc->DB, dbc->UID, dbc->PWD);
+		ood_bounded_strcpy((char *)OutConnectionString, OutTmp,
+				   BufferLength);
+		/*strlentmp=(SQLSMALLINT)strlen(OutTmp); */
+	/**StringLength2Ptr=strlentmp>BufferLength?BufferLength:strlentmp;*/
+	}
 
-if(ENABLE_TRACE){
-    /*
-     * Get the tracing options 
-     */
-     SQLGetPrivateProfileString(dbc->DSN,"Trace",
-             "No",trace_opt,4,"ODBC.INI");
-     if(*trace_opt=='Y'||*trace_opt=='y')
-         dbc->trace=SQL_OPT_TRACE_ON;
-     else if(*trace_opt=='N'||*trace_opt=='n')
-         dbc->trace=SQL_OPT_TRACE_OFF;
+	if (ENABLE_TRACE) {
+		/*
+		 * Get the tracing options 
+		 */
+		SQLGetPrivateProfileString(dbc->DSN, "Trace",
+					   "No", trace_opt, 4, "ODBC.INI");
+		if (*trace_opt == 'Y' || *trace_opt == 'y')
+			dbc->trace = SQL_OPT_TRACE_ON;
+		else if (*trace_opt == 'N' || *trace_opt == 'n')
+			dbc->trace = SQL_OPT_TRACE_OFF;
 
-     SQLGetPrivateProfileString(dbc->DSN,"TraceFile",
-             TRACEFILE_DEFAULT,dbc->tracefile,FILENAME_MAX,"ODBC.INI");
+		SQLGetPrivateProfileString(dbc->DSN, "TraceFile",
+					   TRACEFILE_DEFAULT, dbc->tracefile,
+					   FILENAME_MAX, "ODBC.INI");
 
+	}
+
+	/*
+	 * We now have all the information we need to be able to 
+	 * do a connect :- so go for it...
+	 */
+	status = ood_driver_connect(dbc);
+	THREAD_MUTEX_UNLOCK(dbc);
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_ENTRY,
+				(SQLHANDLE) dbc, 0, "ssss",
+				NULL, "New Connection",
+				"DSN", dbc->DSN,
+				"DB", dbc->DB, "USER", dbc->UID);
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_EXIT,
+				(SQLHANDLE) NULL, status, "");
+	}
+	return status;
 }
 
-
-    /*
-     * We now have all the information we need to be able to 
-     * do a connect :- so go for it...
-     */
-    status=ood_driver_connect(dbc);
-    THREAD_MUTEX_UNLOCK(dbc);
-if(ENABLE_TRACE){
-     ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-             (SQLHANDLE)dbc,0,"ssss",
-			 NULL,"New Connection",
-			 "DSN",dbc->DSN,
-			 "DB",dbc->DB,
-			 "USER",dbc->UID);
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    return status;
-}
-
-SQLRETURN SQL_API SQLDriverConnect(
-    SQLHDBC                ConnectionHandle,
-    SQLHWND                WindowHandle,
-    SQLCHAR                *InConnectionString,
-    SQLSMALLINT            StringLength1,
-    SQLCHAR                *OutConnectionString,
-    SQLSMALLINT            BufferLength,
-    SQLSMALLINT            *StringLength2Ptr,
-    SQLUSMALLINT        DriverCompletion )
+SQLRETURN SQL_API SQLDriverConnect(SQLHDBC ConnectionHandle,
+				   SQLHWND WindowHandle,
+				   SQLCHAR * InConnectionString,
+				   SQLSMALLINT StringLength1,
+				   SQLCHAR * OutConnectionString,
+				   SQLSMALLINT BufferLength,
+				   SQLSMALLINT * StringLength2Ptr,
+				   SQLUSMALLINT DriverCompletion)
 {
-    return ood_SQLDriverConnect(ConnectionHandle,WindowHandle,
-			InConnectionString,
-            StringLength1,OutConnectionString,BufferLength,StringLength2Ptr,
-            DriverCompletion);
+	return ood_SQLDriverConnect(ConnectionHandle, WindowHandle,
+				    InConnectionString,
+				    StringLength1, OutConnectionString,
+				    BufferLength, StringLength2Ptr,
+				    DriverCompletion);
 }

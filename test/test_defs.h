@@ -15,20 +15,17 @@
 #include <windows.h>
 #endif
 
-    
 #define MAX_LEN 100
-SQLRETURN   rc = SQL_SUCCESS;
-SQLCHAR     twoTask[MAX_LEN];
-SQLCHAR     driverStr[MAX_LEN];
-SQLCHAR     userName[MAX_LEN];
-SQLCHAR     pswd[MAX_LEN];
-SQLCHAR     dsn[MAX_LEN];
-SQLHANDLE    EnvHandle;
-SQLHANDLE    ConHandle;
-HSTMT    StmtHandle;
-SQLCHAR  SQLStmt[255];
-
-
+SQLRETURN rc = SQL_SUCCESS;
+SQLCHAR twoTask[MAX_LEN];
+SQLCHAR driverStr[MAX_LEN];
+SQLCHAR userName[MAX_LEN];
+SQLCHAR pswd[MAX_LEN];
+SQLCHAR dsn[MAX_LEN];
+SQLHANDLE EnvHandle;
+SQLHANDLE ConHandle;
+HSTMT StmtHandle;
+SQLCHAR SQLStmt[255];
 
 #define VERBOSE if(getenv("VERBOSE")!=NULL)printf
 

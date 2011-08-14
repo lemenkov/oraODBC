@@ -59,10 +59,10 @@
 #ifndef _STRING_FUNCTIONS_H
 #define _STRING_FUNCTIONS_H
 #include <string.h>
-char* ood_xtoSQLNTS(SQLCHAR* str,SQLINTEGER str_len);
-char* ood_xtoSQLNTS_orig(SQLCHAR* str,SQLINTEGER str_len);
-char* ood_fast_strcat(char *dest,char *src,char *endptr);
-int ood_bounded_strcpy(char *dest,char* src, int limit);
-char *ood_con_strtok(char* str);
+char *ood_xtoSQLNTS(SQLCHAR * str, SQLINTEGER str_len);
+char *ood_xtoSQLNTS_orig(SQLCHAR * str, SQLINTEGER str_len);
+char *ood_fast_strcat(char *dest, char *src, char *endptr);
+int ood_bounded_strcpy(char *dest, char *src, int limit);
+char *ood_con_strtok(char *str);
 void return_to_space(char *s);
 #endif

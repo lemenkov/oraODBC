@@ -76,42 +76,41 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLPrepare.c,v $ $Revision: 1.4 $";
+static char const rcsid[] = "$RCSfile: SQLPrepare.c,v $ $Revision: 1.4 $";
 
-SQLRETURN SQL_API SQLPrepare(
-    SQLHSTMT        StatementHandle,
-    SQLCHAR            *StatementText,
-    SQLINTEGER        TextLength )
+SQLRETURN SQL_API SQLPrepare(SQLHSTMT StatementHandle,
+			     SQLCHAR * StatementText, SQLINTEGER TextLength)
 {
-  ub4 i;
-    hStmt_T *stmt=(hStmt_T*)StatementHandle;
-    SQLRETURN status=SQL_SUCCESS;
+	ub4 i;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	SQLRETURN status = SQL_SUCCESS;
 
-    if(!stmt||HANDLE_TYPE(stmt)!=SQL_HANDLE_STMT)
-    {
-        return SQL_INVALID_HANDLE;
-    }
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"");
-}
-    ood_clear_diag((hgeneric*)stmt);
-    
-	stmt->sql=ood_lex_parse((char*)StatementText,TextLength,
-			(int*)&stmt->current_ap->num_recs);
+	if (!stmt || HANDLE_TYPE(stmt) != SQL_HANDLE_STMT) {
+		return SQL_INVALID_HANDLE;
+	}
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
+	}
+	ood_clear_diag((hgeneric *) stmt);
 
-    ood_mutex_lock_stmt(stmt);
+	stmt->sql = ood_lex_parse((char *)StatementText, TextLength,
+				  (int *)&stmt->current_ap->num_recs);
 
-    status=ood_driver_prepare(stmt,(unsigned char*)stmt->sql);
-    for(i=1;i<=stmt->current_ap->num_recs; i++){
-      status |= ood_alloc_param_desc(stmt,i,
-				     stmt->current_ip,stmt->current_ap);
-    }
-    ood_mutex_unlock_stmt(stmt);
+	ood_mutex_lock_stmt(stmt);
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    return status;
+	status = ood_driver_prepare(stmt, (unsigned char *)stmt->sql);
+	for (i = 1; i <= stmt->current_ap->num_recs; i++) {
+		status |= ood_alloc_param_desc(stmt, i,
+					       stmt->current_ip,
+					       stmt->current_ap);
+	}
+	ood_mutex_unlock_stmt(stmt);
+
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	return status;
 }

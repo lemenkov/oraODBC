@@ -50,21 +50,16 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLEndTran.c,v $ $Revision: 1.3 $";
+static char const rcsid[] = "$RCSfile: SQLEndTran.c,v $ $Revision: 1.3 $";
 
-SQLRETURN _SQLEndTran(
-    SQLSMALLINT            HandleType,
-    SQLHANDLE            Handle,
-    SQLSMALLINT            CompletionType )
+SQLRETURN _SQLEndTran(SQLSMALLINT HandleType,
+		      SQLHANDLE Handle, SQLSMALLINT CompletionType)
 {
-  return ood_driver_transaction(Handle,CompletionType);
+	return ood_driver_transaction(Handle, CompletionType);
 }
 
-SQLRETURN SQL_API SQLEndTran(
-    SQLSMALLINT            HandleType,
-    SQLHANDLE            Handle,
-    SQLSMALLINT            CompletionType )
+SQLRETURN SQL_API SQLEndTran(SQLSMALLINT HandleType,
+			     SQLHANDLE Handle, SQLSMALLINT CompletionType)
 {
-    return _SQLEndTran(HandleType,Handle,CompletionType);
+	return _SQLEndTran(HandleType, Handle, CompletionType);
 }
-

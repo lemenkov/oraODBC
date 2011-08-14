@@ -69,26 +69,27 @@
 #include "common.h"
 #include "ocitrace.h"
 
-static char const rcsid[]= "$RCSfile: SQLCancel.c,v $ $Revision: 1.4 $";
+static char const rcsid[] = "$RCSfile: SQLCancel.c,v $ $Revision: 1.4 $";
 
-SQLRETURN SQL_API SQLCancel(
-    SQLHSTMT     StatementHandle )
+SQLRETURN SQL_API SQLCancel(SQLHSTMT StatementHandle)
 {
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
-    SQLRETURN status=SQL_SUCCESS;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	SQLRETURN status = SQL_SUCCESS;
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"");
-}
-    ood_clear_diag((hgeneric*)stmt);
-    ood_mutex_unlock_stmt(stmt);
-	OCIBreak( stmt->oci_stmt , stmt->dbc->oci_err );
-    ood_mutex_lock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
-    return SQL_SUCCESS;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
+	}
+	ood_clear_diag((hgeneric *) stmt);
+	ood_mutex_unlock_stmt(stmt);
+	OCIBreak(stmt->oci_stmt, stmt->dbc->oci_err);
+	ood_mutex_lock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	fprintf(stderr, "called stubbed function line %d file %s\n", __LINE__,
+		__FILE__);
+	return SQL_SUCCESS;
 }

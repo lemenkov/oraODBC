@@ -53,31 +53,29 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetEnvAttr.c,v $ $Revision: 1.1 $";
+static char const rcsid[] = "$RCSfile: SQLGetEnvAttr.c,v $ $Revision: 1.1 $";
 
-SQLRETURN SQL_API SQLGetEnvAttr(
-    SQLHENV                EnviromentHandle,
-    SQLINTEGER            Attribute,
-    SQLPOINTER            ValuePtr,
-    SQLINTEGER            Bufferlength,
-    SQLINTEGER            *StringLengthPtr )
+SQLRETURN SQL_API SQLGetEnvAttr(SQLHENV EnviromentHandle,
+				SQLINTEGER Attribute,
+				SQLPOINTER ValuePtr,
+				SQLINTEGER Bufferlength,
+				SQLINTEGER * StringLengthPtr)
 {
-    hEnv_T* env=(hEnv_T*)EnviromentHandle;
-    SQLRETURN status=SQL_SUCCESS;
+	hEnv_T *env = (hEnv_T *) EnviromentHandle;
+	SQLRETURN status = SQL_SUCCESS;
 
-    ood_clear_diag((hgeneric*)env);
-    THREAD_MUTEX_LOCK(env);
+	ood_clear_diag((hgeneric *) env);
+	THREAD_MUTEX_LOCK(env);
 
-    switch(Attribute)
-    {
-        case SQL_ATTR_ODBC_VERSION:
-            *((SQLINTEGER*)ValuePtr)=env->odbc_ver;
-        break;
+	switch (Attribute) {
+	case SQL_ATTR_ODBC_VERSION:
+		*((SQLINTEGER *) ValuePtr) = env->odbc_ver;
+		break;
 
-        case SQL_ATTR_OUTPUT_NTS:
-            *((SQLINTEGER*)ValuePtr)=SQL_TRUE;
-        break;
-    }
-    THREAD_MUTEX_UNLOCK(env);
-    return status;
+	case SQL_ATTR_OUTPUT_NTS:
+		*((SQLINTEGER *) ValuePtr) = SQL_TRUE;
+		break;
+	}
+	THREAD_MUTEX_UNLOCK(env);
+	return status;
 }

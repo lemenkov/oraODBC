@@ -69,113 +69,110 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFreeStmt.c,v $ $Revision: 1.2 $";
+static char const rcsid[] = "$RCSfile: SQLFreeStmt.c,v $ $Revision: 1.2 $";
 
 /*
  * SQLFreeStmt can be called from SQLCloseCursor
  */
 
-SQLRETURN _SQLFreeStmt(
-    SQLHSTMT            StatementHandle,
-    SQLUSMALLINT        Option )
+SQLRETURN _SQLFreeStmt(SQLHSTMT StatementHandle, SQLUSMALLINT Option)
 {
 #define STUB_OUT_FOR_3_4
 #ifdef STUB_OUT_FOR_3_4
-return SQL_SUCCESS;
+	return SQL_SUCCESS;
 #else
 
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
-    SQLRETURN status=SQL_SUCCESS;
-    sword ret;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	SQLRETURN status = SQL_SUCCESS;
+	sword ret;
 
-    ood_clear_diag((hgeneric*)stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,status,"s",
-			"Option",
-			Option==SQL_CLOSE?"SQL_CLOSE":
-			Option==SQL_DROP?"SQL_DROP":
-			Option==SQL_UNBIND?"SQL_UNBIND":
-			Option==SQL_RESET_PARAMS?"SQL_RESET_PARAMS":"unkown");
-}
-    
+	ood_clear_diag((hgeneric *) stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, status,
+				"s", "Option",
+				Option == SQL_CLOSE ? "SQL_CLOSE" : Option ==
+				SQL_DROP ? "SQL_DROP" : Option ==
+				SQL_UNBIND ? "SQL_UNBIND" : Option ==
+				SQL_RESET_PARAMS ? "SQL_RESET_PARAMS" :
+				"unkown");
+	}
 
-    switch(Option)
-    {
-        case SQL_CLOSE:
+	switch (Option) {
+	case SQL_CLOSE:
 #ifdef UNIX_DEBUG
-            fprintf(stderr,"%s %d stmt[0x%.8lx];\n",__FILE__,__LINE__,
-					(long)StatementHandle);
+		fprintf(stderr, "%s %d stmt[0x%.8lx];\n", __FILE__, __LINE__,
+			(long)StatementHandle);
 #endif
-			/*
-			 * Belt and braces approch to resetting Oracle...
-			 *
-			 * Cancel.
-			 */
+		/*
+		 * Belt and braces approch to resetting Oracle...
+		 *
+		 * Cancel.
+		 */
 /*            ret=OCIBreak(stmt->dbc->oci_svc,stmt->dbc->oci_err);*/
-			/* Cancel cursor */
-			if(stmt->oci_stmt)
-			{
-			    ret|=OCIHandleFree(stmt->oci_stmt,OCI_HTYPE_STMT);
-			    stmt->oci_stmt=NULL;
-			}
-			/* Hopefully it will behave now :) */
+		/* Cancel cursor */
+		if (stmt->oci_stmt) {
+			ret |= OCIHandleFree(stmt->oci_stmt, OCI_HTYPE_STMT);
+			stmt->oci_stmt = NULL;
+		}
+		/* Hopefully it will behave now :) */
 
-			stmt->current_ap->lob_col_flag=0;
-			stmt->current_ip->lob_col_flag=0;
-			stmt->current_ap->bound_col_flag=0;
-			stmt->current_ip->bound_col_flag=0;
-			stmt->num_result_rows=0;
-			stmt->bookmark=0;
-			stmt->num_fetched_rows=-1;
-			stmt->alt_fetch=NULL;
-			if(stmt->alt_fetch_data)
-			{
-				free(stmt->alt_fetch_data);
-				stmt->alt_fetch_data=NULL;
-			}
-			if(stmt->sql)
-			{
-				free(stmt->sql);
-			    stmt->sql=NULL;
-			}
+		stmt->current_ap->lob_col_flag = 0;
+		stmt->current_ip->lob_col_flag = 0;
+		stmt->current_ap->bound_col_flag = 0;
+		stmt->current_ip->bound_col_flag = 0;
+		stmt->num_result_rows = 0;
+		stmt->bookmark = 0;
+		stmt->num_fetched_rows = -1;
+		stmt->alt_fetch = NULL;
+		if (stmt->alt_fetch_data) {
+			free(stmt->alt_fetch_data);
+			stmt->alt_fetch_data = NULL;
+		}
+		if (stmt->sql) {
+			free(stmt->sql);
+			stmt->sql = NULL;
+		}
 
-            ood_ap_free(stmt->current_ap->recs.ap);
-            ood_ar_free(stmt->current_ar->recs.ar);
-            ood_ir_free(stmt->current_ir->recs.ir,stmt->current_ir->num_recs);
-            ood_ip_free(stmt->current_ip->recs.ip,stmt->current_ip->num_recs);
-            stmt->current_ap->recs.ap=NULL;
-            stmt->current_ar->recs.ar=NULL;
-            stmt->current_ip->recs.ip=NULL;
-            stmt->current_ir->recs.ir=NULL;
-            stmt->current_ir->num_recs=0;
-            stmt->current_ip->num_recs=0;
-			stmt->row_bind_offset_ptr=NULL;
-			stmt->param_bind_offset_ptr=NULL;
-            break;
+		ood_ap_free(stmt->current_ap->recs.ap);
+		ood_ar_free(stmt->current_ar->recs.ar);
+		ood_ir_free(stmt->current_ir->recs.ir,
+			    stmt->current_ir->num_recs);
+		ood_ip_free(stmt->current_ip->recs.ip,
+			    stmt->current_ip->num_recs);
+		stmt->current_ap->recs.ap = NULL;
+		stmt->current_ar->recs.ar = NULL;
+		stmt->current_ip->recs.ip = NULL;
+		stmt->current_ir->recs.ir = NULL;
+		stmt->current_ir->num_recs = 0;
+		stmt->current_ip->num_recs = 0;
+		stmt->row_bind_offset_ptr = NULL;
+		stmt->param_bind_offset_ptr = NULL;
+		break;
 
-        case SQL_DROP:
-        status=_SQLFreeHandle(SQL_HANDLE_STMT,(SQLHANDLE)StatementHandle);
-        break;
+	case SQL_DROP:
+		status =
+		    _SQLFreeHandle(SQL_HANDLE_STMT,
+				   (SQLHANDLE) StatementHandle);
+		break;
 
-        case SQL_UNBIND:
-            break;
+	case SQL_UNBIND:
+		break;
 
-        case SQL_RESET_PARAMS:
-            break;
-    }
+	case SQL_RESET_PARAMS:
+		break;
+	}
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)stmt,status,"");
-}
-    return status;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) stmt, status,
+				"");
+	}
+	return status;
 #endif
 }
 
-SQLRETURN SQL_API SQLFreeStmt(
-    SQLHSTMT            StatementHandle,
-    SQLUSMALLINT        Option )
+SQLRETURN SQL_API SQLFreeStmt(SQLHSTMT StatementHandle, SQLUSMALLINT Option)
 {
-    return _SQLFreeStmt(StatementHandle,Option);
+	return _SQLFreeStmt(StatementHandle, Option);
 }

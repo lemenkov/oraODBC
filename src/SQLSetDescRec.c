@@ -61,34 +61,35 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLSetDescRec.c,v $ $Revision: 1.3 $";
+static char const rcsid[] = "$RCSfile: SQLSetDescRec.c,v $ $Revision: 1.3 $";
 
-SQLRETURN SQL_API SQLSetDescRec(
-    SQLHDESC            DescriptorHandle,
-    SQLSMALLINT         RecNumber,
-    SQLSMALLINT         Type,
-    SQLSMALLINT         SubType,
-    SQLINTEGER          Length,
-    SQLSMALLINT         Precision,
-    SQLSMALLINT         Scale,
-    SQLPOINTER          DataPtr,
-    SQLINTEGER          *StringLengthPtr,
-    SQLINTEGER          *IndicatorPtr )
+SQLRETURN SQL_API SQLSetDescRec(SQLHDESC DescriptorHandle,
+				SQLSMALLINT RecNumber,
+				SQLSMALLINT Type,
+				SQLSMALLINT SubType,
+				SQLINTEGER Length,
+				SQLSMALLINT Precision,
+				SQLSMALLINT Scale,
+				SQLPOINTER DataPtr,
+				SQLINTEGER * StringLengthPtr,
+				SQLINTEGER * IndicatorPtr)
 {
-    hDesc_T* desc=(hDesc_T*)DescriptorHandle;
-    SQLRETURN status=SQL_SUCCESS;
-if(ENABLE_TRACE){
-    ood_log_message(desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)desc,0,"");
-}
-    ood_clear_diag((hgeneric*)desc);
-    THREAD_MUTEX_LOCK(desc);
+	hDesc_T *desc = (hDesc_T *) DescriptorHandle;
+	SQLRETURN status = SQL_SUCCESS;
+	if (ENABLE_TRACE) {
+		ood_log_message(desc->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) desc, 0, "");
+	}
+	ood_clear_diag((hgeneric *) desc);
+	THREAD_MUTEX_LOCK(desc);
 
-    THREAD_MUTEX_UNLOCK(desc);
-if(ENABLE_TRACE){
-    ood_log_message(desc->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
-    return SQL_SUCCESS;
+	THREAD_MUTEX_UNLOCK(desc);
+	if (ENABLE_TRACE) {
+		ood_log_message(desc->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	fprintf(stderr, "called stubbed function line %d file %s\n", __LINE__,
+		__FILE__);
+	return SQL_SUCCESS;
 }

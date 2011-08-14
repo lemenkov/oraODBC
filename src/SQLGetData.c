@@ -73,242 +73,253 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetData.c,v $ $Revision: 1.2 $";
+static char const rcsid[] = "$RCSfile: SQLGetData.c,v $ $Revision: 1.2 $";
 
-SQLRETURN _SQLGetData(
-    SQLHSTMT            StatementHandle,
-    SQLUSMALLINT        ColumnNumber,
-    SQLSMALLINT            TargetType,
-    SQLPOINTER            TargetValuePtr,
-    SQLINTEGER            BufferLength,
-    SQLINTEGER            *StrLen_or_indPtr )
+SQLRETURN _SQLGetData(SQLHSTMT StatementHandle,
+		      SQLUSMALLINT ColumnNumber,
+		      SQLSMALLINT TargetType,
+		      SQLPOINTER TargetValuePtr,
+		      SQLINTEGER BufferLength, SQLINTEGER * StrLen_or_indPtr)
 {
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
-    hDesc_T *ir;
-    hDesc_T *ar;
-    ar_T *ar_rec;
-    ir_T *ir_rec;
-    SQLRETURN status=SQL_SUCCESS;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	hDesc_T *ir;
+	hDesc_T *ar;
+	ar_T *ar_rec;
+	ir_T *ir_rec;
+	SQLRETURN status = SQL_SUCCESS;
 
-/*    ood_clear_diag((hgeneric*)stmt); *//* This is a bit too expensive here */
+	/*    ood_clear_diag((hgeneric*)stmt); *//* This is a bit too expensive here */
 #ifdef UNIX_DEBUG
-	fprintf(stderr,"SQLGetData row %d col %d buffer 0x%.8lx\n",
-			stmt->current_row-1,ColumnNumber,
-			(long)TargetValuePtr);
+	fprintf(stderr, "SQLGetData row %d col %d buffer 0x%.8lx\n",
+		stmt->current_row - 1, ColumnNumber, (long)TargetValuePtr);
 #endif
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"iiii",
-			"ColumnNumber",ColumnNumber,
-			"RowNumber",stmt->current_row-1,
-			"TargetType",TargetType,
-			"BufferLength",BufferLength);
-}
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0,
+				"iiii", "ColumnNumber", ColumnNumber,
+				"RowNumber", stmt->current_row - 1,
+				"TargetType", TargetType, "BufferLength",
+				BufferLength);
+	}
 
-    ood_mutex_lock_stmt(stmt);
-    ir=stmt->current_ir;
-    ar=stmt->current_ar;
-    ar_rec=&ar->recs.ar[ColumnNumber];
-    ir_rec=&ir->recs.ir[ColumnNumber];
+	ood_mutex_lock_stmt(stmt);
+	ir = stmt->current_ir;
+	ar = stmt->current_ar;
+	ar_rec = &ar->recs.ar[ColumnNumber];
+	ir_rec = &ir->recs.ir[ColumnNumber];
 
-    /*
-     * NULLs are no problem
-     */
-    if(ir_rec->ind_arr[stmt->current_row-1])
-    {
-        *StrLen_or_indPtr=SQL_NULL_DATA;
-        ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-        ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                (SQLHANDLE)NULL,status,"");
-}
-        return SQL_SUCCESS;
-    }
+	/*
+	 * NULLs are no problem
+	 */
+	if (ir_rec->ind_arr[stmt->current_row - 1]) {
+		*StrLen_or_indPtr = SQL_NULL_DATA;
+		ood_mutex_unlock_stmt(stmt);
+		if (ENABLE_TRACE) {
+			ood_log_message(stmt->dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+					status, "");
+		}
+		return SQL_SUCCESS;
+	}
 
-    /*
-     * Easy of it's requested as the same type as we reported
-     */
-    if(TargetType==ar_rec->data_type
-            ||TargetType==SQL_C_DEFAULT
-            ||TargetType==SQL_ARD_TYPE)
-    {
-        status=ir_rec->default_copy(stmt->current_row-1,ir_rec,TargetValuePtr,
-				BufferLength, StrLen_or_indPtr) ;
-        ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-        ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                (SQLHANDLE)NULL,status,"sii",
-				"SQL_C_DEFAULT|SQL_ARD_TYPE","",
-				"indicator",StrLen_or_indPtr?*StrLen_or_indPtr:0,
-				"*Target",*((SQLCHAR*)TargetValuePtr));
-}
-        return status;
-    }
+	/*
+	 * Easy of it's requested as the same type as we reported
+	 */
+	if (TargetType == ar_rec->data_type
+	    || TargetType == SQL_C_DEFAULT || TargetType == SQL_ARD_TYPE) {
+		status =
+		    ir_rec->default_copy(stmt->current_row - 1, ir_rec,
+					 TargetValuePtr, BufferLength,
+					 StrLen_or_indPtr);
+		ood_mutex_unlock_stmt(stmt);
+		if (ENABLE_TRACE) {
+			ood_log_message(stmt->dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+					status, "sii",
+					"SQL_C_DEFAULT|SQL_ARD_TYPE", "",
+					"indicator",
+					StrLen_or_indPtr ? *StrLen_or_indPtr :
+					0, "*Target",
+					*((SQLCHAR *) TargetValuePtr));
+		}
+		return status;
+	}
 
-    /*
-     * Also easy if requested as SQL_C_CHAR
-     */
-    if(TargetType==SQL_C_CHAR)
-    {
-        status=ir_rec->to_string(stmt->current_row-1,ir_rec,TargetValuePtr,
-				BufferLength,StrLen_or_indPtr);
-        ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-        ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                (SQLHANDLE)NULL,status,"s","SQL_C_CHAR","");
-}
-        return status;
-    }
+	/*
+	 * Also easy if requested as SQL_C_CHAR
+	 */
+	if (TargetType == SQL_C_CHAR) {
+		status =
+		    ir_rec->to_string(stmt->current_row - 1, ir_rec,
+				      TargetValuePtr, BufferLength,
+				      StrLen_or_indPtr);
+		ood_mutex_unlock_stmt(stmt);
+		if (ENABLE_TRACE) {
+			ood_log_message(stmt->dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+					status, "s", "SQL_C_CHAR", "");
+		}
+		return status;
+	}
 
-    /* 
-     * Not so easy. This effectively is a lookup table of what we can and 
-     * can't do.
-     * Obviously the more common the conversions the earlier they want to be
-     * in these switches.
-     */
-    status=(ood_fn_default_copy(ir_rec->data_type,TargetType))
-            (stmt->current_row-1,ir_rec,TargetValuePtr,BufferLength,
-			 StrLen_or_indPtr);
-    ood_mutex_unlock_stmt(stmt);
+	/* 
+	 * Not so easy. This effectively is a lookup table of what we can and 
+	 * can't do.
+	 * Obviously the more common the conversions the earlier they want to be
+	 * in these switches.
+	 */
+	status = (ood_fn_default_copy(ir_rec->data_type, TargetType))
+	    (stmt->current_row - 1, ir_rec, TargetValuePtr, BufferLength,
+	     StrLen_or_indPtr);
+	ood_mutex_unlock_stmt(stmt);
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"s","data converted at SQLGetData","");
-}
-    return status;
-
-
-
-
-
-
-
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"s", "data converted at SQLGetData", "");
+	}
+	return status;
 
 #ifdef _DELETED_CODE
-    switch(ir_rec->data_type)
-    {
-        /* 
-         * The Oracle 8.x.5 number bug means we get SQLT_VNU's everywhere
-         */
-        case SQLT_VNU:
-        switch(TargetType)
-        {
-            case SQL_C_SLONG:
-                status=ocivnu_sqlslong(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+	switch (ir_rec->data_type) {
+		/* 
+		 * The Oracle 8.x.5 number bug means we get SQLT_VNU's everywhere
+		 */
+	case SQLT_VNU:
+		switch (TargetType) {
+		case SQL_C_SLONG:
+			status =
+			    ocivnu_sqlslong(ir_rec, TargetValuePtr,
+					    BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_ULONG:
-                status=ocivnu_sqlulong(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_ULONG:
+			status =
+			    ocivnu_sqlulong(ir_rec, TargetValuePtr,
+					    BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_DOUBLE:
-                status=ocivnu_sqldouble(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_DOUBLE:
+			status =
+			    ocivnu_sqldouble(ir_rec, TargetValuePtr,
+					     BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_FLOAT:
-                status=ocivnu_sqlfloat(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_FLOAT:
+			status =
+			    ocivnu_sqlfloat(ir_rec, TargetValuePtr,
+					    BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_SSHORT:
-                status=ocivnu_sqlsshort(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_SSHORT:
+			status =
+			    ocivnu_sqlsshort(ir_rec, TargetValuePtr,
+					     BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_USHORT:
-                status=ocivnu_sqlushort(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_USHORT:
+			status =
+			    ocivnu_sqlushort(ir_rec, TargetValuePtr,
+					     BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_SBIGINT:
-                status=ocivnu_sqlsbigint(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_SBIGINT:
+			status =
+			    ocivnu_sqlsbigint(ir_rec, TargetValuePtr,
+					      BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_UBIGINT:
-                status=ocivnu_sqlubigint(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_UBIGINT:
+			status =
+			    ocivnu_sqlubigint(ir_rec, TargetValuePtr,
+					      BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_UTINYINT:
-                status=ocivnu_sqlutinyint(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_UTINYINT:
+			status =
+			    ocivnu_sqlutinyint(ir_rec, TargetValuePtr,
+					       BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_STINYINT:
-                status=ocivnu_sqlstinyint(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_STINYINT:
+			status =
+			    ocivnu_sqlstinyint(ir_rec, TargetValuePtr,
+					       BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_NUMERIC: /* This is the default, so shouldn't happen */
-                status=ocivnu_sqlnumeric(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_NUMERIC:	/* This is the default, so shouldn't happen */
+			status =
+			    ocivnu_sqlnumeric(ir_rec, TargetValuePtr,
+					      BufferLength, StrLen_or_indPtr);
 
-            default:
-                ood_post_diag(stmt,ERROR_ORIGIN_07006,ColumnNumber,"",
-                        ERROR_MESSAGE_07006,
-                    __LINE__,0,"",ERROR_STATE_07006,
-                    __FILE__,__LINE__);
-            status=SQL_ERROR;
-        }
-        break;
+		default:
+			ood_post_diag(stmt, ERROR_ORIGIN_07006, ColumnNumber,
+				      "", ERROR_MESSAGE_07006, __LINE__, 0, "",
+				      ERROR_STATE_07006, __FILE__, __LINE__);
+			status = SQL_ERROR;
+		}
+		break;
 
-        case SQLT_INT:
-        switch(TargetType)
-        {
-            case SQL_C_SLONG:
-                status=ociint_sqlslong(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+	case SQLT_INT:
+		switch (TargetType) {
+		case SQL_C_SLONG:
+			status =
+			    ociint_sqlslong(ir_rec, TargetValuePtr,
+					    BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_ULONG:
-                status=ociint_sqlulong(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_ULONG:
+			status =
+			    ociint_sqlulong(ir_rec, TargetValuePtr,
+					    BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_DOUBLE:
-                status=ociint_sqldouble(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_DOUBLE:
+			status =
+			    ociint_sqldouble(ir_rec, TargetValuePtr,
+					     BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_FLOAT:
-                status=ociint_sqlfloat(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_FLOAT:
+			status =
+			    ociint_sqlfloat(ir_rec, TargetValuePtr,
+					    BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_SSHORT:
-                status=ociint_sqlsshort(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_SSHORT:
+			status =
+			    ociint_sqlsshort(ir_rec, TargetValuePtr,
+					     BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_USHORT:
-                status=ociint_sqlushort(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_USHORT:
+			status =
+			    ociint_sqlushort(ir_rec, TargetValuePtr,
+					     BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_SBIGINT:
-                status=ociint_sqlsbigint(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_SBIGINT:
+			status =
+			    ociint_sqlsbigint(ir_rec, TargetValuePtr,
+					      BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_UBIGINT:
-                status=ociint_sqlubigint(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_UBIGINT:
+			status =
+			    ociint_sqlubigint(ir_rec, TargetValuePtr,
+					      BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_UTINYINT:
-                status=ociint_sqlutinyint(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_UTINYINT:
+			status =
+			    ociint_sqlutinyint(ir_rec, TargetValuePtr,
+					       BufferLength, StrLen_or_indPtr);
 
-            case SQL_C_STINYINT:
-                status=ociint_sqlstinyint(ir_rec,TargetValuePtr,BufferLength,
-                    StrLen_or_indPtr);
+		case SQL_C_STINYINT:
+			status =
+			    ociint_sqlstinyint(ir_rec, TargetValuePtr,
+					       BufferLength, StrLen_or_indPtr);
 
-            default:
-                ood_post_diag(stmt,ERROR_ORIGIN_07006,ColumnNumber,"",
-                        ERROR_MESSAGE_07006,
-                    __LINE__,0,"",ERROR_STATE_07006,
-                    __FILE__,__LINE__);
-            status=SQL_ERROR;
-        }
-    }
-    return status;
+		default:
+			ood_post_diag(stmt, ERROR_ORIGIN_07006, ColumnNumber,
+				      "", ERROR_MESSAGE_07006, __LINE__, 0, "",
+				      ERROR_STATE_07006, __FILE__, __LINE__);
+			status = SQL_ERROR;
+		}
+	}
+	return status;
 #endif
 }
 
-SQLRETURN SQL_API SQLGetData(
-    SQLHSTMT            StatementHandle,
-    SQLUSMALLINT        ColumnNumber,
-    SQLSMALLINT            TargetType,
-    SQLPOINTER            TargetValuePtr,
-    SQLINTEGER            BufferLength,
-    SQLINTEGER            *StrLen_or_indPtr )
+SQLRETURN SQL_API SQLGetData(SQLHSTMT StatementHandle,
+			     SQLUSMALLINT ColumnNumber,
+			     SQLSMALLINT TargetType,
+			     SQLPOINTER TargetValuePtr,
+			     SQLINTEGER BufferLength,
+			     SQLINTEGER * StrLen_or_indPtr)
 {
-    return _SQLGetData(StatementHandle,ColumnNumber,TargetType,TargetValuePtr,
-                BufferLength,StrLen_or_indPtr);
+	return _SQLGetData(StatementHandle, ColumnNumber, TargetType,
+			   TargetValuePtr, BufferLength, StrLen_or_indPtr);
 }

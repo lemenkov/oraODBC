@@ -65,98 +65,100 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBrowseConnect.c,v $ $Revision: 1.3 $";
+static char const rcsid[] = "$RCSfile: SQLBrowseConnect.c,v $ $Revision: 1.3 $";
 
-SQLRETURN SQL_API SQLBrowseConnect(
-    SQLHDBC            ConnectionHandle,
-    SQLCHAR            *InConnectionString,
-    SQLSMALLINT        StringLength1,
-    SQLCHAR            *OutConnectionString,
-    SQLSMALLINT        BufferLength,
-    SQLSMALLINT        *StringLength2Ptr )
+SQLRETURN SQL_API SQLBrowseConnect(SQLHDBC ConnectionHandle,
+				   SQLCHAR * InConnectionString,
+				   SQLSMALLINT StringLength1,
+				   SQLCHAR * OutConnectionString,
+				   SQLSMALLINT BufferLength,
+				   SQLSMALLINT * StringLength2Ptr)
 {
-    /*
-     * What we need to *guarantee* a connection is DB,UID and PWD
-     */
-    char *local_str,         /* Local copy of connection str */
-         *this_pair,         /* AAA=BBB to deal with now */
-         *next_pair;         /* the next AAA=BBB to deal with */
-    int len_constr;          /* real length of connection string */
-    int have_db=0,have_uid=0,have_pwd=0;
-    char *out_end=NULL;
-    hDbc_T* dbc=(hDbc_T*)ConnectionHandle;
-    SQLRETURN status=SQL_SUCCESS;
-    assert(IS_VALID(dbc));
-if(ENABLE_TRACE){
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)dbc,0,"");
-}
-    ood_clear_diag((hgeneric*)dbc);
+	/*
+	 * What we need to *guarantee* a connection is DB,UID and PWD
+	 */
+	char *local_str,	/* Local copy of connection str */
+	*this_pair,		/* AAA=BBB to deal with now */
+	*next_pair;		/* the next AAA=BBB to deal with */
+	int len_constr;		/* real length of connection string */
+	int have_db = 0, have_uid = 0, have_pwd = 0;
+	char *out_end = NULL;
+	hDbc_T *dbc = (hDbc_T *) ConnectionHandle;
+	SQLRETURN status = SQL_SUCCESS;
+	assert(IS_VALID(dbc));
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_ENTRY,
+				(SQLHANDLE) dbc, 0, "");
+	}
+	ood_clear_diag((hgeneric *) dbc);
 
-    if(StringLength1!=SQL_NTS)
-        len_constr=StringLength1;
-    else
-        len_constr=strlen((const char*)InConnectionString);
+	if (StringLength1 != SQL_NTS)
+		len_constr = StringLength1;
+	else
+		len_constr = strlen((const char *)InConnectionString);
 
-    local_str=ORAMALLOC(len_constr+1);
-    memcpy(local_str,InConnectionString,len_constr);
-    local_str[len_constr] = '\0';
+	local_str = ORAMALLOC(len_constr + 1);
+	memcpy(local_str, InConnectionString, len_constr);
+	local_str[len_constr] = '\0';
 
-    this_pair=local_str;
-    do
-    {
-        next_pair=(char*)ood_con_strtok(this_pair);
+	this_pair = local_str;
+	do {
+		next_pair = (char *)ood_con_strtok(this_pair);
 #if defined(WIN32)
 
-        if(!strnicmp(this_pair,"UID=",4))
-            have_uid++;
+		if (!strnicmp(this_pair, "UID=", 4))
+			have_uid++;
 
-        else if(!strnicmp(this_pair,"PWD=",4))
-            have_pwd++;
-        
-        else if(!strnicmp(this_pair,"DB=",4))
-            have_db++;
+		else if (!strnicmp(this_pair, "PWD=", 4))
+			have_pwd++;
+
+		else if (!strnicmp(this_pair, "DB=", 4))
+			have_db++;
 
 #else
 
-        if(!strncasecmp(this_pair,"UID=",4))
-            have_uid++;
+		if (!strncasecmp(this_pair, "UID=", 4))
+			have_uid++;
 
-        else if(!strncasecmp(this_pair,"PWD=",4))
-            have_pwd++;
-        
-        else if(!strncasecmp(this_pair,"DB=",4))
-            have_db++;
+		else if (!strncasecmp(this_pair, "PWD=", 4))
+			have_pwd++;
+
+		else if (!strncasecmp(this_pair, "DB=", 4))
+			have_db++;
 
 #endif
 
-        this_pair=next_pair;
-    }while(this_pair);
-    ORAFREE(local_str);
+		this_pair = next_pair;
+	} while (this_pair);
+	ORAFREE(local_str);
 
-    if(have_uid&&have_pwd&&have_db)
-        status= ood_SQLDriverConnect(ConnectionHandle,NULL,
-                InConnectionString,StringLength1,OutConnectionString,
-                BufferLength,StringLength2Ptr,SQL_DRIVER_COMPLETE);
-    else 
-    {
-        status=SQL_NEED_DATA;
-        if(!have_uid)
-        {
-            out_end=ood_fast_strcat((char*)OutConnectionString,"UID=?;",out_end);
-        }
-        if(!have_pwd)
-        {
-            out_end=ood_fast_strcat((char*)OutConnectionString,"PWD=?;",out_end);
-        }
-        if(!have_db)
-        {
-            out_end=ood_fast_strcat((char*)OutConnectionString,"DB=?;",out_end);
-        }
-    }
-if(ENABLE_TRACE){
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    return status;
+	if (have_uid && have_pwd && have_db)
+		status = ood_SQLDriverConnect(ConnectionHandle, NULL,
+					      InConnectionString, StringLength1,
+					      OutConnectionString, BufferLength,
+					      StringLength2Ptr,
+					      SQL_DRIVER_COMPLETE);
+	else {
+		status = SQL_NEED_DATA;
+		if (!have_uid) {
+			out_end =
+			    ood_fast_strcat((char *)OutConnectionString,
+					    "UID=?;", out_end);
+		}
+		if (!have_pwd) {
+			out_end =
+			    ood_fast_strcat((char *)OutConnectionString,
+					    "PWD=?;", out_end);
+		}
+		if (!have_db) {
+			out_end =
+			    ood_fast_strcat((char *)OutConnectionString,
+					    "DB=?;", out_end);
+		}
+	}
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_EXIT,
+				(SQLHANDLE) NULL, status, "");
+	}
+	return status;
 }

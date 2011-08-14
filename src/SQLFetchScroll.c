@@ -60,35 +60,34 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFetchScroll.c,v $ $Revision: 1.2 $";
+static char const rcsid[] = "$RCSfile: SQLFetchScroll.c,v $ $Revision: 1.2 $";
 
-SQLRETURN ood_SQLFetchScroll(
-    hStmt_T*            stmt,
-    SQLSMALLINT            FetchOrientation,
-    SQLINTEGER            FetchOffset )
+SQLRETURN ood_SQLFetchScroll(hStmt_T * stmt,
+			     SQLSMALLINT FetchOrientation,
+			     SQLINTEGER FetchOffset)
 {
-	return ood_SQLFetch(stmt); 
+	return ood_SQLFetch(stmt);
 }
 
-SQLRETURN SQL_API SQLFetchScroll(
-    SQLHSTMT            StatementHandle,
-    SQLSMALLINT            FetchOrientation,
-    SQLINTEGER            FetchOffset )
-{   
-	hStmt_T* stmt=(hStmt_T*)StatementHandle;
-    SQLRETURN status=SQL_SUCCESS;
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"");
-}
-    ood_mutex_lock_stmt(stmt);
+SQLRETURN SQL_API SQLFetchScroll(SQLHSTMT StatementHandle,
+				 SQLSMALLINT FetchOrientation,
+				 SQLINTEGER FetchOffset)
+{
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	SQLRETURN status = SQL_SUCCESS;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
+	}
+	ood_mutex_lock_stmt(stmt);
 
-	status=ood_SQLFetchScroll(stmt,FetchOrientation,FetchOffset);
+	status = ood_SQLFetchScroll(stmt, FetchOrientation, FetchOffset);
 
-    ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
+	ood_mutex_unlock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
 	return status;
 }

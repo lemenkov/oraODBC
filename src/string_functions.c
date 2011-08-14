@@ -65,7 +65,7 @@
 #include "common.h"
 #include <ctype.h>
 
-static char const rcsid[]= "$RCSfile: string_functions.c,v $ $Revision: 1.2 $";
+static char const rcsid[] = "$RCSfile: string_functions.c,v $ $Revision: 1.2 $";
 
 /*
  * xtoSQLNTS
@@ -77,41 +77,40 @@ static char const rcsid[]= "$RCSfile: string_functions.c,v $ $Revision: 1.2 $";
  * to be freed
  */
 
-char* ood_xtoSQLNTS(SQLCHAR* str,SQLINTEGER str_len)
+char *ood_xtoSQLNTS(SQLCHAR * str, SQLINTEGER str_len)
 {
-    char *local_str=NULL;
-    int i;
-    if(str_len==SQL_NTS){ 
-        if(str&&str[0])
-		for(i=0; i<strlen(str); i++)
-			str[i]=toupper(str[i]);
-        return((char*)str);
-   }
-    if(str_len>=0)
-    {
-        local_str=ORAMALLOC(str_len+1);
-        memcpy(local_str,str,str_len);
-        local_str[str_len] = '\0';
-    }
-    for(i=0; i<str_len; i++)local_str[i]=toupper(local_str[i]);
-    return(local_str);
+	char *local_str = NULL;
+	int i;
+	if (str_len == SQL_NTS) {
+		if (str && str[0])
+			for (i = 0; i < strlen(str); i++)
+				str[i] = toupper(str[i]);
+		return ((char *)str);
+	}
+	if (str_len >= 0) {
+		local_str = ORAMALLOC(str_len + 1);
+		memcpy(local_str, str, str_len);
+		local_str[str_len] = '\0';
+	}
+	for (i = 0; i < str_len; i++)
+		local_str[i] = toupper(local_str[i]);
+	return (local_str);
 }
 
-
-char* ood_xtoSQLNTS_orig(SQLCHAR* str,SQLINTEGER str_len)
+char *ood_xtoSQLNTS_orig(SQLCHAR * str, SQLINTEGER str_len)
 {
-    char *local_str=NULL;
-    if(str_len==SQL_NTS) /* Nothing to do */
-        return((char*)str);
+	char *local_str = NULL;
+	if (str_len == SQL_NTS)	/* Nothing to do */
+		return ((char *)str);
 
-    if(str_len>=0)
-    {
-        local_str=ORAMALLOC(str_len+1);
-        memcpy(local_str,str,str_len);
-        local_str[str_len] = '\0';
-    }
-    return(local_str);
+	if (str_len >= 0) {
+		local_str = ORAMALLOC(str_len + 1);
+		memcpy(local_str, str, str_len);
+		local_str[str_len] = '\0';
+	}
+	return (local_str);
 }
+
 /*
  * Fast strcat
  *
@@ -120,27 +119,24 @@ char* ood_xtoSQLNTS_orig(SQLCHAR* str,SQLINTEGER str_len)
  * resulting string.
  * Pass the extra parameter (endptr) as NULL to initialise;
  */
-char* ood_fast_strcat(char *dest,char *src,char *endptr)
+char *ood_fast_strcat(char *dest, char *src, char *endptr)
 {
-    if(!dest || !src)
-    {
-        endptr=NULL;
-        return NULL;
-    }
-    if(!endptr) /* uninitialised... */
-    {
-        endptr=(char*)dest;
-        while(*endptr)
-            endptr++;
-    }
-    while(*src)
-    {
-        *endptr=*src;
-        endptr++;
-        src++;
-    }
-    *endptr='\0';
-    return(endptr);
+	if (!dest || !src) {
+		endptr = NULL;
+		return NULL;
+	}
+	if (!endptr) {		/* uninitialised... */
+		endptr = (char *)dest;
+		while (*endptr)
+			endptr++;
+	}
+	while (*src) {
+		*endptr = *src;
+		endptr++;
+		src++;
+	}
+	*endptr = '\0';
+	return (endptr);
 }
 
 /*
@@ -148,20 +144,19 @@ char* ood_fast_strcat(char *dest,char *src,char *endptr)
  * String copy with bounds check. Like strncpy but
  * 1) Will alway NULL terminate
  * 2) returns true if all OK, false if a bounds checking or other error occurs.
- */ 
-int ood_bounded_strcpy(char *dest,char* src, int limit)
+ */
+int ood_bounded_strcpy(char *dest, char *src, int limit)
 {
-    int i;
+	int i;
 
-    limit--;
-    for(i=0;i<limit&&*src;i++)
-    {
-        *dest++=*src++;
-    }
-    *dest='\0';
-    if(*src)
-        return 0;
-    return i;
+	limit--;
+	for (i = 0; i < limit && *src; i++) {
+		*dest++ = *src++;
+	}
+	*dest = '\0';
+	if (*src)
+		return 0;
+	return i;
 }
 
 /*
@@ -174,32 +169,30 @@ int ood_bounded_strcpy(char *dest,char* src, int limit)
  * DRIVER={AAA;BBB;CCC}\0 and a pointer to the D of DSN will be returned.
  * A NULL is returned on end of string.
  */
-char *ood_con_strtok(char* str)
+char *ood_con_strtok(char *str)
 {
-    int inbraces=0;
-    while(*str)
-    {
-        if(*str=='{')
-            inbraces++;
-        if(*str=='}')
-            inbraces--;
-        if(!inbraces&&*str==';')
-        {
-            *str='\0';
-            str++;
-            if(*str)
-                return(str);
-            else 
-                return NULL;
-        }
-        str++;
-    }
-    return NULL;
+	int inbraces = 0;
+	while (*str) {
+		if (*str == '{')
+			inbraces++;
+		if (*str == '}')
+			inbraces--;
+		if (!inbraces && *str == ';') {
+			*str = '\0';
+			str++;
+			if (*str)
+				return (str);
+			else
+				return NULL;
+		}
+		str++;
+	}
+	return NULL;
 }
 
 void return_to_space(char *s)
 {
-	while(*s&&!isspace(*s))
+	while (*s && !isspace(*s))
 		s++;
-	*s='\0';
+	*s = '\0';
 }

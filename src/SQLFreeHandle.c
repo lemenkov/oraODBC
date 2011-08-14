@@ -125,75 +125,70 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.10 $";
+static char const rcsid[] = "$RCSfile: SQLFreeHandle.c,v $ $Revision: 1.10 $";
 
-void ood_ap_free(ap_T *ap)
+void ood_ap_free(ap_T * ap)
 {
-    if(ap)
-        ORAFREE(ap);
+	if (ap)
+		ORAFREE(ap);
 }
 
-void ood_ar_free(ar_T *ar, int num_recs)
+void ood_ar_free(ar_T * ar, int num_recs)
 {
-    int i;
-    if(ar)
-    {
-        for(i=0;i<=num_recs;i++)
-        {
-            if(ar[i].bind_indicator)
-            {
-                if(ar[i].bind_indicator_malloced==1)
-                    ORAFREE(ar[i].bind_indicator);
-            }
-        }
-        ORAFREE(ar);
-    }
+	int i;
+	if (ar) {
+		for (i = 0; i <= num_recs; i++) {
+			if (ar[i].bind_indicator) {
+				if (ar[i].bind_indicator_malloced == 1)
+					ORAFREE(ar[i].bind_indicator);
+			}
+		}
+		ORAFREE(ar);
+	}
 }
 
-void ood_ip_free(ip_T *ip, int num_recs)
+void ood_ip_free(ip_T * ip, int num_recs)
 {
-    int i;
-    sword ret;
-    if(ip)
-    {
-        for(i=0;i<=num_recs;i++)
-        {
-            if(ip[i].data_ptr)
-            {
-                ORAFREE(ip[i].data_ptr);
-		if(ip[i].locator)
-		  {
-		    unsigned j;
-		    for(j=0;j<ip->desc->stmt->row_array_size;j++)
-		      {
-			OCIDescriptorFree_log(ip[i].locator[j],OCI_DTYPE_LOB);
-		      }
-                    ORAFREE(ip[i].locator);
-		  }
-            }
-	    if(ip[i].ind_arr)
-	      ORAFREE(ip[i].ind_arr);
-	    if(ip[i].length_arr)
-	      ORAFREE(ip[i].length_arr);
-	    if(ip[i].rcode_arr)
-	      ORAFREE(ip[i].rcode_arr);
-        }
-        ORAFREE(ip);
-    }
+	int i;
+	sword ret;
+	if (ip) {
+		for (i = 0; i <= num_recs; i++) {
+			if (ip[i].data_ptr) {
+				ORAFREE(ip[i].data_ptr);
+				if (ip[i].locator) {
+					unsigned j;
+					for (j = 0;
+					     j < ip->desc->stmt->row_array_size;
+					     j++) {
+						OCIDescriptorFree_log(ip[i].
+								      locator
+								      [j],
+								      OCI_DTYPE_LOB);
+					}
+					ORAFREE(ip[i].locator);
+				}
+			}
+			if (ip[i].ind_arr)
+				ORAFREE(ip[i].ind_arr);
+			if (ip[i].length_arr)
+				ORAFREE(ip[i].length_arr);
+			if (ip[i].rcode_arr)
+				ORAFREE(ip[i].rcode_arr);
+		}
+		ORAFREE(ip);
+	}
 }
 
-void ood_ir_free(ir_T *ir, int num_recs)
+void ood_ir_free(ir_T * ir, int num_recs)
 {
-  int i;
+	int i;
 
-  if (ir)
-    {
-      for(i=0;i<=num_recs;i++)
-        {
-	  ood_ir_free_contents (ir + i);
-        }
-      ORAFREE(ir);
-    }
+	if (ir) {
+		for (i = 0; i <= num_recs; i++) {
+			ood_ir_free_contents(ir + i);
+		}
+		ORAFREE(ir);
+	}
 }
 
 /*
@@ -202,76 +197,73 @@ void ood_ir_free(ir_T *ir, int num_recs)
  * Frees the descriptor's resources AND knocks it out of the connection
  * handle's descriptor list
  */
-static void descriptor_free(hDesc_T *desc)
+static void descriptor_free(hDesc_T * desc)
 {
-    /*
-     * Free the records
-     */
-  assert(IS_VALID(desc));
-    switch(desc->type)
-    {
-        case DESC_AP:
-            ood_ap_free(desc->recs.ap);
-        break;
+	/*
+	 * Free the records
+	 */
+	assert(IS_VALID(desc));
+	switch (desc->type) {
+	case DESC_AP:
+		ood_ap_free(desc->recs.ap);
+		break;
 
-        case DESC_AR:
-            ood_ar_free(desc->recs.ar,desc->num_recs);
-        break;
+	case DESC_AR:
+		ood_ar_free(desc->recs.ar, desc->num_recs);
+		break;
 
-        case DESC_IP:
-		    if(desc->num_recs)
-                ood_ip_free(desc->recs.ip,desc->num_recs);
-        break;
+	case DESC_IP:
+		if (desc->num_recs)
+			ood_ip_free(desc->recs.ip, desc->num_recs);
+		break;
 
-        case DESC_IR:
-		    if(desc->num_recs)
-                ood_ir_free(desc->recs.ir,desc->num_recs);
-        break;
-    }
+	case DESC_IR:
+		if (desc->num_recs)
+			ood_ir_free(desc->recs.ir, desc->num_recs);
+		break;
+	}
 
-    THREAD_MUTEX_LOCK(desc->dbc);
+	THREAD_MUTEX_LOCK(desc->dbc);
 
-    /*
-     * Knock it out of the descriptor list
-     */
-    if(desc->prev)
-        desc->prev->next=desc->next;
-    else /* first in the descriptor list */
-        desc->dbc->desc_list=desc->next;
+	/*
+	 * Knock it out of the descriptor list
+	 */
+	if (desc->prev)
+		desc->prev->next = desc->next;
+	else			/* first in the descriptor list */
+		desc->dbc->desc_list = desc->next;
 
-    if(desc->next)
-        desc->next->prev=desc->prev;
-    else /*last in the descriptor list */
-        desc->dbc->desc_list=NULL;
-    THREAD_MUTEX_UNLOCK(desc->dbc);
+	if (desc->next)
+		desc->next->prev = desc->prev;
+	else			/*last in the descriptor list */
+		desc->dbc->desc_list = NULL;
+	THREAD_MUTEX_UNLOCK(desc->dbc);
 
-    /*
-     * Free the error list
-     */
-    ood_free_diag((hgeneric*)desc);
-    ood_mutex_destroy((hgeneric*)desc);
-    ORAFREE(desc);
+	/*
+	 * Free the error list
+	 */
+	ood_free_diag((hgeneric *) desc);
+	ood_mutex_destroy((hgeneric *) desc);
+	ORAFREE(desc);
 
 }
 
-static void free_descriptor_list(hDesc_T *list)
+static void free_descriptor_list(hDesc_T * list)
 {
-    if(list && IS_VALID(list))
-    {
-        free_descriptor_list(list->next);
-        descriptor_free(list);
-    }
-    return;
+	if (list && IS_VALID(list)) {
+		free_descriptor_list(list->next);
+		descriptor_free(list);
+	}
+	return;
 }
 
-static void free_statement_list(hStmt_T *list)
+static void free_statement_list(hStmt_T * list)
 {
-    if(list && IS_VALID(list))
-    {
-        free_statement_list(list->next);
-        _SQLFreeHandle(SQL_HANDLE_STMT,(SQLHANDLE)list);
-    }
-    return;
+	if (list && IS_VALID(list)) {
+		free_statement_list(list->next);
+		_SQLFreeHandle(SQL_HANDLE_STMT, (SQLHANDLE) list);
+	}
+	return;
 }
 
 /*
@@ -282,211 +274,227 @@ static void free_statement_list(hStmt_T *list)
  * lists on the connection handle. This can result in the connection handle
  * itself being modified.
  */
-SQLRETURN _SQLFreeHandle(
-			 SQLSMALLINT            HandleType,
-			 SQLHANDLE            Handle )
+SQLRETURN _SQLFreeHandle(SQLSMALLINT HandleType, SQLHANDLE Handle)
 {
-  sword ret;
-    hDbc_T* dbc;
-    hStmt_T* stmt;
-    if(!Handle)
-      return SQL_INVALID_HANDLE;
-    
-    ood_clear_diag((hgeneric*)(hgeneric*)Handle);
-    
-    switch(HandleType)
-      {
-      case SQL_HANDLE_ENV:
-        {
-	  /*return SQL_SUCCESS;*/
-	  hEnv_T *env=(hEnv_T*)Handle;
-	  assert(IS_VALID(env));
-	  if(HANDLE_TYPE(env)!=SQL_HANDLE_ENV)
-	    {
-	      abort();
-	    }
+	sword ret;
+	hDbc_T *dbc;
+	hStmt_T *stmt;
+	if (!Handle)
+		return SQL_INVALID_HANDLE;
+
+	ood_clear_diag((hgeneric *) (hgeneric *) Handle);
+
+	switch (HandleType) {
+	case SQL_HANDLE_ENV:
+		{
+			/*return SQL_SUCCESS; */
+			hEnv_T *env = (hEnv_T *) Handle;
+			assert(IS_VALID(env));
+			if (HANDLE_TYPE(env) != SQL_HANDLE_ENV) {
+				abort();
+			}
 #if 0
 #ifdef LIBCLNTSH8
-	  OCITerminate(OCI_DEFAULT);
+			OCITerminate(OCI_DEFAULT);
 #endif
 #endif
-	  ood_mutex_destroy((hgeneric*)env);
-	  ood_free_diag((hgeneric*)env);
-	  ORAFREE(env);
-        }
-        break;
-	
-      case SQL_HANDLE_DBC:
-        {
-	  
-	  /*return SQL_SUCCESS;*/
-	  
-	  hDbc_T *dbc=(hDbc_T*)Handle;
-	  if(dbc && IS_VALID(dbc))
-	    {
-	      if(ENABLE_TRACE){
-		ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-				(SQLHANDLE)dbc,0,"s",NULL,"(No Exit Trace)");
-	      }
-	      /* free the oci_stmt before oci environment handle,
-		 otherwise oracle oci touches free-ed memory and we crash */
-	      stmt = dbc->stmt_list;
-	      while (stmt && IS_VALID(stmt)) {
-		if (stmt->oci_stmt) {
-		  OCIHandleFree_log_stat(stmt->oci_stmt,
-					 OCI_HTYPE_STMT,ret);
-		  stmt->oci_stmt = (OCIStmt *)0;
+			ood_mutex_destroy((hgeneric *) env);
+			ood_free_diag((hgeneric *) env);
+			ORAFREE(env);
 		}
-		stmt = stmt->next;
-	      }
-	      ood_free_diag((hgeneric*)dbc);
-	      THREAD_MUTEX_LOCK(dbc);
-	      
-	      if(dbc->oci_err){
-		OCIHandleFree_log_stat(dbc->oci_err,OCI_HTYPE_ERROR,ret);
-		dbc->oci_err=NULL;
-	      }
-	      if(dbc->oci_srv){
-		OCIHandleFree_log_stat(dbc->oci_srv,OCI_HTYPE_SERVER,ret);
-		dbc->oci_srv=NULL;
-	      }
-	      if(dbc->oci_svc){
-		OCIHandleFree_log_stat(dbc->oci_svc,OCI_HTYPE_SVCCTX,ret);
-		dbc->oci_svc=NULL;
-	      }
-	      if(dbc->oci_ses){
-		OCIHandleFree_log_stat(dbc->oci_ses,OCI_HTYPE_SESSION,ret);
-		dbc->oci_ses=NULL;
-	      }
-	      if(dbc->oci_env)
+		break;
+
+	case SQL_HANDLE_DBC:
 		{
-		/*Turns out ORAFREE() followed by repeated OCIEnvCreate 
-		* leaks memory.  Code has been 
- 		* modified so OCIEnvCreate is called only once, a
-		* global var gOCIEnv_p initialized  and then used 
-		* everywhere dbc->oci_env and all its leak-alikes
-		* were used previously.  The ORAFREE below should
-		* never be called but if it does its harmless
-		*/
-		  /*
-		   * I can't find any documentation on what should be done
-		   * with the Oracle environment handle at 
-		   * the end of a session.
-		   * Using OCIHandleFree on it seems to yield unpredicatable
-		   * results. ORAFREE() seems OK on UNIX
-		   */
 
-		  ORAFREE(dbc->oci_env);
+			/*return SQL_SUCCESS; */
 
+			hDbc_T *dbc = (hDbc_T *) Handle;
+			if (dbc && IS_VALID(dbc)) {
+				if (ENABLE_TRACE) {
+					ood_log_message(dbc, __FILE__, __LINE__,
+							TRACE_FUNCTION_ENTRY,
+							(SQLHANDLE) dbc, 0, "s",
+							NULL,
+							"(No Exit Trace)");
+				}
+				/* free the oci_stmt before oci environment handle,
+				   otherwise oracle oci touches free-ed memory and we crash */
+				stmt = dbc->stmt_list;
+				while (stmt && IS_VALID(stmt)) {
+					if (stmt->oci_stmt) {
+						OCIHandleFree_log_stat(stmt->
+								       oci_stmt,
+								       OCI_HTYPE_STMT,
+								       ret);
+						stmt->oci_stmt = (OCIStmt *) 0;
+					}
+					stmt = stmt->next;
+				}
+				ood_free_diag((hgeneric *) dbc);
+				THREAD_MUTEX_LOCK(dbc);
 
+				if (dbc->oci_err) {
+					OCIHandleFree_log_stat(dbc->oci_err,
+							       OCI_HTYPE_ERROR,
+							       ret);
+					dbc->oci_err = NULL;
+				}
+				if (dbc->oci_srv) {
+					OCIHandleFree_log_stat(dbc->oci_srv,
+							       OCI_HTYPE_SERVER,
+							       ret);
+					dbc->oci_srv = NULL;
+				}
+				if (dbc->oci_svc) {
+					OCIHandleFree_log_stat(dbc->oci_svc,
+							       OCI_HTYPE_SVCCTX,
+							       ret);
+					dbc->oci_svc = NULL;
+				}
+				if (dbc->oci_ses) {
+					OCIHandleFree_log_stat(dbc->oci_ses,
+							       OCI_HTYPE_SESSION,
+							       ret);
+					dbc->oci_ses = NULL;
+				}
+				if (dbc->oci_env) {
+					/*Turns out ORAFREE() followed by repeated OCIEnvCreate 
+					 * leaks memory.  Code has been 
+					 * modified so OCIEnvCreate is called only once, a
+					 * global var gOCIEnv_p initialized  and then used 
+					 * everywhere dbc->oci_env and all its leak-alikes
+					 * were used previously.  The ORAFREE below should
+					 * never be called but if it does its harmless
+					 */
+					/*
+					 * I can't find any documentation on what should be done
+					 * with the Oracle environment handle at 
+					 * the end of a session.
+					 * Using OCIHandleFree on it seems to yield unpredicatable
+					 * results. ORAFREE() seems OK on UNIX
+					 */
+
+					ORAFREE(dbc->oci_env);
+
+				}
+				THREAD_MUTEX_UNLOCK(dbc);
+				free_statement_list(dbc->stmt_list);
+				free_descriptor_list(dbc->desc_list);
+				ood_mutex_destroy((hgeneric *) dbc);
+				ORAFREE(dbc);
+			}
 		}
-	      THREAD_MUTEX_UNLOCK(dbc);
-	      free_statement_list(dbc->stmt_list);
-	      free_descriptor_list(dbc->desc_list);
-	      ood_mutex_destroy((hgeneric*)dbc);
-	      ORAFREE(dbc);
-	    }
-        }
-        break;
-	
-      case SQL_HANDLE_STMT:
-        {
-	  /*return SQL_SUCCESS;*/
-	  hStmt_T *stmt=(hStmt_T*)Handle;
-	  if(!IS_VALID(stmt)) return SQL_ERROR;
-	  if(ENABLE_TRACE){
-	    dbc=stmt->dbc;
-	    if(!IS_VALID(dbc)) return SQL_ERROR;
-	    
-	    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			    (SQLHANDLE)stmt,0,"");
-	  }
-	  ood_free_diag((hgeneric*)stmt);
-	  if(stmt->oci_stmt){
-	    OCIHandleFree_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,ret);
-	    stmt->oci_stmt=NULL;
-	  }
-	  /*
-	   * Free our Descriptors
-	   */
-	  descriptor_free(stmt->implicit_ap);
-	  descriptor_free(stmt->implicit_ip);
-	  descriptor_free(stmt->implicit_ar);
-	  descriptor_free(stmt->implicit_ir);
-	  
-	  /*
-	   * Free any data associated with an alternative fetch fn
-	   */
-	  ORAFREE(stmt->alt_fetch_data);
-	  /*
-	   * And the sql
-	   */
-	  ORAFREE(stmt->sql);
-	  
-	  /*
-	   * Knock the statement out of the statement list
-	   */
-	  THREAD_MUTEX_LOCK(stmt->dbc);
-	  if(stmt->prev)
-	    stmt->prev->next=stmt->next;
-	  else /* first in the statement list */
-	    stmt->dbc->stmt_list=stmt->next;
-	  if(stmt->next)
-	    stmt->next->prev=stmt->prev;
-	  else /* this is the last in the list */
-	    stmt->dbc->stmt_list=NULL;
-	  THREAD_MUTEX_UNLOCK(stmt->dbc);
-	  ood_mutex_destroy((hgeneric*)stmt);
-	  ORAFREE(stmt);
-	  if(ENABLE_TRACE){
-	    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-			    (SQLHANDLE)NULL,SQL_SUCCESS,"");
-	  }
-        }
-        break;
-	
-    case SQL_HANDLE_DESC:
-      {
-	/*return SQL_SUCCESS;*/
-            hDesc_T *desc=(hDesc_T*)Handle;
-	    if(ENABLE_TRACE){
-	      hDbc_T* dbc=desc->dbc;
-	      if(!IS_VALID(desc)) return SQL_ERROR;
-	      if(!IS_VALID(dbc)) return SQL_ERROR;
-	      
-	      ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-			      (SQLHANDLE)desc,0,"");
-	    }
-            if(!desc||HANDLE_TYPE(desc)!=SQL_HANDLE_DESC)
-	      return SQL_INVALID_HANDLE;
-	    
-            if(desc->stmt)
-	      {
-                /*
-                 * only implicit descriptors have statement refs
-                 */
-                ood_post_diag((hgeneric*)desc,ERROR_ORIGIN_HY017,0,"",
-			      ERROR_MESSAGE_HY017,
-			      __LINE__,0,desc->stmt->dbc->DSN,ERROR_STATE_HY017,
-			      __FILE__,__LINE__);
-	      }
-            descriptor_free(desc);
-	    if(ENABLE_TRACE){
-	      ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-			      (SQLHANDLE)NULL,SQL_SUCCESS,"");
-	    }
-      }
-      break;
-      
-    default:
-      return SQL_ERROR;
-    }
-    return SQL_SUCCESS;
+		break;
+
+	case SQL_HANDLE_STMT:
+		{
+			/*return SQL_SUCCESS; */
+			hStmt_T *stmt = (hStmt_T *) Handle;
+			if (!IS_VALID(stmt))
+				return SQL_ERROR;
+			if (ENABLE_TRACE) {
+				dbc = stmt->dbc;
+				if (!IS_VALID(dbc))
+					return SQL_ERROR;
+
+				ood_log_message(dbc, __FILE__, __LINE__,
+						TRACE_FUNCTION_ENTRY,
+						(SQLHANDLE) stmt, 0, "");
+			}
+			ood_free_diag((hgeneric *) stmt);
+			if (stmt->oci_stmt) {
+				OCIHandleFree_log_stat(stmt->oci_stmt,
+						       OCI_HTYPE_STMT, ret);
+				stmt->oci_stmt = NULL;
+			}
+			/*
+			 * Free our Descriptors
+			 */
+			descriptor_free(stmt->implicit_ap);
+			descriptor_free(stmt->implicit_ip);
+			descriptor_free(stmt->implicit_ar);
+			descriptor_free(stmt->implicit_ir);
+
+			/*
+			 * Free any data associated with an alternative fetch fn
+			 */
+			ORAFREE(stmt->alt_fetch_data);
+			/*
+			 * And the sql
+			 */
+			ORAFREE(stmt->sql);
+
+			/*
+			 * Knock the statement out of the statement list
+			 */
+			THREAD_MUTEX_LOCK(stmt->dbc);
+			if (stmt->prev)
+				stmt->prev->next = stmt->next;
+			else	/* first in the statement list */
+				stmt->dbc->stmt_list = stmt->next;
+			if (stmt->next)
+				stmt->next->prev = stmt->prev;
+			else	/* this is the last in the list */
+				stmt->dbc->stmt_list = NULL;
+			THREAD_MUTEX_UNLOCK(stmt->dbc);
+			ood_mutex_destroy((hgeneric *) stmt);
+			ORAFREE(stmt);
+			if (ENABLE_TRACE) {
+				ood_log_message(dbc, __FILE__, __LINE__,
+						TRACE_FUNCTION_EXIT,
+						(SQLHANDLE) NULL, SQL_SUCCESS,
+						"");
+			}
+		}
+		break;
+
+	case SQL_HANDLE_DESC:
+		{
+			/*return SQL_SUCCESS; */
+			hDesc_T *desc = (hDesc_T *) Handle;
+			if (ENABLE_TRACE) {
+				hDbc_T *dbc = desc->dbc;
+				if (!IS_VALID(desc))
+					return SQL_ERROR;
+				if (!IS_VALID(dbc))
+					return SQL_ERROR;
+
+				ood_log_message(dbc, __FILE__, __LINE__,
+						TRACE_FUNCTION_ENTRY,
+						(SQLHANDLE) desc, 0, "");
+			}
+			if (!desc || HANDLE_TYPE(desc) != SQL_HANDLE_DESC)
+				return SQL_INVALID_HANDLE;
+
+			if (desc->stmt) {
+				/*
+				 * only implicit descriptors have statement refs
+				 */
+				ood_post_diag((hgeneric *) desc,
+					      ERROR_ORIGIN_HY017, 0, "",
+					      ERROR_MESSAGE_HY017, __LINE__, 0,
+					      desc->stmt->dbc->DSN,
+					      ERROR_STATE_HY017, __FILE__,
+					      __LINE__);
+			}
+			descriptor_free(desc);
+			if (ENABLE_TRACE) {
+				ood_log_message(dbc, __FILE__, __LINE__,
+						TRACE_FUNCTION_EXIT,
+						(SQLHANDLE) NULL, SQL_SUCCESS,
+						"");
+			}
+		}
+		break;
+
+	default:
+		return SQL_ERROR;
+	}
+	return SQL_SUCCESS;
 }
 
-SQLRETURN SQL_API SQLFreeHandle(
-				SQLSMALLINT            HandleType,
-				SQLHANDLE            Handle )
+SQLRETURN SQL_API SQLFreeHandle(SQLSMALLINT HandleType, SQLHANDLE Handle)
 {
-  return _SQLFreeHandle( HandleType, Handle );
+	return _SQLFreeHandle(HandleType, Handle);
 }

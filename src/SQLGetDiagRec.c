@@ -79,7 +79,7 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: SQLGetDiagRec.c,v $ $Revision: 1.5 $";
+static char const rcsid[] = "$RCSfile: SQLGetDiagRec.c,v $ $Revision: 1.5 $";
 
 #include "common.h"
 
@@ -87,46 +87,46 @@ static char const rcsid[]= "$RCSfile: SQLGetDiagRec.c,v $ $Revision: 1.5 $";
  * Please note this in implemented in diagnostics.h
  */
 
-SQLRETURN SQL_API SQLGetDiagRec(
-    SQLSMALLINT            HandleType,
-    SQLHANDLE            Handle,
-    SQLSMALLINT            RecNumber,
-    SQLCHAR                *SqlState,
-    SQLINTEGER            *NativeErrorPtr,
-    SQLCHAR                *MessageText,
-    SQLSMALLINT            BufferLength,
-    SQLSMALLINT            *TextLengthPtr )
+SQLRETURN SQL_API SQLGetDiagRec(SQLSMALLINT HandleType,
+				SQLHANDLE Handle,
+				SQLSMALLINT RecNumber,
+				SQLCHAR * SqlState,
+				SQLINTEGER * NativeErrorPtr,
+				SQLCHAR * MessageText,
+				SQLSMALLINT BufferLength,
+				SQLSMALLINT * TextLengthPtr)
 {
-    SQLRETURN status=SQL_SUCCESS;
-    hDbc_T* dbc=NULL;
-if(ENABLE_TRACE){
-    switch(HANDLE_TYPE(Handle))
-    {
-        case SQL_HANDLE_DBC:
-            dbc=(hDbc_T*)Handle;
-            break;
-        case SQL_HANDLE_STMT:
-            dbc=((hStmt_T*)Handle)->dbc;
-            break;
-        case SQL_HANDLE_DESC:
-            dbc=((hDesc_T*)Handle)->dbc;
-            break;
-    }
-    if(dbc){
-        ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)Handle,0,"II",
-			"RecNumber",RecNumber,
-			"BufferLength,",BufferLength);
-	assert(IS_VALID(dbc));
-    }
-}
-    status=_SQLGetDiagRec( HandleType, Handle, RecNumber, SqlState,
-            NativeErrorPtr, MessageText, BufferLength, TextLengthPtr );
-if(ENABLE_TRACE){
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
+	SQLRETURN status = SQL_SUCCESS;
+	hDbc_T *dbc = NULL;
+	if (ENABLE_TRACE) {
+		switch (HANDLE_TYPE(Handle)) {
+		case SQL_HANDLE_DBC:
+			dbc = (hDbc_T *) Handle;
+			break;
+		case SQL_HANDLE_STMT:
+			dbc = ((hStmt_T *) Handle)->dbc;
+			break;
+		case SQL_HANDLE_DESC:
+			dbc = ((hDesc_T *) Handle)->dbc;
+			break;
+		}
+		if (dbc) {
+			ood_log_message(dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_ENTRY,
+					(SQLHANDLE) Handle, 0, "II",
+					"RecNumber", RecNumber, "BufferLength,",
+					BufferLength);
+			assert(IS_VALID(dbc));
+		}
+	}
+	status = _SQLGetDiagRec(HandleType, Handle, RecNumber, SqlState,
+				NativeErrorPtr, MessageText, BufferLength,
+				TextLengthPtr);
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_EXIT,
+				(SQLHANDLE) NULL, status, "");
+	}
 	/* keep the error for repeated viewing
-       ood_clear_diag((hgeneric*)Handle); */
-    return status;
+	   ood_clear_diag((hgeneric*)Handle); */
+	return status;
 }

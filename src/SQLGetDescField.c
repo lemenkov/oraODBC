@@ -57,23 +57,23 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetDescField.c,v $ $Revision: 1.2 $";
+static char const rcsid[] = "$RCSfile: SQLGetDescField.c,v $ $Revision: 1.2 $";
 
-SQLRETURN SQL_API SQLGetDescField(
-    SQLHDESC            DescriptorHandle,
-    SQLSMALLINT            RecNumber,
-    SQLSMALLINT            FieldIdentifier,
-    SQLPOINTER            ValuePtr,
-    SQLINTEGER            BufferLength,
-    SQLINTEGER            *StringLengthPtr )
+SQLRETURN SQL_API SQLGetDescField(SQLHDESC DescriptorHandle,
+				  SQLSMALLINT RecNumber,
+				  SQLSMALLINT FieldIdentifier,
+				  SQLPOINTER ValuePtr,
+				  SQLINTEGER BufferLength,
+				  SQLINTEGER * StringLengthPtr)
 {
-    hDesc_T* desc=(hDesc_T*)DescriptorHandle;
-    SQLRETURN status=SQL_SUCCESS;
+	hDesc_T *desc = (hDesc_T *) DescriptorHandle;
+	SQLRETURN status = SQL_SUCCESS;
 
-    ood_clear_diag((hgeneric*)desc);
-    THREAD_MUTEX_LOCK(desc);
+	ood_clear_diag((hgeneric *) desc);
+	THREAD_MUTEX_LOCK(desc);
 
-    THREAD_MUTEX_UNLOCK(desc);
-    fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
-    return status;
+	THREAD_MUTEX_UNLOCK(desc);
+	fprintf(stderr, "called stubbed function line %d file %s\n", __LINE__,
+		__FILE__);
+	return status;
 }

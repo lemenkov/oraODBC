@@ -89,77 +89,76 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetFunctions.c,v $ $Revision: 1.4 $";
+static char const rcsid[] = "$RCSfile: SQLGetFunctions.c,v $ $Revision: 1.4 $";
 
-int supported_functions[] = 
-{
-    SQL_API_SQLALLOCHANDLE,
-    SQL_API_SQLALLOCHANDLESTD,
-    /*SQL_API_SQLALLOCSTMT,*/
-    SQL_API_SQLBINDCOL,
-    SQL_API_SQLBINDPARAMETER,
-    SQL_API_SQLBROWSECONNECT,
-    SQL_API_SQLCANCEL,
-    SQL_API_SQLCLOSECURSOR,
-    SQL_API_SQLCOLATTRIBUTE,
-    SQL_API_SQLCOLUMNPRIVILEGES,
-    SQL_API_SQLCOLUMNS,
-    SQL_API_SQLCONNECT,
-    SQL_API_SQLDRIVERCONNECT,
-    SQL_API_SQLDESCRIBECOL,
-    SQL_API_SQLDESCRIBEPARAM,
-    SQL_API_SQLDISCONNECT,
-    SQL_API_SQLENDTRAN, 
-    SQL_API_SQLEXECDIRECT,
-    SQL_API_SQLEXECUTE,
-    SQL_API_SQLEXTENDEDFETCH,
-    SQL_API_SQLFETCH,
-    SQL_API_SQLFETCHSCROLL,
-    SQL_API_SQLFOREIGNKEYS,
-    SQL_API_SQLFREEHANDLE,
-    SQL_API_SQLFREESTMT, 
-    SQL_API_SQLGETCONNECTATTR,
+int supported_functions[] = {
+	SQL_API_SQLALLOCHANDLE,
+	SQL_API_SQLALLOCHANDLESTD,
+	/*SQL_API_SQLALLOCSTMT, */
+	SQL_API_SQLBINDCOL,
+	SQL_API_SQLBINDPARAMETER,
+	SQL_API_SQLBROWSECONNECT,
+	SQL_API_SQLCANCEL,
+	SQL_API_SQLCLOSECURSOR,
+	SQL_API_SQLCOLATTRIBUTE,
+	SQL_API_SQLCOLUMNPRIVILEGES,
+	SQL_API_SQLCOLUMNS,
+	SQL_API_SQLCONNECT,
+	SQL_API_SQLDRIVERCONNECT,
+	SQL_API_SQLDESCRIBECOL,
+	SQL_API_SQLDESCRIBEPARAM,
+	SQL_API_SQLDISCONNECT,
+	SQL_API_SQLENDTRAN,
+	SQL_API_SQLEXECDIRECT,
+	SQL_API_SQLEXECUTE,
+	SQL_API_SQLEXTENDEDFETCH,
+	SQL_API_SQLFETCH,
+	SQL_API_SQLFETCHSCROLL,
+	SQL_API_SQLFOREIGNKEYS,
+	SQL_API_SQLFREEHANDLE,
+	SQL_API_SQLFREESTMT,
+	SQL_API_SQLGETCONNECTATTR,
 /*    SQL_API_SQLGETCURSORNAME,*/
-    SQL_API_SQLGETDATA,
+	SQL_API_SQLGETDATA,
 /*    SQL_API_SQLGETDESCFIELD,*/
 /*    SQL_API_SQLGETDESCREC,*/
-    SQL_API_SQLGETDIAGFIELD,
-    SQL_API_SQLGETDIAGREC,
-    SQL_API_SQLGETENVATTR,
-    SQL_API_SQLGETFUNCTIONS,
-    SQL_API_SQLGETINFO,
-    SQL_API_SQLGETSTMTATTR,
-    SQL_API_SQLGETTYPEINFO,
-    /*SQL_API_SQLMORERESULTS,*/
+	SQL_API_SQLGETDIAGFIELD,
+	SQL_API_SQLGETDIAGREC,
+	SQL_API_SQLGETENVATTR,
+	SQL_API_SQLGETFUNCTIONS,
+	SQL_API_SQLGETINFO,
+	SQL_API_SQLGETSTMTATTR,
+	SQL_API_SQLGETTYPEINFO,
+	/*SQL_API_SQLMORERESULTS, */
 /*    SQL_API_SQLNATIVESQL,*/
-    SQL_API_SQLNUMPARAMS,
-    SQL_API_SQLNUMRESULTCOLS,
+	SQL_API_SQLNUMPARAMS,
+	SQL_API_SQLNUMRESULTCOLS,
 /*    SQL_API_SQLPROCEDURES,*/
 /*    SQL_API_SQLPROCEDURECOLUMNS,*/
-    SQL_API_SQLPARAMDATA,
-    SQL_API_SQLPUTDATA,
-    SQL_API_SQLPREPARE,
-    SQL_API_SQLPRIMARYKEYS,
-    SQL_API_SQLROWCOUNT,
+	SQL_API_SQLPARAMDATA,
+	SQL_API_SQLPUTDATA,
+	SQL_API_SQLPREPARE,
+	SQL_API_SQLPRIMARYKEYS,
+	SQL_API_SQLROWCOUNT,
 /*    SQL_API_SQLSETDESCFIELD,*/
 /*    SQL_API_SQLSETDESCREC,*/
-    SQL_API_SQLSETCONNECTATTR,
+	SQL_API_SQLSETCONNECTATTR,
 /*    SQL_API_SQLSETCURSORNAME,*/
-    SQL_API_SQLSETENVATTR, 
-    /*SQL_API_SQLSETPOS,*/
-    SQL_API_SQLSETSTMTATTR, 
-    SQL_API_SQLSPECIALCOLUMNS,
-    SQL_API_SQLSTATISTICS,
-    SQL_API_SQLTABLEPRIVILEGES,
-    SQL_API_SQLTABLES,
-    /*SQL_API_SQLALLOCCONNECT,*/
-    /*SQL_API_SQLALLOCENV,*/
+	SQL_API_SQLSETENVATTR,
+	/*SQL_API_SQLSETPOS, */
+	SQL_API_SQLSETSTMTATTR,
+	SQL_API_SQLSPECIALCOLUMNS,
+	SQL_API_SQLSTATISTICS,
+	SQL_API_SQLTABLEPRIVILEGES,
+	SQL_API_SQLTABLES,
+	/*SQL_API_SQLALLOCCONNECT, */
+	/*SQL_API_SQLALLOCENV, */
 /*    SQL_API_SQLSETSTMTOPTION,*/
 /*    SQL_API_SQLSETCONNECTOPTION,*/
-    /*SQL_API_SQLGETSTMTOPTION,*/
+	/*SQL_API_SQLGETSTMTOPTION, */
 /*    SQL_API_SQLERROR,*/
-    /*SQL_API_SQLFREECONNECT,*/
-    /*SQL_API_SQLFREEENV,*/
+	/*SQL_API_SQLFREECONNECT, */
+	/*SQL_API_SQLFREEENV, */
 /*    SQL_API_SQLSETSCROLLOPTIONS,*/
 /*    SQL_API_SQLPARAMOPTIONS,*/
 /*    SQL_API_SQLGETCONNECTOPTION,*/
@@ -167,73 +166,66 @@ int supported_functions[] =
 /*    SQL_API_SQLSETPARAM*/
 };
 
-
-SQLRETURN SQL_API SQLGetFunctions(
-    SQLHDBC            ConnectionHandle,
-    SQLUSMALLINT    FunctionId,
-    SQLUSMALLINT    *SupportedPtr )
+SQLRETURN SQL_API SQLGetFunctions(SQLHDBC ConnectionHandle,
+				  SQLUSMALLINT FunctionId,
+				  SQLUSMALLINT * SupportedPtr)
 {
-    int i;
-    hDbc_T* dbc=(hDbc_T*)ConnectionHandle;
+	int i;
+	hDbc_T *dbc = (hDbc_T *) ConnectionHandle;
 
-    if(!ConnectionHandle || 
-            ((hgeneric*)ConnectionHandle)->htype!=SQL_HANDLE_DBC)
-    {
-        return SQL_INVALID_HANDLE;
-    }
-    assert(IS_VALID(dbc));
-if(ENABLE_TRACE){
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)dbc,0,"Uh"
-            ,"FunctionId",FunctionId,
-            "SupportedPtr",SupportedPtr);
-}
-    ood_clear_diag((hgeneric*)dbc);
+	if (!ConnectionHandle ||
+	    ((hgeneric *) ConnectionHandle)->htype != SQL_HANDLE_DBC) {
+		return SQL_INVALID_HANDLE;
+	}
+	assert(IS_VALID(dbc));
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_ENTRY,
+				(SQLHANDLE) dbc, 0, "Uh", "FunctionId",
+				FunctionId, "SupportedPtr", SupportedPtr);
+	}
+	ood_clear_diag((hgeneric *) dbc);
 
-    if ( FunctionId == SQL_API_ODBC3_ALL_FUNCTIONS )
-    {
-        for ( i = 0; i < SQL_API_ODBC3_ALL_FUNCTIONS_SIZE; i ++ )
-        {
-            SupportedPtr[ i ] = 0x0000;
-        }
-        for ( i = 0; i < sizeof( supported_functions ) / sizeof( supported_functions[ 0 ] ); i ++ )
-        {
-        int id = supported_functions[ i ];
-    
-            SupportedPtr[ id >> 4 ] |= ( 1 << ( id & 0x000F ));
-        }
-    }
-    else if ( FunctionId == SQL_API_ALL_FUNCTIONS )
-    {
-        for ( i = 0; i < 100; i ++ )
-        {
-            SupportedPtr[ i ] = SQL_FALSE;
-        }
-        for ( i = 0; i < sizeof( supported_functions ) / sizeof( supported_functions[ 0 ] ); i ++ )
-        {
-            if ( supported_functions[ i ] < 100 )
-            {
-                SupportedPtr[ supported_functions[ i ]] = SQL_TRUE;
-            }
-        }
-    }
-    else
-    {
-        *SupportedPtr = SQL_FALSE;
-        for ( i = 0; i < sizeof( supported_functions ) / sizeof( supported_functions[ 0 ] ); i ++ )
-        {
-            if ( supported_functions[ i ] == FunctionId )
-            {
-                *SupportedPtr = SQL_TRUE;
-                break;
-            }
-        }
-    }
+	if (FunctionId == SQL_API_ODBC3_ALL_FUNCTIONS) {
+		for (i = 0; i < SQL_API_ODBC3_ALL_FUNCTIONS_SIZE; i++) {
+			SupportedPtr[i] = 0x0000;
+		}
+		for (i = 0;
+		     i <
+		     sizeof(supported_functions) /
+		     sizeof(supported_functions[0]); i++) {
+			int id = supported_functions[i];
 
-if(ENABLE_TRACE){
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,SQL_SUCCESS,"U",
-            "*SupportedPtr",*SupportedPtr);
-}
-    return SQL_SUCCESS;
+			SupportedPtr[id >> 4] |= (1 << (id & 0x000F));
+		}
+	} else if (FunctionId == SQL_API_ALL_FUNCTIONS) {
+		for (i = 0; i < 100; i++) {
+			SupportedPtr[i] = SQL_FALSE;
+		}
+		for (i = 0;
+		     i <
+		     sizeof(supported_functions) /
+		     sizeof(supported_functions[0]); i++) {
+			if (supported_functions[i] < 100) {
+				SupportedPtr[supported_functions[i]] = SQL_TRUE;
+			}
+		}
+	} else {
+		*SupportedPtr = SQL_FALSE;
+		for (i = 0;
+		     i <
+		     sizeof(supported_functions) /
+		     sizeof(supported_functions[0]); i++) {
+			if (supported_functions[i] == FunctionId) {
+				*SupportedPtr = SQL_TRUE;
+				break;
+			}
+		}
+	}
+
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_EXIT,
+				(SQLHANDLE) NULL, SQL_SUCCESS, "U",
+				"*SupportedPtr", *SupportedPtr);
+	}
+	return SQL_SUCCESS;
 }

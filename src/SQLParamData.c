@@ -70,36 +70,35 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLParamData.c,v $ $Revision: 1.5 $";
+static char const rcsid[] = "$RCSfile: SQLParamData.c,v $ $Revision: 1.5 $";
 
-SQLRETURN SQL_API SQLParamData( 
-    SQLHSTMT        StatementHandle,
-    SQLPOINTER        *ValuePtrPtr )
+SQLRETURN SQL_API SQLParamData(SQLHSTMT StatementHandle,
+			       SQLPOINTER * ValuePtrPtr)
 {
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
-    /*
-    SQLRETURN status=SQL_SUCCESS;
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"s",
-			"SQLParamData","FIXME This function is not yet implemented");
-}
-    ood_clear_diag((hgeneric*)stmt);
-    ood_mutex_lock_stmt(stmt);
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	/*
+	   SQLRETURN status=SQL_SUCCESS;
+	   if(ENABLE_TRACE){
+	   ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
+	   (SQLHANDLE)stmt,0,"s",
+	   "SQLParamData","FIXME This function is not yet implemented");
+	   }
+	   ood_clear_diag((hgeneric*)stmt);
+	   ood_mutex_lock_stmt(stmt);
 
-    ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
-    */
-    if(ValuePtrPtr && (char)*ValuePtrPtr!='S'){
-      *ValuePtrPtr = ORAMALLOC(strlen("Special Instructions")+1);
-      strcpy((const char*)*ValuePtrPtr,"Special Instructions");
-      //printf("set ValuePtrPtr to %s, goddammit\n",(const char*)*ValuePtrPtr);
-      return SQL_NEED_DATA;
-    }else{
-      return SQL_SUCCESS;
-    }
+	   ood_mutex_unlock_stmt(stmt);
+	   if(ENABLE_TRACE){
+	   ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
+	   (SQLHANDLE)NULL,status,"");
+	   }
+	   fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
+	 */
+	if (ValuePtrPtr && (char)*ValuePtrPtr != 'S') {
+		*ValuePtrPtr = ORAMALLOC(strlen("Special Instructions") + 1);
+		strcpy((const char *)*ValuePtrPtr, "Special Instructions");
+		//printf("set ValuePtrPtr to %s, goddammit\n",(const char*)*ValuePtrPtr);
+		return SQL_NEED_DATA;
+	} else {
+		return SQL_SUCCESS;
+	}
 }

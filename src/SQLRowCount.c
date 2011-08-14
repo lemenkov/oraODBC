@@ -70,30 +70,29 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLRowCount.c,v $ $Revision: 1.4 $";
+static char const rcsid[] = "$RCSfile: SQLRowCount.c,v $ $Revision: 1.4 $";
 
-SQLRETURN SQL_API SQLRowCount(
-    SQLHSTMT            StatementHandle,
-    SQLINTEGER            *RowCountPtr )
+SQLRETURN SQL_API SQLRowCount(SQLHSTMT StatementHandle,
+			      SQLINTEGER * RowCountPtr)
 {
-    hStmt_T *stmt=(hStmt_T*)StatementHandle;
-    if(!stmt||HANDLE_TYPE(stmt)!=SQL_HANDLE_STMT)
-    {
-        return SQL_INVALID_HANDLE;
-    }
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"");
-}
-    ood_clear_diag((hgeneric*)stmt);
-    ood_mutex_lock_stmt(stmt);
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	if (!stmt || HANDLE_TYPE(stmt) != SQL_HANDLE_STMT) {
+		return SQL_INVALID_HANDLE;
+	}
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
+	}
+	ood_clear_diag((hgeneric *) stmt);
+	ood_mutex_lock_stmt(stmt);
 
-	*RowCountPtr=(SQLINTEGER)abs(stmt->num_result_rows);
+	*RowCountPtr = (SQLINTEGER) abs(stmt->num_result_rows);
 
-    ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,SQL_SUCCESS,"i","*RowCountPtr",*RowCountPtr);
-}
-    return SQL_SUCCESS;
+	ood_mutex_unlock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+				SQL_SUCCESS, "i", "*RowCountPtr", *RowCountPtr);
+	}
+	return SQL_SUCCESS;
 }

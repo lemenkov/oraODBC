@@ -70,94 +70,92 @@ void ood_init_hgeneric(void *hH, SQLINTEGER htype);
  * Error node type
  */
 
-struct error_node_tag
-{
-    SQLCHAR *origin;
-    SQLINTEGER column_number;
-    SQLCHAR *connection_name;
-    SQLCHAR message[512];
-    SQLINTEGER native;
-    SQLINTEGER row_number;
-    SQLCHAR *server_name;
-    SQLCHAR *sqlstate;
+struct error_node_tag {
+	SQLCHAR *origin;
+	SQLINTEGER column_number;
+	SQLCHAR *connection_name;
+	SQLCHAR message[512];
+	SQLINTEGER native;
+	SQLINTEGER row_number;
+	SQLCHAR *server_name;
+	SQLCHAR *sqlstate;
 
-    struct error_node_tag *next;
+	struct error_node_tag *next;
 };
 typedef struct error_node_tag error_node;
 
-typedef struct 
-{
-    SQLINTEGER cusor_row_count;
-    SQLCHAR dynamic_fn[32];
-    SQLINTEGER dynamic_fn_code;
-    SQLINTEGER diag_number;
-    SQLINTEGER return_code;
-    SQLINTEGER row_count;
-}error_header;
+typedef struct {
+	SQLINTEGER cusor_row_count;
+	SQLCHAR dynamic_fn[32];
+	SQLINTEGER dynamic_fn_code;
+	SQLINTEGER diag_number;
+	SQLINTEGER return_code;
+	SQLINTEGER row_count;
+} error_header;
 
 extern char *error_messages[];
 
-enum error_codes { 
- sqlerror_01004=0,
- sqlerror_01S02,
- sqlerror_01S07,
- sqlerror_01S09,
- sqlerror_07002,
- sqlerror_07005,
- sqlerror_07006,
- sqlerror_07009,
- sqlerror_08001,
- sqlerror_08002,
- sqlerror_08003,
- sqlerror_08004,
- sqlerror_08S01,
- sqlerror_21S02,
- sqlerror_22001,
- sqlerror_22002,
- sqlerror_22003,
- sqlerror_22007,
- sqlerror_22008,
- sqlerror_22012,
- sqlerror_22015,
- sqlerror_23000,
- sqlerror_24000,
- sqlerror_25000,
- sqlerror_25S01,
- sqlerror_34000,
- sqlerror_3C000,
- sqlerror_40001,
- sqlerror_42000,
- sqlerror_42S02,
- sqlerror_42S02a,
- sqlerror_42S22,
- sqlerror_HY000,
- sqlerror_HY001,
- sqlerror_HY003,
- sqlerror_HY004,
- sqlerror_HY007,
- sqlerror_HY008,
- sqlerror_HY009,
- sqlerror_HY010,
- sqlerror_HY011,
- sqlerror_HY012,
- sqlerror_HY017,
- sqlerror_HY019,
- sqlerror_HY020,
- sqlerror_HY024,
- sqlerror_HY090,
- sqlerror_HY091,
- sqlerror_HY092,
- sqlerror_HY096,
- sqlerror_HY106,
- sqlerror_HY109,
- sqlerror_HY111,
- sqlerror_HYC00,
- sqlerror_HYT00,
- sqlerror_IM001,
- sqlerror_IM002,
- sqlerror_S1107,
- sqlerror_S1108,
- sqlerror_S1C00
+enum error_codes {
+	sqlerror_01004 = 0,
+	sqlerror_01S02,
+	sqlerror_01S07,
+	sqlerror_01S09,
+	sqlerror_07002,
+	sqlerror_07005,
+	sqlerror_07006,
+	sqlerror_07009,
+	sqlerror_08001,
+	sqlerror_08002,
+	sqlerror_08003,
+	sqlerror_08004,
+	sqlerror_08S01,
+	sqlerror_21S02,
+	sqlerror_22001,
+	sqlerror_22002,
+	sqlerror_22003,
+	sqlerror_22007,
+	sqlerror_22008,
+	sqlerror_22012,
+	sqlerror_22015,
+	sqlerror_23000,
+	sqlerror_24000,
+	sqlerror_25000,
+	sqlerror_25S01,
+	sqlerror_34000,
+	sqlerror_3C000,
+	sqlerror_40001,
+	sqlerror_42000,
+	sqlerror_42S02,
+	sqlerror_42S02a,
+	sqlerror_42S22,
+	sqlerror_HY000,
+	sqlerror_HY001,
+	sqlerror_HY003,
+	sqlerror_HY004,
+	sqlerror_HY007,
+	sqlerror_HY008,
+	sqlerror_HY009,
+	sqlerror_HY010,
+	sqlerror_HY011,
+	sqlerror_HY012,
+	sqlerror_HY017,
+	sqlerror_HY019,
+	sqlerror_HY020,
+	sqlerror_HY024,
+	sqlerror_HY090,
+	sqlerror_HY091,
+	sqlerror_HY092,
+	sqlerror_HY096,
+	sqlerror_HY106,
+	sqlerror_HY109,
+	sqlerror_HY111,
+	sqlerror_HYC00,
+	sqlerror_HYT00,
+	sqlerror_IM001,
+	sqlerror_IM002,
+	sqlerror_S1107,
+	sqlerror_S1108,
+	sqlerror_S1C00
 };
 
 #define ERROR_MESSAGE_01004 error_messages[sqlerror_01004]
@@ -289,9 +287,9 @@ extern char *error_states[];
 extern char *error_origins[];
 
 enum origin_codes {
-    sqloriginISO9075=0,
-    sqloriginODBC3_0,
-    sqloriginODBC2_0
+	sqloriginISO9075 = 0,
+	sqloriginODBC3_0,
+	sqloriginODBC2_0
 };
 
 #define ERROR_ORIGIN_01004 error_origins[sqloriginISO9075]
@@ -357,21 +355,17 @@ enum origin_codes {
 #define ERROR_ORIGIN_S1108 error_origins[sqloriginODBC2_0]
 #define ERROR_ORIGIN_S1C00 error_origins[sqloriginODBC2_0]
 
-
 /*
  * ood_post_diag puts another diag rec on the SQLHANDLE
  */
 void ood_post_diag(struct hgeneric_TAG *hH,
-        char* origin,
-        SQLINTEGER column_number,
-        char *connection_name,
-        char *message,
-        SQLINTEGER native,
-        SQLINTEGER row_number,
-        char *server_name,
-        char *sqlstate,
-        char *file,
-        int line);
+		   char *origin,
+		   SQLINTEGER column_number,
+		   char *connection_name,
+		   char *message,
+		   SQLINTEGER native,
+		   SQLINTEGER row_number,
+		   char *server_name, char *sqlstate, char *file, int line);
 
 void ood_free_diag(struct hgeneric_TAG *hH);
 void ood_clear_diag(struct hgeneric_TAG *hH);

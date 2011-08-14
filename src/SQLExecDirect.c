@@ -78,96 +78,86 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.6 $";
+static char const rcsid[] = "$RCSfile: SQLExecDirect.c,v $ $Revision: 1.6 $";
 
-SQLRETURN SQL_API SQLExecDirect(
-    SQLHSTMT        StatementHandle,
-    SQLCHAR            *StatementText,
-    SQLINTEGER        TextLength )
+SQLRETURN SQL_API SQLExecDirect(SQLHSTMT StatementHandle,
+				SQLCHAR * StatementText, SQLINTEGER TextLength)
 {
-    hStmt_T *stmt=(hStmt_T*)StatementHandle;
-    SQLRETURN status;
-    int param_no = 1; /* used in ood_lex_parse to assign oracle parameter
-			 names. value returned is one greater than the final
-			 parameter number. */
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	SQLRETURN status;
+	int param_no = 1;	/* used in ood_lex_parse to assign oracle parameter
+				   names. value returned is one greater than the final
+				   parameter number. */
 
-    if(!stmt||HANDLE_TYPE(stmt)!=SQL_HANDLE_STMT)
-        return SQL_INVALID_HANDLE;
+	if (!stmt || HANDLE_TYPE(stmt) != SQL_HANDLE_STMT)
+		return SQL_INVALID_HANDLE;
 
-    if(ENABLE_TRACE){
-      ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-		      (SQLHANDLE)stmt,0,"si",
-		      "SQL",StatementText,
-		      "Length",TextLength);
-    }
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "si",
+				"SQL", StatementText, "Length", TextLength);
+	}
 
-    ood_clear_diag((hgeneric*)stmt);
+	ood_clear_diag((hgeneric *) stmt);
 
-    /* This replaces the '?' parameter placeholders with OCI-style
-       :Pn, where n is the parameter number and Pn becomes the oracle
-       parmeter name.  */
-    stmt->sql=ood_lex_parse((char*)StatementText,
-			    TextLength,&param_no);
-    if (param_no - 1 > stmt->current_ap->num_recs)
-      {
-	/* this check is inadequate, since maybe not all the allocated
-	   parameters in current_ap are bound.  */
-	ood_post_diag((hgeneric*)stmt->dbc,ERROR_ORIGIN_07002,0,"",
-		      ERROR_MESSAGE_07002,
-		      __LINE__,0,"",ERROR_STATE_07002,
-		      __FILE__,__LINE__);
-	return SQL_ERROR;
-      }
+	/* This replaces the '?' parameter placeholders with OCI-style
+	   :Pn, where n is the parameter number and Pn becomes the oracle
+	   parmeter name.  */
+	stmt->sql = ood_lex_parse((char *)StatementText, TextLength, &param_no);
+	if (param_no - 1 > stmt->current_ap->num_recs) {
+		/* this check is inadequate, since maybe not all the allocated
+		   parameters in current_ap are bound.  */
+		ood_post_diag((hgeneric *) stmt->dbc, ERROR_ORIGIN_07002, 0, "",
+			      ERROR_MESSAGE_07002,
+			      __LINE__, 0, "", ERROR_STATE_07002,
+			      __FILE__, __LINE__);
+		return SQL_ERROR;
+	}
 
-    ood_mutex_lock_stmt(stmt);
+	ood_mutex_lock_stmt(stmt);
 
-    status=ood_driver_prepare(stmt,(unsigned char*)stmt->sql);
-
+	status = ood_driver_prepare(stmt, (unsigned char *)stmt->sql);
 
 #if defined(ENABLE_TRACE) && defined (UNIX_DEBUG)
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)stmt,status,"s",
-			"Status Report",stmt->sql);
+	ood_log_message(stmt->dbc, __FILE__, __LINE__, TRACE_FUNCTION_EXIT,
+			(SQLHANDLE) stmt, status, "s",
+			"Status Report", stmt->sql);
 #endif
 
-    if (status == SQL_SUCCESS || status == SQL_SUCCESS_WITH_INFO)
-      {
-	SQLRETURN result = ood_driver_execute(stmt);
+	if (status == SQL_SUCCESS || status == SQL_SUCCESS_WITH_INFO) {
+		SQLRETURN result = ood_driver_execute(stmt);
 
 #if defined(ENABLE_TRACE) && defined (UNIX_DEBUG)
-	ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-			(SQLHANDLE)stmt,status,"",
-			"Status Report",stmt->sql);
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) stmt, status,
+				"", "Status Report", stmt->sql);
 #endif
-	if (result != SQL_SUCCESS)
-	  status = result;
-      }
+		if (result != SQL_SUCCESS)
+			status = result;
+	}
 
-    if (status == SQL_SUCCESS || status == SQL_SUCCESS_WITH_INFO)
-      {
-	SQLRETURN result = ood_driver_execute_describe(stmt);
+	if (status == SQL_SUCCESS || status == SQL_SUCCESS_WITH_INFO) {
+		SQLRETURN result = ood_driver_execute_describe(stmt);
 
-	if (result != SQL_SUCCESS)
-	  status = result;
-      }
-    if (stmt->stmt_type==OCI_STMT_SELECT
-	&& (status == SQL_SUCCESS || status == SQL_SUCCESS_WITH_INFO))
-      {
-	stmt->fetch_status=ood_driver_prefetch(stmt);
+		if (result != SQL_SUCCESS)
+			status = result;
+	}
+	if (stmt->stmt_type == OCI_STMT_SELECT
+	    && (status == SQL_SUCCESS || status == SQL_SUCCESS_WITH_INFO)) {
+		stmt->fetch_status = ood_driver_prefetch(stmt);
 
-	if (stmt->fetch_status != SQL_SUCCESS
-	    && stmt->fetch_status != SQL_SUCCESS_WITH_INFO
-	    && stmt->fetch_status != SQL_NO_DATA)
-	  {
-	    status = stmt->fetch_status;
-	  }
-      }
-    ood_mutex_unlock_stmt(stmt);
+		if (stmt->fetch_status != SQL_SUCCESS
+		    && stmt->fetch_status != SQL_SUCCESS_WITH_INFO
+		    && stmt->fetch_status != SQL_NO_DATA) {
+			status = stmt->fetch_status;
+		}
+	}
+	ood_mutex_unlock_stmt(stmt);
 
-    if(ENABLE_TRACE)
-      {
-	ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-			(SQLHANDLE)NULL,status,"");
-      }
-    return status;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	return status;
 }

@@ -84,344 +84,349 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLStatistics.c,v $ $Revision: 1.3 $";
+static char const rcsid[] = "$RCSfile: SQLStatistics.c,v $ $Revision: 1.3 $";
 
 /*
  * NOTE, this completely ignores the Reserved param ATM
  */
 
-
-SQLRETURN SQL_API SQLStatistics(
-    SQLHSTMT            StatementHandle,
-    SQLCHAR                *CatalogName,
-    SQLSMALLINT            NameLength1,
-    SQLCHAR                *SchemaName,
-    SQLSMALLINT            NameLength2,
-    SQLCHAR                *TableName,
-    SQLSMALLINT            NameLength3,
-    SQLUSMALLINT        Unique,
-    SQLUSMALLINT        Reserved )
+SQLRETURN SQL_API SQLStatistics(SQLHSTMT StatementHandle,
+				SQLCHAR * CatalogName,
+				SQLSMALLINT NameLength1,
+				SQLCHAR * SchemaName,
+				SQLSMALLINT NameLength2,
+				SQLCHAR * TableName,
+				SQLSMALLINT NameLength3,
+				SQLUSMALLINT Unique, SQLUSMALLINT Reserved)
 {
-    SQLRETURN status=SQL_SUCCESS;
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
-    char *schema=NULL,*table=NULL,*sql_end=NULL;
-    ir_T *ir;
-    ar_T *ar;
+	SQLRETURN status = SQL_SUCCESS;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	char *schema = NULL, *table = NULL, *sql_end = NULL;
+	ir_T *ir;
+	ar_T *ar;
 
-    /*
-     * SQLStatistics to query
-     *
-     * CATALOG                  NULL
-     * SCHEMA                   TABLE_OWNER
-     * TABLE_NAME               TABLE_NAME
-     * NON_UNIQUE               UNIQUENESS
-     * INDEX_QUALIFIER          OWNER
-     * INDEX_NAME               INDEX_NAME
-     * TYPE                     SQL_INDEX_OTHER
-     * ORDINAL_POSITION         COLUMN_POSITION
-     * COLUMN_NAME              COLUMN_NAME
-     * ASC_OR_DESC              DESCEND
-     * CARDINALITY              NULL (put this in if you want, 
-     *                                            it's ALL_INDEXES.NUM_ROWS)
-     * PAGES                    NULL 
-     * FILTER_CONDITION         NULL
-     */
-    char sql[1024];
+	/*
+	 * SQLStatistics to query
+	 *
+	 * CATALOG                  NULL
+	 * SCHEMA                   TABLE_OWNER
+	 * TABLE_NAME               TABLE_NAME
+	 * NON_UNIQUE               UNIQUENESS
+	 * INDEX_QUALIFIER          OWNER
+	 * INDEX_NAME               INDEX_NAME
+	 * TYPE                     SQL_INDEX_OTHER
+	 * ORDINAL_POSITION         COLUMN_POSITION
+	 * COLUMN_NAME              COLUMN_NAME
+	 * ASC_OR_DESC              DESCEND
+	 * CARDINALITY              NULL (put this in if you want, 
+	 *                                            it's ALL_INDEXES.NUM_ROWS)
+	 * PAGES                    NULL 
+	 * FILTER_CONDITION         NULL
+	 */
+	char sql[1024];
 
-    ood_clear_diag((hgeneric*)stmt);
-    
+	ood_clear_diag((hgeneric *) stmt);
+
 #ifdef ENABLE_USER_CATALOG
-    sprintf(sql,"SELECT NULL,'',USER_INDEXES.TABLE_NAME,REPLACE(REPLACE(USER_INDEXES.UNIQUENESS,'NONUNIQUE',%d),'UNIQUE',%d),NULL,USER_INDEXES.INDEX_NAME,%d,USER_IND_COLUMNS.COLUMN_POSITION,USER_IND_COLUMNS.COLUMN_NAME,REPLACE(REPLACE(USER_IND_COLUMNS.DESCEND,'DESC','D'),'ASC','A'),NULL,NULL,NULL FROM USER_INDEXES, USER_IND_COLUMNS WHERE USER_INDEXES.TABLE_NAME=USER_IND_COLUMNS.TABLE_NAME AND USER_INDEXES.INDEX_NAME=USER_IND_COLUMNS.INDEX_NAME",
-            SQL_FALSE,SQL_TRUE,SQL_INDEX_OTHER);
+	sprintf(sql,
+		"SELECT NULL,'',USER_INDEXES.TABLE_NAME,REPLACE(REPLACE(USER_INDEXES.UNIQUENESS,'NONUNIQUE',%d),'UNIQUE',%d),NULL,USER_INDEXES.INDEX_NAME,%d,USER_IND_COLUMNS.COLUMN_POSITION,USER_IND_COLUMNS.COLUMN_NAME,REPLACE(REPLACE(USER_IND_COLUMNS.DESCEND,'DESC','D'),'ASC','A'),NULL,NULL,NULL FROM USER_INDEXES, USER_IND_COLUMNS WHERE USER_INDEXES.TABLE_NAME=USER_IND_COLUMNS.TABLE_NAME AND USER_INDEXES.INDEX_NAME=USER_IND_COLUMNS.INDEX_NAME",
+		SQL_FALSE, SQL_TRUE, SQL_INDEX_OTHER);
 #else
-    sprintf(sql,"SELECT NULL,ALL_INDEXES.TABLE_OWNER,ALL_INDEXES.TABLE_NAME,REPLACE(REPLACE(ALL_INDEXES.UNIQUENESS,'NONUNIQUE',%d),'UNIQUE',%d),NULL,ALL_INDEXES.INDEX_NAME,%d,ALL_IND_COLUMNS.COLUMN_POSITION,ALL_IND_COLUMNS.COLUMN_NAME,REPLACE(REPLACE(ALL_IND_COLUMNS.DESCEND,'DESC','D'),'ASC','A'),NULL,NULL,NULL FROM ALL_INDEXES, ALL_IND_COLUMNS WHERE ALL_INDEXES.TABLE_OWNER=ALL_IND_COLUMNS.TABLE_OWNER AND ALL_INDEXES.TABLE_NAME=ALL_IND_COLUMNS.TABLE_NAME AND ALL_INDEXES.OWNER=ALL_IND_COLUMNS.INDEX_OWNER AND ALL_INDEXES.INDEX_NAME=ALL_IND_COLUMNS.INDEX_NAME",
-            SQL_FALSE,SQL_TRUE,SQL_INDEX_OTHER);
+	sprintf(sql,
+		"SELECT NULL,ALL_INDEXES.TABLE_OWNER,ALL_INDEXES.TABLE_NAME,REPLACE(REPLACE(ALL_INDEXES.UNIQUENESS,'NONUNIQUE',%d),'UNIQUE',%d),NULL,ALL_INDEXES.INDEX_NAME,%d,ALL_IND_COLUMNS.COLUMN_POSITION,ALL_IND_COLUMNS.COLUMN_NAME,REPLACE(REPLACE(ALL_IND_COLUMNS.DESCEND,'DESC','D'),'ASC','A'),NULL,NULL,NULL FROM ALL_INDEXES, ALL_IND_COLUMNS WHERE ALL_INDEXES.TABLE_OWNER=ALL_IND_COLUMNS.TABLE_OWNER AND ALL_INDEXES.TABLE_NAME=ALL_IND_COLUMNS.TABLE_NAME AND ALL_INDEXES.OWNER=ALL_IND_COLUMNS.INDEX_OWNER AND ALL_INDEXES.INDEX_NAME=ALL_IND_COLUMNS.INDEX_NAME",
+		SQL_FALSE, SQL_TRUE, SQL_INDEX_OTHER);
 #endif
 
-    schema=ood_xtoSQLNTS(SchemaName,NameLength2);
-    table=ood_xtoSQLNTS(TableName,NameLength3);
+	schema = ood_xtoSQLNTS(SchemaName, NameLength2);
+	table = ood_xtoSQLNTS(TableName, NameLength3);
 
-    if(schema&&*schema)
-    {
+	if (schema && *schema) {
 #ifdef ENABLE_USER_CATALOG
-        sql_end=ood_fast_strcat(sql," AND USER_INDEXES.TABLE_OWNER",sql_end);
+		sql_end =
+		    ood_fast_strcat(sql, " AND USER_INDEXES.TABLE_OWNER",
+				    sql_end);
 #else
-        sql_end=ood_fast_strcat(sql," AND ALL_INDEXES.TABLE_OWNER",sql_end);
+		sql_end =
+		    ood_fast_strcat(sql, " AND ALL_INDEXES.TABLE_OWNER",
+				    sql_end);
 #endif
 
-        if(stmt->dbc->metadata_id)
-            sql_end=ood_fast_strcat(sql," = ",sql_end);
-        else
-            sql_end=ood_fast_strcat(sql," LIKE ",sql_end);
+		if (stmt->dbc->metadata_id)
+			sql_end = ood_fast_strcat(sql, " = ", sql_end);
+		else
+			sql_end = ood_fast_strcat(sql, " LIKE ", sql_end);
 
-		if(*schema!='\'')
-        {
-            sql_end=ood_fast_strcat(sql,"'",sql_end);
-            sql_end=ood_fast_strcat(sql,schema,sql_end);
-            sql_end=ood_fast_strcat(sql,"'",sql_end);
-        }
-        else
-            sql_end=ood_fast_strcat(sql,schema,sql_end);
+		if (*schema != '\'') {
+			sql_end = ood_fast_strcat(sql, "'", sql_end);
+			sql_end = ood_fast_strcat(sql, schema, sql_end);
+			sql_end = ood_fast_strcat(sql, "'", sql_end);
+		} else
+			sql_end = ood_fast_strcat(sql, schema, sql_end);
 
-        if(!stmt->dbc->metadata_id)
-            sql_end=ood_fast_strcat(sql," ESCAPE \'\\\'",sql_end);
-    }
-    if(table&&*table)
-    {
+		if (!stmt->dbc->metadata_id)
+			sql_end =
+			    ood_fast_strcat(sql, " ESCAPE \'\\\'", sql_end);
+	}
+	if (table && *table) {
 #ifdef ENABLE_USER_CATALOG
-        sql_end=ood_fast_strcat(sql," AND USER_INDEXES.TABLE_NAME",sql_end);
+		sql_end =
+		    ood_fast_strcat(sql, " AND USER_INDEXES.TABLE_NAME",
+				    sql_end);
 #else
-        sql_end=ood_fast_strcat(sql," AND ALL_INDEXES.TABLE_NAME",sql_end);
+		sql_end =
+		    ood_fast_strcat(sql, " AND ALL_INDEXES.TABLE_NAME",
+				    sql_end);
 #endif
-        
-        if(stmt->dbc->metadata_id)
-            sql_end=ood_fast_strcat(sql," = ",sql_end);
-        else
-            sql_end=ood_fast_strcat(sql," LIKE ",sql_end);
 
-		if(*table!='\'')
-        {
-            sql_end=ood_fast_strcat(sql,"'",sql_end);
-            sql_end=ood_fast_strcat(sql,table,sql_end);
-            sql_end=ood_fast_strcat(sql,"'",sql_end);
-        }
-        else
-            sql_end=ood_fast_strcat(sql,table,sql_end);
+		if (stmt->dbc->metadata_id)
+			sql_end = ood_fast_strcat(sql, " = ", sql_end);
+		else
+			sql_end = ood_fast_strcat(sql, " LIKE ", sql_end);
 
-        if(!stmt->dbc->metadata_id)
-            sql_end=ood_fast_strcat(sql," ESCAPE \'\\\'",sql_end);
-    }
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"s","SQL",sql);
-}
+		if (*table != '\'') {
+			sql_end = ood_fast_strcat(sql, "'", sql_end);
+			sql_end = ood_fast_strcat(sql, table, sql_end);
+			sql_end = ood_fast_strcat(sql, "'", sql_end);
+		} else
+			sql_end = ood_fast_strcat(sql, table, sql_end);
 
-    if(schema&&schema!=(char*)SchemaName)
-        ORAFREE(schema);
-    if(table&&table!=(char*)TableName)
-        ORAFREE(table);
+		if (!stmt->dbc->metadata_id)
+			sql_end =
+			    ood_fast_strcat(sql, " ESCAPE \'\\\'", sql_end);
+	}
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "s",
+				"SQL", sql);
+	}
 
-    ood_mutex_lock_stmt(stmt);
+	if (schema && schema != (char *)SchemaName)
+		ORAFREE(schema);
+	if (table && table != (char *)TableName)
+		ORAFREE(table);
 
-    status=ood_driver_prepare(stmt,(unsigned char*)sql);
-    status|=ood_driver_execute(stmt);
-    
-    if(status)
-    {
-if(ENABLE_TRACE){
-        ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                (SQLHANDLE)NULL,status,"");
-}
-        ood_mutex_unlock_stmt(stmt);
-        return status;
-    }
+	ood_mutex_lock_stmt(stmt);
 
-    /* Clear old data out of stmt->current_ir so it can be rebound.
-       The data in stmt->current_ar must not be touched, since it
-       may contain already bound ODBC columns. */
+	status = ood_driver_prepare(stmt, (unsigned char *)sql);
+	status |= ood_driver_execute(stmt);
 
-    ood_ir_array_reset (stmt->current_ir->recs.ir, stmt->current_ir->num_recs,
-			stmt->current_ir);
-	
-    /*
-     * Now we have to set up the columns for retrieval
-     */
-    if(SQL_SUCCESS!=ood_alloc_col_desc(stmt,13,stmt->current_ir,
-				stmt->current_ar))
-    {
-        ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-        ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                (SQLHANDLE)NULL,SQL_ERROR,"");
-}
-        return SQL_ERROR;
-    }
+	if (status) {
+		if (ENABLE_TRACE) {
+			ood_log_message(stmt->dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+					status, "");
+		}
+		ood_mutex_unlock_stmt(stmt);
+		return status;
+	}
 
-    ir=stmt->current_ir->recs.ir;
-    ar=stmt->current_ar->recs.ar;
+	/* Clear old data out of stmt->current_ir so it can be rebound.
+	   The data in stmt->current_ar must not be touched, since it
+	   may contain already bound ODBC columns. */
 
-    /* stmt->current_ir->num_recs is equal to the allocated size of the
-       ir and ar arrays. Shouldn't expect it to record the number of
-       bound parameters.  
-       stmt->current_ir->num_recs=13; */
+	ood_ir_array_reset(stmt->current_ir->recs.ir,
+			   stmt->current_ir->num_recs, stmt->current_ir);
 
-    /*
-     * Col 0 is bookmark, not implemented yet at all
-     */
-    ir++,ar++;
+	/*
+	 * Now we have to set up the columns for retrieval
+	 */
+	if (SQL_SUCCESS != ood_alloc_col_desc(stmt, 13, stmt->current_ir,
+					      stmt->current_ar)) {
+		ood_mutex_unlock_stmt(stmt);
+		if (ENABLE_TRACE) {
+			ood_log_message(stmt->dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+					SQL_ERROR, "");
+		}
+		return SQL_ERROR;
+	}
 
-    /*
-     * Col 1 is TABLE_CAT, varchar, always NULL
-     */
-    status|=ood_assign_ir(ir,SQLT_STR,2,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=1;
-    ar->octet_length=ar->length=2;
-    strcpy((char*)ar->column_name,"TABLE_CAT");
-    status|=ood_driver_define_col(ir);
-    ir++,ar++;
+	ir = stmt->current_ir->recs.ir;
+	ar = stmt->current_ar->recs.ar;
+
+	/* stmt->current_ir->num_recs is equal to the allocated size of the
+	   ir and ar arrays. Shouldn't expect it to record the number of
+	   bound parameters.  
+	   stmt->current_ir->num_recs=13; */
+
+	/*
+	 * Col 0 is bookmark, not implemented yet at all
+	 */
+	ir++, ar++;
+
+	/*
+	 * Col 1 is TABLE_CAT, varchar, always NULL
+	 */
+	status |= ood_assign_ir(ir, SQLT_STR, 2, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = 1;
+	ar->octet_length = ar->length = 2;
+	strcpy((char *)ar->column_name, "TABLE_CAT");
+	status |= ood_driver_define_col(ir);
+	ir++, ar++;
 
 	/* 
-     * Col 2 is TABLE_SHEM, varchar
-     */
-    status|=ood_assign_ir(ir,SQLT_STR,ORACLE_MAX_SCHEMA_LEN+1,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=ORACLE_MAX_SCHEMA_LEN;
-    ar->octet_length=ar->length=ORACLE_MAX_SCHEMA_LEN+1;
-    strcpy((char*)ar->column_name,"TABLE_SCHEM");
-    status|=ood_driver_define_col(ir);
+	 * Col 2 is TABLE_SHEM, varchar
+	 */
+	status |= ood_assign_ir(ir, SQLT_STR, ORACLE_MAX_SCHEMA_LEN + 1, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = ORACLE_MAX_SCHEMA_LEN;
+	ar->octet_length = ar->length = ORACLE_MAX_SCHEMA_LEN + 1;
+	strcpy((char *)ar->column_name, "TABLE_SCHEM");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
-    /* 
-     * Col 3 is TABLE_NAME, varchar
-     */
-    status|=ood_assign_ir(ir,SQLT_STR,ORACLE_MAX_TABLE_LEN+1,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=ORACLE_MAX_TABLE_LEN;
-    ar->octet_length=ar->length=ORACLE_MAX_TABLE_LEN+1;
-    strcpy((char*)ar->column_name,"TABLE_NAME");
-    status|=ood_driver_define_col(ir);
+	/* 
+	 * Col 3 is TABLE_NAME, varchar
+	 */
+	status |= ood_assign_ir(ir, SQLT_STR, ORACLE_MAX_TABLE_LEN + 1, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = ORACLE_MAX_TABLE_LEN;
+	ar->octet_length = ar->length = ORACLE_MAX_TABLE_LEN + 1;
+	strcpy((char *)ar->column_name, "TABLE_NAME");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
 	/*
 	 * Col 4 is NON_UNIQUE, smallint
 	 */
-    status|=ood_assign_ir(ir,SQLT_INT,sizeof(long),0,
-            ociint_sqlsshort,ociint_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_SSHORT;
-    ar->display_size=sqltype_display_size(SQL_C_SSHORT,0);
-    ar->octet_length=ar->length=sizeof(SQLSMALLINT);
-    strcpy((char*)ar->column_name,"NON_UNIQUE");
-    status|=ood_driver_define_col(ir);
+	status |= ood_assign_ir(ir, SQLT_INT, sizeof(long), 0,
+				ociint_sqlsshort, ociint_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_SSHORT;
+	ar->display_size = sqltype_display_size(SQL_C_SSHORT, 0);
+	ar->octet_length = ar->length = sizeof(SQLSMALLINT);
+	strcpy((char *)ar->column_name, "NON_UNIQUE");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
 	/*
 	 * Col 5 is INDEX_QUALIFIER, varchar;
 	 */
-    status|=ood_assign_ir(ir,SQLT_STR,ORACLE_MAX_TABLE_LEN+1,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=ORACLE_MAX_TABLE_LEN;
-    ar->octet_length=ar->length=ORACLE_MAX_TABLE_LEN+1;
-    strcpy((char*)ar->column_name,"INDEX_QUALIFIER");
-    status|=ood_driver_define_col(ir);
+	status |= ood_assign_ir(ir, SQLT_STR, ORACLE_MAX_TABLE_LEN + 1, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = ORACLE_MAX_TABLE_LEN;
+	ar->octet_length = ar->length = ORACLE_MAX_TABLE_LEN + 1;
+	strcpy((char *)ar->column_name, "INDEX_QUALIFIER");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
 	/*
 	 * Col 6 is INDEX_NAME, another varchar
 	 */
-    status|=ood_assign_ir(ir,SQLT_STR,ORACLE_MAX_COLUMN_LEN+1,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=ORACLE_MAX_COLUMN_LEN;
-    ar->octet_length=ar->length=ORACLE_MAX_COLUMN_LEN+1;
-    strcpy((char*)ar->column_name,"INDEX_QUALIFIER");
-    status|=ood_driver_define_col(ir);
+	status |= ood_assign_ir(ir, SQLT_STR, ORACLE_MAX_COLUMN_LEN + 1, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = ORACLE_MAX_COLUMN_LEN;
+	ar->octet_length = ar->length = ORACLE_MAX_COLUMN_LEN + 1;
+	strcpy((char *)ar->column_name, "INDEX_QUALIFIER");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
 	/*
 	 * Col 7 is TYPE, SMALLINT
 	 */
-    status|=ood_assign_ir(ir,SQLT_INT,sizeof(long),0,
-            ociint_sqlsshort,ociint_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_SSHORT;
-    ar->display_size=sqltype_display_size(SQL_C_SSHORT,0);
-    ar->octet_length=ar->length=sizeof(SQLSMALLINT);
-    strcpy((char*)ar->column_name,"TYPE");
-    status|=ood_driver_define_col(ir);
+	status |= ood_assign_ir(ir, SQLT_INT, sizeof(long), 0,
+				ociint_sqlsshort, ociint_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_SSHORT;
+	ar->display_size = sqltype_display_size(SQL_C_SSHORT, 0);
+	ar->octet_length = ar->length = sizeof(SQLSMALLINT);
+	strcpy((char *)ar->column_name, "TYPE");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
 	/* 
 	 * Col 8 is ORDINAL_POSITION, another SMALLINT
 	 */
-    status|=ood_assign_ir(ir,SQLT_INT,sizeof(long),0,
-            ociint_sqlsshort,ociint_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_SSHORT;
-    ar->display_size=sqltype_display_size(SQL_C_SSHORT,0);
-    ar->octet_length=ar->length=sizeof(SQLSMALLINT);
-    strcpy((char*)ar->column_name,"TYPE");
-    status|=ood_driver_define_col(ir);
+	status |= ood_assign_ir(ir, SQLT_INT, sizeof(long), 0,
+				ociint_sqlsshort, ociint_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_SSHORT;
+	ar->display_size = sqltype_display_size(SQL_C_SSHORT, 0);
+	ar->octet_length = ar->length = sizeof(SQLSMALLINT);
+	strcpy((char *)ar->column_name, "TYPE");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
 	/*
 	 * Col 9 is COLUMN_NAME, varchar
 	 */
-    status|=ood_assign_ir(ir,SQLT_STR,ORACLE_MAX_COLUMN_LEN+1,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=ORACLE_MAX_COLUMN_LEN;
-    ar->octet_length=ar->length=ORACLE_MAX_COLUMN_LEN+1;
-    strcpy((char*)ar->column_name,"COLUMN_NAME");
-    status|=ood_driver_define_col(ir);
+	status |= ood_assign_ir(ir, SQLT_STR, ORACLE_MAX_COLUMN_LEN + 1, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = ORACLE_MAX_COLUMN_LEN;
+	ar->octet_length = ar->length = ORACLE_MAX_COLUMN_LEN + 1;
+	strcpy((char *)ar->column_name, "COLUMN_NAME");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
 	/*
 	 * Col 10 is ASC_OR_DESC, char(1)
 	 */
-    status|=ood_assign_ir(ir,SQLT_STR,4,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=1;
-    ar->octet_length=ar->length=2;
-    strcpy((char*)ar->column_name,"ASC_OR_DESC");
-    status|=ood_driver_define_col(ir);
+	status |= ood_assign_ir(ir, SQLT_STR, 4, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = 1;
+	ar->octet_length = ar->length = 2;
+	strcpy((char *)ar->column_name, "ASC_OR_DESC");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
 	/*
 	 * Col 11 is CARDINALITY, Integer
 	 */
-    status|=ood_assign_ir(ir,SQLT_INT,sizeof(long),0,
-            ociint_sqlsshort,ociint_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_LONG;
-    ar->display_size=sqltype_display_size(SQL_C_LONG,0);
-    ar->octet_length=ar->length=sizeof(SQLINTEGER);
-    strcpy((char*)ar->column_name,"CARDINALITY");
-    status|=ood_driver_define_col(ir);
+	status |= ood_assign_ir(ir, SQLT_INT, sizeof(long), 0,
+				ociint_sqlsshort, ociint_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_LONG;
+	ar->display_size = sqltype_display_size(SQL_C_LONG, 0);
+	ar->octet_length = ar->length = sizeof(SQLINTEGER);
+	strcpy((char *)ar->column_name, "CARDINALITY");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
 	/*
 	 * Col 12 is PAGES, integer
 	 */
-    status|=ood_assign_ir(ir,SQLT_INT,sizeof(long),0,
-            ociint_sqlsshort,ociint_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_LONG;
-    ar->display_size=sqltype_display_size(SQL_C_LONG,0);
-    ar->octet_length=ar->length=sizeof(SQLINTEGER);
-    strcpy((char*)ar->column_name,"PAGES");
-    status|=ood_driver_define_col(ir);
+	status |= ood_assign_ir(ir, SQLT_INT, sizeof(long), 0,
+				ociint_sqlsshort, ociint_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_LONG;
+	ar->display_size = sqltype_display_size(SQL_C_LONG, 0);
+	ar->octet_length = ar->length = sizeof(SQLINTEGER);
+	strcpy((char *)ar->column_name, "PAGES");
+	status |= ood_driver_define_col(ir);
 
-    ir++,ar++;
+	ir++, ar++;
 
 	/*
 	 * Col 13 is FILTER_CONDITION, varchar (always NULL)
 	 */
-    status|=ood_assign_ir(ir,SQLT_STR,2,0,
-            ocistr_sqlnts,ocistr_sqlnts);
-    ar->data_type=ar->concise_type=SQL_C_CHAR;
-    ar->display_size=1;
-    ar->octet_length=ar->length=2;
-    strcpy((char*)ar->column_name,"FILTER_CONDITION");
-    status|=ood_driver_define_col(ir);
+	status |= ood_assign_ir(ir, SQLT_STR, 2, 0,
+				ocistr_sqlnts, ocistr_sqlnts);
+	ar->data_type = ar->concise_type = SQL_C_CHAR;
+	ar->display_size = 1;
+	ar->octet_length = ar->length = 2;
+	strcpy((char *)ar->column_name, "FILTER_CONDITION");
+	status |= ood_driver_define_col(ir);
 
-	stmt->fetch_status=ood_driver_prefetch(stmt);
+	stmt->fetch_status = ood_driver_prefetch(stmt);
 
-    ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    return status;
+	ood_mutex_unlock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	return status;
 }

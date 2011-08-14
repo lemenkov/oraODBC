@@ -65,32 +65,32 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLNativeSql.c,v $ $Revision: 1.4 $";
+static char const rcsid[] = "$RCSfile: SQLNativeSql.c,v $ $Revision: 1.4 $";
 
-SQLRETURN SQL_API SQLNativeSql(
-    SQLHDBC            ConnectionHandle,
-    SQLCHAR            *InStatementText,
-    SQLINTEGER        TextLength1,
-    SQLCHAR            *OutStatementText,
-    SQLINTEGER        BufferLength,
-    SQLINTEGER        *TextLength2Ptr )
+SQLRETURN SQL_API SQLNativeSql(SQLHDBC ConnectionHandle,
+			       SQLCHAR * InStatementText,
+			       SQLINTEGER TextLength1,
+			       SQLCHAR * OutStatementText,
+			       SQLINTEGER BufferLength,
+			       SQLINTEGER * TextLength2Ptr)
 {
-    hDbc_T* dbc=(hDbc_T*)ConnectionHandle;
-    SQLRETURN status=SQL_SUCCESS;
-if(ENABLE_TRACE){
+	hDbc_T *dbc = (hDbc_T *) ConnectionHandle;
+	SQLRETURN status = SQL_SUCCESS;
+	if (ENABLE_TRACE) {
 
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)dbc,0,"");
-}
-    ood_clear_diag((hgeneric*)dbc);
-    THREAD_MUTEX_LOCK(dbc);
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_ENTRY,
+				(SQLHANDLE) dbc, 0, "");
+	}
+	ood_clear_diag((hgeneric *) dbc);
+	THREAD_MUTEX_LOCK(dbc);
 
-    THREAD_MUTEX_UNLOCK(dbc);
-if(ENABLE_TRACE){
-    ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
-    assert(IS_VALID(dbc));
-    return SQL_SUCCESS;
+	THREAD_MUTEX_UNLOCK(dbc);
+	if (ENABLE_TRACE) {
+		ood_log_message(dbc, __FILE__, __LINE__, TRACE_FUNCTION_EXIT,
+				(SQLHANDLE) NULL, status, "");
+	}
+	fprintf(stderr, "called stubbed function line %d file %s\n", __LINE__,
+		__FILE__);
+	assert(IS_VALID(dbc));
+	return SQL_SUCCESS;
 }

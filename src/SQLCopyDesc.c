@@ -43,11 +43,10 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLCopyDesc.c,v $ $Revision: 1.1 $";
+static char const rcsid[] = "$RCSfile: SQLCopyDesc.c,v $ $Revision: 1.1 $";
 
-SQLRETURN SQL_API SQLCopyDesc(
-    SQLHDESC        SourceDescHandle,
-    SQLHDESC        TargetDescHandle )
+SQLRETURN SQL_API SQLCopyDesc(SQLHDESC SourceDescHandle,
+			      SQLHDESC TargetDescHandle)
 {
-    return SQL_SUCCESS;
+	return SQL_SUCCESS;
 }

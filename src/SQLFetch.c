@@ -96,254 +96,294 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLFetch.c,v $ $Revision: 1.5 $";
+static char const rcsid[] = "$RCSfile: SQLFetch.c,v $ $Revision: 1.5 $";
 
-SQLRETURN ood_SQLFetch( 
-    hStmt_T* stmt )
+SQLRETURN ood_SQLFetch(hStmt_T * stmt)
 {
-  sword ret=OCI_SUCCESS;
-  sword tmp=OCI_SUCCESS;
-  int offset;
-  unsigned int i,row;
+	sword ret = OCI_SUCCESS;
+	sword tmp = OCI_SUCCESS;
+	int offset;
+	unsigned int i, row;
 
-  SQLRETURN status=stmt->fetch_status;
- 
-  
+	SQLRETURN status = stmt->fetch_status;
 
-  stmt->num_fetched_rows=-1;
+	stmt->num_fetched_rows = -1;
 
 #ifdef UNIX_DEBUG
-  signal(SIGSEGV,SIG_DFL);
+	signal(SIGSEGV, SIG_DFL);
 #endif
 
-  /* 
-   * We have a mapping problem between ODBC and OCI here. 
-   * OCIStmtExecute is equivalent to SQLExecute,SQLFetch. 
-   * OCIStmtFetch returns OCI_NO_DATA when it hits the end of the result
-   * set whereas SQLFetch returns SQL_NO_DATA when you try to go past
-   * the end of the result set. Of of this mesna there is a lot of twiddling
-   * to be done in here.
-   *
-   * NOTE: alt_fetch functions simply return OCI_SUCCESS if there is data
-   * to be processed, OCI_NO_DATA if not.
-   */
-  if(stmt->alt_fetch)
-    {
-      ret=stmt->alt_fetch(stmt);
-      if(ret==OCI_NO_DATA)
-	{
-	  stmt->fetch_status=SQL_NO_DATA;
-	  if(stmt->rows_fetched_ptr)
-	    *stmt->rows_fetched_ptr=stmt->num_fetched_rows;
-	  return(SQL_NO_DATA);
-	}
-      status=stmt->fetch_status;
-    }
-  else
-    {
-      if(status!=SQL_NO_DATA&&stmt->bookmark) 
-	{
-	  /*
-	   * stmt->bookmark would be nonzero if this wasn't the first call
-	   * to SQLFetch. As OCIStmtExec==SQLexecute,SQLFetch we don't want
-	   * to call OCIStmtFetch for the first call of SQLFetch.
-	   * if status==SQL_NO_DATA we're trying to go past the end of the
-	   * result set. If we were to call OCIStmtFetch now we'd get 
-	   * an error.
-	   */
-	  ret=OCIStmtFetch_log_stat(stmt->oci_stmt,stmt->dbc->oci_err,
-				    stmt->row_array_size,OCI_FETCH_NEXT,
-				    OCI_DEFAULT,ret);
-#ifdef UNIX_DEBUG
-	  errcheck(__FILE__,__LINE__,ret,stmt->dbc->oci_err);
-#endif
-
-	  OCIAttrGet_log_stat(stmt->oci_stmt,OCI_HTYPE_STMT,
-			      &stmt->num_result_rows,0,OCI_ATTR_ROW_COUNT,
-			      stmt->dbc->oci_err,tmp);
-	}
-      else if(status==SQL_NO_DATA&&!stmt->bookmark) 
-	{
-	  /* 
-	   * This means the OCIStmtExecute returned OCI_NO_DATA, ie the 
-	   * result set<=array size. This is equivalent here to 
-	   * OCIStmtFetch returning OCI_NO_DATA at the end of a larger 
-	   * result set. 
-	   */
-	  status=SQL_SUCCESS;
-	  ret=OCI_NO_DATA;
-	}
-    }
-	
-  if(ret&&ret!=OCI_NO_DATA) 
-    {
-      /*
-       * OCIStmtFetch has returned an error.
-       */
-      if(ret==OCI_ERROR||ret==OCI_SUCCESS_WITH_INFO)
-        {
-	  ood_driver_error(stmt,ret,__FILE__,__LINE__);
-	  status=SQL_ERROR;
-        }
-    }
-  else
-    {
-      /*
-       * Either OCIStmtFetch returned OCI_NO_DATA or OCIStmtExecute
-       * returned OCI_NO_DATA or OCIStmtExecute and OCIStmtFetch (if
-       * called) returned OCI_SUCCESS
-       */
-      if(ret==OCI_NO_DATA)
-        {
-	  stmt->num_fetched_rows=stmt->num_result_rows
-	    %stmt->row_array_size;
-	  stmt->fetch_status=SQL_NO_DATA;
-	  if(!stmt->num_fetched_rows) /* landed on a boundary */
-	    status=SQL_NO_DATA;
-        }
-      else
-	{
-	  if(stmt->num_fetched_rows==-1)
-	    {
-	      if(status==SQL_NO_DATA) /* Nothing fetched, obviously */
-		stmt->num_fetched_rows=0;
-	      else 
-		stmt->num_fetched_rows=stmt->row_array_size;
-	    }
-	}
-
-      stmt->current_row=0;
-      if(stmt->row_bind_offset_ptr)
-	offset=*((SQLUINTEGER*)stmt->row_bind_offset_ptr);
-      else
-	offset=0;
-
-      for(row=0;row<stmt->row_array_size;row++)
-	{
-	  stmt->current_row++;
-	  stmt->bookmark++;
-
-#ifdef UNIX_DEBUG
-	  fprintf(stderr,"Fetching row %d of num_fetched %d\n",
-		  row,stmt->num_fetched_rows);
-#endif
-
-	  if(stmt->row_status_ptr&&(signed)row<stmt->num_fetched_rows)
-	    {
-	      stmt->row_status_ptr[row]=(SQLSMALLINT)SQL_ROW_SUCCESS;
-	    }
-	  else if((signed)row>=stmt->num_fetched_rows)
-	    {
-	      if(stmt->row_status_ptr)
-		{
-		  stmt->row_status_ptr[row]=SQL_NO_DATA;
+	/* 
+	 * We have a mapping problem between ODBC and OCI here. 
+	 * OCIStmtExecute is equivalent to SQLExecute,SQLFetch. 
+	 * OCIStmtFetch returns OCI_NO_DATA when it hits the end of the result
+	 * set whereas SQLFetch returns SQL_NO_DATA when you try to go past
+	 * the end of the result set. Of of this mesna there is a lot of twiddling
+	 * to be done in here.
+	 *
+	 * NOTE: alt_fetch functions simply return OCI_SUCCESS if there is data
+	 * to be processed, OCI_NO_DATA if not.
+	 */
+	if (stmt->alt_fetch) {
+		ret = stmt->alt_fetch(stmt);
+		if (ret == OCI_NO_DATA) {
+			stmt->fetch_status = SQL_NO_DATA;
+			if (stmt->rows_fetched_ptr)
+				*stmt->rows_fetched_ptr =
+				    stmt->num_fetched_rows;
+			return (SQL_NO_DATA);
 		}
-	      continue;
-	    }
-	  if(stmt->current_ir->lob_col_flag) 
-	    {
-	      for(i=1;i<=stmt->current_ir->num_recs;i++)
-		{
-		  stmt->current_ir->recs.ir[i].posn=1;
+		status = stmt->fetch_status;
+	} else {
+		if (status != SQL_NO_DATA && stmt->bookmark) {
+			/*
+			 * stmt->bookmark would be nonzero if this wasn't the first call
+			 * to SQLFetch. As OCIStmtExec==SQLexecute,SQLFetch we don't want
+			 * to call OCIStmtFetch for the first call of SQLFetch.
+			 * if status==SQL_NO_DATA we're trying to go past the end of the
+			 * result set. If we were to call OCIStmtFetch now we'd get 
+			 * an error.
+			 */
+			ret =
+			    OCIStmtFetch_log_stat(stmt->oci_stmt,
+						  stmt->dbc->oci_err,
+						  stmt->row_array_size,
+						  OCI_FETCH_NEXT, OCI_DEFAULT,
+						  ret);
+#ifdef UNIX_DEBUG
+			errcheck(__FILE__, __LINE__, ret, stmt->dbc->oci_err);
+#endif
+
+			OCIAttrGet_log_stat(stmt->oci_stmt, OCI_HTYPE_STMT,
+					    &stmt->num_result_rows, 0,
+					    OCI_ATTR_ROW_COUNT,
+					    stmt->dbc->oci_err, tmp);
+		} else if (status == SQL_NO_DATA && !stmt->bookmark) {
+			/* 
+			 * This means the OCIStmtExecute returned OCI_NO_DATA, ie the 
+			 * result set<=array size. This is equivalent here to 
+			 * OCIStmtFetch returning OCI_NO_DATA at the end of a larger 
+			 * result set. 
+			 */
+			status = SQL_SUCCESS;
+			ret = OCI_NO_DATA;
 		}
-	    }
+	}
 
-	  if(stmt->current_ar->bound_col_flag) 
-	    /* There are bound columns... */
-            {
+	if (ret && ret != OCI_NO_DATA) {
+		/*
+		 * OCIStmtFetch has returned an error.
+		 */
+		if (ret == OCI_ERROR || ret == OCI_SUCCESS_WITH_INFO) {
+			ood_driver_error(stmt, ret, __FILE__, __LINE__);
+			status = SQL_ERROR;
+		}
+	} else {
+		/*
+		 * Either OCIStmtFetch returned OCI_NO_DATA or OCIStmtExecute
+		 * returned OCI_NO_DATA or OCIStmtExecute and OCIStmtFetch (if
+		 * called) returned OCI_SUCCESS
+		 */
+		if (ret == OCI_NO_DATA) {
+			stmt->num_fetched_rows = stmt->num_result_rows
+			    % stmt->row_array_size;
+			stmt->fetch_status = SQL_NO_DATA;
+			if (!stmt->num_fetched_rows)	/* landed on a boundary */
+				status = SQL_NO_DATA;
+		} else {
+			if (stmt->num_fetched_rows == -1) {
+				if (status == SQL_NO_DATA)	/* Nothing fetched, obviously */
+					stmt->num_fetched_rows = 0;
+				else
+					stmt->num_fetched_rows =
+					    stmt->row_array_size;
+			}
+		}
 
-	      for(i=1;i<=stmt->current_ar->num_recs;i++)
-                {
-		  if(stmt->current_ar->recs.ar[i].data_ptr)
-                    {
-		      if(!stmt->current_ir->recs.ir[i].ind_arr[row])
-                        {
-			  /*
-			  *stmt->current_ar->recs.ar[i].bind_indicator=
-			    stmt->current_ir->recs.ir[i].data_size;
-			  */
-			  if(ENABLE_TRACE){
-                            ood_log_message(stmt->dbc,__FILE__,__LINE__,
-					    TRACE_FUNCTION_EXIT,
-					    (SQLHANDLE)NULL,status,"iihi",
-					    "BoundColNo",i,
-					    "BufferLength",
-					    stmt->current_ar->recs.ar[i].buffer_length,
-					    "Data Pointer",
-					    (long)stmt->current_ar->recs.ar[i].data_ptr,
-					    "Bind Indicator",
-					     *stmt->current_ar->recs.ar[i].bind_indicator);
-			  }
-			  /*
-			   * And finally call the conversion function!
-			   *
-			   * ...yes, we're going for the "most stupidly 
-			   * complicated function call in history" award
-			   */
-                          status|=stmt->current_ir->recs.ir[i].default_copy(
-					         row,
-						 &stmt->current_ir->recs.ir[i],
-						 ((unsigned char*)
-						  stmt->current_ar->recs.ar[i].data_ptr)
-						 +(row
-						   *stmt->current_ar->recs.ar[i].buffer_length)
-						 +offset,
-						 stmt->current_ar->recs.ar[i].buffer_length
-						 +offset,
-						 stmt->current_ar->recs.ar[i].bind_indicator
-						 +offset
-						 );
-                        }
-		      else /* if null */
-                        {
-			  
-			  if(ENABLE_TRACE){
-			    ood_log_message(stmt->dbc,__FILE__,__LINE__,
-					    TRACE_FUNCTION_EXIT,
-					    (SQLHANDLE)NULL,status,"iihs",
-					    "BoundColNo",i,
-					    "BufferLength",
-					    stmt->current_ar->recs.ar[i].buffer_length,
-					    "Data Pointer",
-					    (long)stmt->current_ar->recs.ar[i].data_ptr,
-					    "Null Field Status","Column is NULL");
-			  }
-			  *stmt->current_ar->recs.ar[i].bind_indicator
-			    =SQL_NULL_DATA;
-                        }
-                    } /* if ar->data_ptr */
-		} /* for num_recs */
-	    } /* if bound columns */
-        }/* for rows */
-    } /* if results */
+		stmt->current_row = 0;
+		if (stmt->row_bind_offset_ptr)
+			offset = *((SQLUINTEGER *) stmt->row_bind_offset_ptr);
+		else
+			offset = 0;
 
-  if(stmt->rows_fetched_ptr)
-    *stmt->rows_fetched_ptr=stmt->num_fetched_rows;
+		for (row = 0; row < stmt->row_array_size; row++) {
+			stmt->current_row++;
+			stmt->bookmark++;
 
-  return status;
+#ifdef UNIX_DEBUG
+			fprintf(stderr, "Fetching row %d of num_fetched %d\n",
+				row, stmt->num_fetched_rows);
+#endif
+
+			if (stmt->row_status_ptr
+			    && (signed)row < stmt->num_fetched_rows) {
+				stmt->row_status_ptr[row] =
+				    (SQLSMALLINT) SQL_ROW_SUCCESS;
+			} else if ((signed)row >= stmt->num_fetched_rows) {
+				if (stmt->row_status_ptr) {
+					stmt->row_status_ptr[row] = SQL_NO_DATA;
+				}
+				continue;
+			}
+			if (stmt->current_ir->lob_col_flag) {
+				for (i = 1; i <= stmt->current_ir->num_recs;
+				     i++) {
+					stmt->current_ir->recs.ir[i].posn = 1;
+				}
+			}
+
+			if (stmt->current_ar->bound_col_flag)
+				/* There are bound columns... */
+			{
+
+				for (i = 1; i <= stmt->current_ar->num_recs;
+				     i++) {
+					if (stmt->current_ar->recs.ar[i].
+					    data_ptr) {
+						if (!stmt->current_ir->recs.
+						    ir[i].ind_arr[row]) {
+							/*
+							 *stmt->current_ar->recs.ar[i].bind_indicator=
+							 stmt->current_ir->recs.ir[i].data_size;
+							 */
+							if (ENABLE_TRACE) {
+								ood_log_message
+								    (stmt->dbc,
+								     __FILE__,
+								     __LINE__,
+								     TRACE_FUNCTION_EXIT,
+								     (SQLHANDLE)
+								     NULL,
+								     status,
+								     "iihi",
+								     "BoundColNo",
+								     i,
+								     "BufferLength",
+								     stmt->
+								     current_ar->
+								     recs.ar[i].
+								     buffer_length,
+								     "Data Pointer",
+								     (long)
+								     stmt->
+								     current_ar->
+								     recs.ar[i].
+								     data_ptr,
+								     "Bind Indicator",
+								     *stmt->
+								     current_ar->
+								     recs.ar[i].
+								     bind_indicator);
+							}
+							/*
+							 * And finally call the conversion function!
+							 *
+							 * ...yes, we're going for the "most stupidly 
+							 * complicated function call in history" award
+							 */
+							status |=
+							    stmt->current_ir->
+							    recs.ir[i].
+							    default_copy(row,
+									 &stmt->
+									 current_ir->
+									 recs.
+									 ir[i],
+									 ((unsigned char *)
+									  stmt->
+									  current_ar->
+									  recs.
+									  ar[i].
+									  data_ptr)
+									 +
+									 (row *
+									  stmt->
+									  current_ar->
+									  recs.
+									  ar[i].
+									  buffer_length)
+									 +
+									 offset,
+									 stmt->
+									 current_ar->
+									 recs.
+									 ar[i].
+									 buffer_length
+									 +
+									 offset,
+									 stmt->
+									 current_ar->
+									 recs.
+									 ar[i].
+									 bind_indicator
+									 +
+									 offset);
+						} else {	/* if null */
+
+							if (ENABLE_TRACE) {
+								ood_log_message
+								    (stmt->dbc,
+								     __FILE__,
+								     __LINE__,
+								     TRACE_FUNCTION_EXIT,
+								     (SQLHANDLE)
+								     NULL,
+								     status,
+								     "iihs",
+								     "BoundColNo",
+								     i,
+								     "BufferLength",
+								     stmt->
+								     current_ar->
+								     recs.ar[i].
+								     buffer_length,
+								     "Data Pointer",
+								     (long)
+								     stmt->
+								     current_ar->
+								     recs.ar[i].
+								     data_ptr,
+								     "Null Field Status",
+								     "Column is NULL");
+							}
+							*stmt->current_ar->recs.
+							    ar[i].
+							    bind_indicator =
+							    SQL_NULL_DATA;
+						}
+					}	/* if ar->data_ptr */
+				}	/* for num_recs */
+			}	/* if bound columns */
+		}		/* for rows */
+	}			/* if results */
+
+	if (stmt->rows_fetched_ptr)
+		*stmt->rows_fetched_ptr = stmt->num_fetched_rows;
+
+	return status;
 }
 
-SQLRETURN SQL_API SQLFetch( 
-    SQLHSTMT StatementHandle )
+SQLRETURN SQL_API SQLFetch(SQLHSTMT StatementHandle)
 {
-  hStmt_T* stmt=(hStmt_T*)StatementHandle;
-  SQLRETURN status;
-  if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-		    (SQLHANDLE)stmt,0,"ii",
-		    "Status",stmt->fetch_status,
-		    "num_result_rows",stmt->num_result_rows);
-  }
-  ood_clear_diag((hgeneric*)stmt);
-  ood_mutex_lock_stmt(stmt);
-	
-  status=ood_SQLFetch(stmt);
-	
-  ood_mutex_unlock_stmt(stmt);
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	SQLRETURN status;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "ii",
+				"Status", stmt->fetch_status, "num_result_rows",
+				stmt->num_result_rows);
+	}
+	ood_clear_diag((hgeneric *) stmt);
+	ood_mutex_lock_stmt(stmt);
 
-  if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-		    (SQLHANDLE)NULL,status,"");
-  }
-  return status;
+	status = ood_SQLFetch(stmt);
+
+	ood_mutex_unlock_stmt(stmt);
+
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	return status;
 }

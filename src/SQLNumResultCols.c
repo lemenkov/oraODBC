@@ -70,27 +70,27 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLNumResultCols.c,v $ $Revision: 1.3 $";
+static char const rcsid[] = "$RCSfile: SQLNumResultCols.c,v $ $Revision: 1.3 $";
 
-SQLRETURN SQL_API SQLNumResultCols(
-    SQLHSTMT        StatementHandle,
-    SQLSMALLINT        *ColumnCountPtr )
+SQLRETURN SQL_API SQLNumResultCols(SQLHSTMT StatementHandle,
+				   SQLSMALLINT * ColumnCountPtr)
 {
-    hStmt_T *stmt=(hStmt_T*)StatementHandle;
-    if(!stmt||HANDLE_TYPE(stmt)!=SQL_HANDLE_STMT)
-        return SQL_INVALID_HANDLE;
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"");
-}
-    ood_clear_diag((hgeneric*)stmt);
-    ood_mutex_lock_stmt(stmt);
-    *ColumnCountPtr=(SQLSMALLINT)stmt->current_ir->num_recs;
-    ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,SQL_SUCCESS,"i",
-			"*ColumnCountPtr",*ColumnCountPtr);
-}
-    return SQL_SUCCESS;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	if (!stmt || HANDLE_TYPE(stmt) != SQL_HANDLE_STMT)
+		return SQL_INVALID_HANDLE;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
+	}
+	ood_clear_diag((hgeneric *) stmt);
+	ood_mutex_lock_stmt(stmt);
+	*ColumnCountPtr = (SQLSMALLINT) stmt->current_ir->num_recs;
+	ood_mutex_unlock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+				SQL_SUCCESS, "i", "*ColumnCountPtr",
+				*ColumnCountPtr);
+	}
+	return SQL_SUCCESS;
 }

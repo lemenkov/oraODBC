@@ -102,344 +102,337 @@
  *
  ******************************************************************************/
 
-static char const rcsid[]= "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.6 $";
+static char const rcsid[] = "$RCSfile: SQLAllocHandle.c,v $ $Revision: 1.6 $";
 
 #include "common.h"
 
-static void descriptor_init(hDesc_T *this,hDesc_T* next,hDesc_T *prev,
-        int type,hStmt_T* stmt)
+static void descriptor_init(hDesc_T * this, hDesc_T * next, hDesc_T * prev,
+			    int type, hStmt_T * stmt)
 {
-  assert(IS_VALID(this));
-  this->type=type;
+	assert(IS_VALID(this));
+	this->type = type;
 
+	this->next = next;
+	this->prev = prev;
+	this->stmt = stmt;
+	this->dbc = stmt->dbc;
 
-    this->next=next;
-    this->prev=prev;
-    this->stmt=stmt;
-    this->dbc=stmt->dbc;
-	
-    this->bound_col_flag=0;
-    this->lob_col_flag=0;
-    this->num_recs=0;
-    ood_mutex_init((hgeneric*)this);
-    ood_init_hgeneric(this,SQL_HANDLE_DESC);
+	this->bound_col_flag = 0;
+	this->lob_col_flag = 0;
+	this->num_recs = 0;
+	ood_mutex_init((hgeneric *) this);
+	ood_init_hgeneric(this, SQL_HANDLE_DESC);
 }
 
-SQLRETURN _SQLAllocHandle( 
-    SQLSMALLINT     HandleType,
-    SQLHANDLE         InputHandle,
-    SQLHANDLE        *OutputHandlePtr )
+SQLRETURN _SQLAllocHandle(SQLSMALLINT HandleType,
+			  SQLHANDLE InputHandle, SQLHANDLE * OutputHandlePtr)
 {
-    
-    hgeneric *parent=(hgeneric*)InputHandle;
-    
-    if(parent){
-      assert(IS_VALID(parent));
-      ood_clear_diag((hgeneric*)parent);
-    }
 
-    switch(HandleType)
-    {
-        case SQL_HANDLE_ENV:
-        {
-            /*
-             * Environment Initialisation etc.
-             */
-            hEnv_T *env;
+	hgeneric *parent = (hgeneric *) InputHandle;
 
-            if ( !OutputHandlePtr )
-            {
-                *OutputHandlePtr = SQL_NULL_HENV;
-                return SQL_ERROR;
-            }
-    
-    
-            
-	    env = make_hEnv_T();
-            if ( !env )
-            {
-                *OutputHandlePtr = SQL_NULL_HENV;
-                return SQL_ERROR;
-            }
+	if (parent) {
+		assert(IS_VALID(parent));
+		ood_clear_diag((hgeneric *) parent);
+	}
 
-            env->parent=InputHandle;
-            HANDLE_TYPE(env)=SQL_HANDLE_ENV;
-            ood_init_hgeneric(env,SQL_HANDLE_ENV);
-            *OutputHandlePtr=(SQLHANDLE)env;
+	switch (HandleType) {
+	case SQL_HANDLE_ENV:
+		{
+			/*
+			 * Environment Initialisation etc.
+			 */
+			hEnv_T *env;
 
-            ood_mutex_init((hgeneric*)env);
-            return(SQL_SUCCESS);
-        }
-        break;
+			if (!OutputHandlePtr) {
+				*OutputHandlePtr = SQL_NULL_HENV;
+				return SQL_ERROR;
+			}
 
-        case SQL_HANDLE_DBC:
-        {
-            hDbc_T *dbc;
+			env = make_hEnv_T();
+			if (!env) {
+				*OutputHandlePtr = SQL_NULL_HENV;
+				return SQL_ERROR;
+			}
 
-            if (!OutputHandlePtr)
-            {
-                *OutputHandlePtr=SQL_NULL_HDBC;
-                return SQL_ERROR;
-            }
+			env->parent = InputHandle;
+			HANDLE_TYPE(env) = SQL_HANDLE_ENV;
+			ood_init_hgeneric(env, SQL_HANDLE_ENV);
+			*OutputHandlePtr = (SQLHANDLE) env;
 
-            if(!parent || parent->htype!=SQL_HANDLE_ENV)
-            {
-                *OutputHandlePtr = SQL_NULL_HDBC;
-                return SQL_INVALID_HANDLE;
-            }
+			ood_mutex_init((hgeneric *) env);
+			return (SQL_SUCCESS);
+		}
+		break;
 
-            
-	    dbc=make_hDbc_T();
-            if(!dbc)
-            {
-                *OutputHandlePtr = SQL_NULL_HDBC;
-                ood_post_diag(parent,ERROR_ORIGIN_HY001,0,"",
-                        ERROR_MESSAGE_HY001,
-                        __LINE__,0,"",ERROR_STATE_HY001,
-                        __FILE__,__LINE__);
-                return(SQL_ERROR);
-            }
+	case SQL_HANDLE_DBC:
+		{
+			hDbc_T *dbc;
 
-            dbc->env=(hEnv_T*)parent;
-            dbc->trace=SQL_OPT_TRACE_OFF;
-            strcpy((char*)dbc->tracefile,(char*)TRACEFILE_DEFAULT);
+			if (!OutputHandlePtr) {
+				*OutputHandlePtr = SQL_NULL_HDBC;
+				return SQL_ERROR;
+			}
 
-            /*
-             * Explicitly set the OCI handles to NULL
-             */
-            dbc->oci_err=NULL;
-            dbc->oci_srv=NULL;
-            dbc->oci_svc=NULL;
-            dbc->oci_ses=NULL;
-            dbc->oci_env=NULL;
+			if (!parent || parent->htype != SQL_HANDLE_ENV) {
+				*OutputHandlePtr = SQL_NULL_HDBC;
+				return SQL_INVALID_HANDLE;
+			}
 
-	    /* autocommit ON is the normal default for ODBC. It can be
-	       changed through SQLSetConnectAttr.  */
-	    dbc->autocommit=OCI_COMMIT_ON_SUCCESS;
+			dbc = make_hDbc_T();
+			if (!dbc) {
+				*OutputHandlePtr = SQL_NULL_HDBC;
+				ood_post_diag(parent, ERROR_ORIGIN_HY001, 0, "",
+					      ERROR_MESSAGE_HY001,
+					      __LINE__, 0, "",
+					      ERROR_STATE_HY001, __FILE__,
+					      __LINE__);
+				return (SQL_ERROR);
+			}
 
-	    dbc->metadata_id=0;
+			dbc->env = (hEnv_T *) parent;
+			dbc->trace = SQL_OPT_TRACE_OFF;
+			strcpy((char *)dbc->tracefile,
+			       (char *)TRACEFILE_DEFAULT);
 
-            /*
-             * init the lists
-             */
-            dbc->stmt_list=NULL;
-            dbc->desc_list=NULL;
+			/*
+			 * Explicitly set the OCI handles to NULL
+			 */
+			dbc->oci_err = NULL;
+			dbc->oci_srv = NULL;
+			dbc->oci_svc = NULL;
+			dbc->oci_ses = NULL;
+			dbc->oci_env = NULL;
 
-            ood_init_hgeneric(dbc,SQL_HANDLE_DBC);
-            *OutputHandlePtr=(SQLHANDLE)dbc;
+			/* autocommit ON is the normal default for ODBC. It can be
+			   changed through SQLSetConnectAttr.  */
+			dbc->autocommit = OCI_COMMIT_ON_SUCCESS;
 
-            ood_mutex_init((hgeneric*)dbc);
-            return(SQL_SUCCESS);
-        }
-        break;
+			dbc->metadata_id = 0;
 
-        case SQL_HANDLE_STMT:
-        {
-            hStmt_T *stmt;
-            hDbc_T *dbc=(hDbc_T*)InputHandle;
-	    hDesc_T *ar, *ap, *ir, *ip;
-	    assert(IS_VALID(dbc));
+			/*
+			 * init the lists
+			 */
+			dbc->stmt_list = NULL;
+			dbc->desc_list = NULL;
 
-            if(!dbc || HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
-                return SQL_INVALID_HANDLE;
-if(ENABLE_TRACE){
-            ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-                    (SQLHANDLE)dbc,SQL_SUCCESS,
-                    "i","Handle Type",SQL_HANDLE_STMT);
-}
+			ood_init_hgeneric(dbc, SQL_HANDLE_DBC);
+			*OutputHandlePtr = (SQLHANDLE) dbc;
 
-            if(!OutputHandlePtr)
-            {
-                ood_post_diag(parent,ERROR_ORIGIN_HY009,0,"",
-                        ERROR_MESSAGE_HY009,
-                        __LINE__,0,"",ERROR_STATE_HY009,
-                        __FILE__,__LINE__);
-if(ENABLE_TRACE){
-            ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                    (SQLHANDLE)dbc,SQL_ERROR,
-                    "s","OutputHandlePtr","NULL");
-}
-                return SQL_ERROR;
-            }
+			ood_mutex_init((hgeneric *) dbc);
+			return (SQL_SUCCESS);
+		}
+		break;
 
-            
-	    stmt = make_hStmt_T();
-            stmt->oci_stmt=NULL;
+	case SQL_HANDLE_STMT:
+		{
+			hStmt_T *stmt;
+			hDbc_T *dbc = (hDbc_T *) InputHandle;
+			hDesc_T *ar, *ap, *ir, *ip;
+			assert(IS_VALID(dbc));
+
+			if (!dbc || HANDLE_TYPE(dbc) != SQL_HANDLE_DBC)
+				return SQL_INVALID_HANDLE;
+			if (ENABLE_TRACE) {
+				ood_log_message(dbc, __FILE__, __LINE__,
+						TRACE_FUNCTION_ENTRY,
+						(SQLHANDLE) dbc, SQL_SUCCESS,
+						"i", "Handle Type",
+						SQL_HANDLE_STMT);
+			}
+
+			if (!OutputHandlePtr) {
+				ood_post_diag(parent, ERROR_ORIGIN_HY009, 0, "",
+					      ERROR_MESSAGE_HY009,
+					      __LINE__, 0, "",
+					      ERROR_STATE_HY009, __FILE__,
+					      __LINE__);
+				if (ENABLE_TRACE) {
+					ood_log_message(dbc, __FILE__, __LINE__,
+							TRACE_FUNCTION_EXIT,
+							(SQLHANDLE) dbc,
+							SQL_ERROR, "s",
+							"OutputHandlePtr",
+							"NULL");
+				}
+				return SQL_ERROR;
+			}
+
+			stmt = make_hStmt_T();
+			stmt->oci_stmt = NULL;
 #ifdef UNIX_DEBUG
-			fprintf(stderr,"%s %d stmt [0x%.8lx] \n",
-					__FILE__,__LINE__,(long)stmt);
+			fprintf(stderr, "%s %d stmt [0x%.8lx] \n",
+				__FILE__, __LINE__, (long)stmt);
 #endif
-			
-            stmt->dbc=dbc;
-            ood_init_hgeneric(stmt,SQL_HANDLE_STMT);
-            ood_mutex_init((hgeneric*)stmt);
 
-            /*
-             * Set up our four implicits
-             */
-            
-	    ap=make_hDesc_T();
-	    stmt->implicit_ap=ap;
-            stmt->current_ap=ap;
+			stmt->dbc = dbc;
+			ood_init_hgeneric(stmt, SQL_HANDLE_STMT);
+			ood_mutex_init((hgeneric *) stmt);
 
-            
-            ar=make_hDesc_T();
-	    stmt->implicit_ar=ar;
-	    stmt->current_ar=ar;
+			/*
+			 * Set up our four implicits
+			 */
 
-            
-            ip=make_hDesc_T();
-            stmt->implicit_ip=ip;
-            stmt->current_ip=ip;
+			ap = make_hDesc_T();
+			stmt->implicit_ap = ap;
+			stmt->current_ap = ap;
 
-           
-            ir=make_hDesc_T();
-            stmt->implicit_ir=ir;
-            stmt->current_ir=ir;
+			ar = make_hDesc_T();
+			stmt->implicit_ar = ar;
+			stmt->current_ar = ar;
 
-            descriptor_init(stmt->implicit_ap,stmt->implicit_ar,
-                    NULL,DESC_AP,stmt);
-            descriptor_init(stmt->implicit_ar,stmt->implicit_ip,
-                    stmt->implicit_ap,DESC_AR,stmt);
+			ip = make_hDesc_T();
+			stmt->implicit_ip = ip;
+			stmt->current_ip = ip;
 
-            descriptor_init(stmt->implicit_ip,stmt->implicit_ir,
-                    stmt->implicit_ar,DESC_IP,stmt);
-            descriptor_init(stmt->implicit_ir,NULL,
-                    stmt->implicit_ar,DESC_IR,stmt);
+			ir = make_hDesc_T();
+			stmt->implicit_ir = ir;
+			stmt->current_ir = ir;
 
-            /*
-             * initialise to defaults
-             */
-	    stmt->num_result_rows=0;
-	    stmt->alt_fetch=NULL;
-	    stmt->alt_fetch_data=NULL;
-	    stmt->sql=NULL;
-	    stmt->row_bind_offset_ptr=NULL;
-	    stmt->row_array_size=1;
-	    stmt->param_bind_offset_ptr=NULL;
-	    stmt->rows_fetched_ptr=NULL;
-	    stmt->num_fetched_rows=0;
-	    stmt->fetch_status=SQL_SUCCESS;
-	    stmt->current_row=0;
-	    stmt->bookmark=0;
-	    stmt->row_status_ptr=NULL;
+			descriptor_init(stmt->implicit_ap, stmt->implicit_ar,
+					NULL, DESC_AP, stmt);
+			descriptor_init(stmt->implicit_ar, stmt->implicit_ip,
+					stmt->implicit_ap, DESC_AR, stmt);
 
-            /*
-             * Drop them into the descriptor list
-             */
-            THREAD_MUTEX_LOCK(dbc);
-            stmt->current_ap->prev=NULL;
-            if(dbc->desc_list)
-                dbc->desc_list->prev=stmt->current_ir;
-            stmt->current_ir->next=dbc->desc_list;
-            dbc->desc_list=stmt->current_ap;
+			descriptor_init(stmt->implicit_ip, stmt->implicit_ir,
+					stmt->implicit_ar, DESC_IP, stmt);
+			descriptor_init(stmt->implicit_ir, NULL,
+					stmt->implicit_ar, DESC_IR, stmt);
 
-            /*
-             * Finally drop the Statement into the statement list
-             */
-            stmt->prev=NULL;
-            stmt->next=dbc->stmt_list;
-            if(dbc->stmt_list)
-                dbc->stmt_list->prev=stmt;
-            dbc->stmt_list=stmt;
-            THREAD_MUTEX_UNLOCK(dbc);
+			/*
+			 * initialise to defaults
+			 */
+			stmt->num_result_rows = 0;
+			stmt->alt_fetch = NULL;
+			stmt->alt_fetch_data = NULL;
+			stmt->sql = NULL;
+			stmt->row_bind_offset_ptr = NULL;
+			stmt->row_array_size = 1;
+			stmt->param_bind_offset_ptr = NULL;
+			stmt->rows_fetched_ptr = NULL;
+			stmt->num_fetched_rows = 0;
+			stmt->fetch_status = SQL_SUCCESS;
+			stmt->current_row = 0;
+			stmt->bookmark = 0;
+			stmt->row_status_ptr = NULL;
 
-            *OutputHandlePtr=(SQLHANDLE)stmt;
-if(ENABLE_TRACE){
-            ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                    (SQLHANDLE)dbc,SQL_SUCCESS,
-                    "h","Output Handle",
-                    stmt);
+			/*
+			 * Drop them into the descriptor list
+			 */
+			THREAD_MUTEX_LOCK(dbc);
+			stmt->current_ap->prev = NULL;
+			if (dbc->desc_list)
+				dbc->desc_list->prev = stmt->current_ir;
+			stmt->current_ir->next = dbc->desc_list;
+			dbc->desc_list = stmt->current_ap;
+
+			/*
+			 * Finally drop the Statement into the statement list
+			 */
+			stmt->prev = NULL;
+			stmt->next = dbc->stmt_list;
+			if (dbc->stmt_list)
+				dbc->stmt_list->prev = stmt;
+			dbc->stmt_list = stmt;
+			THREAD_MUTEX_UNLOCK(dbc);
+
+			*OutputHandlePtr = (SQLHANDLE) stmt;
+			if (ENABLE_TRACE) {
+				ood_log_message(dbc, __FILE__, __LINE__,
+						TRACE_FUNCTION_EXIT,
+						(SQLHANDLE) dbc, SQL_SUCCESS,
+						"h", "Output Handle", stmt);
+			}
+		}
+		break;
+
+	case SQL_HANDLE_DESC:
+		{
+			hDbc_T *dbc = (hDbc_T *) InputHandle;
+			hDesc_T *desc;
+			assert(IS_VALID(dbc));
+
+			if (!dbc || HANDLE_TYPE(dbc) != SQL_HANDLE_DBC)
+				return SQL_INVALID_HANDLE;
+			if (ENABLE_TRACE) {
+				ood_log_message(dbc, __FILE__, __LINE__,
+						TRACE_FUNCTION_ENTRY,
+						(SQLHANDLE) dbc, SQL_SUCCESS,
+						"i", "Handle Type",
+						SQL_HANDLE_DESC);
+			}
+
+			if (!OutputHandlePtr) {
+				ood_post_diag(parent, ERROR_ORIGIN_HY009, 0, "",
+					      ERROR_MESSAGE_HY009,
+					      __LINE__, 0, "",
+					      ERROR_STATE_HY009, __FILE__,
+					      __LINE__);
+				if (ENABLE_TRACE) {
+					ood_log_message(dbc, __FILE__, __LINE__,
+							TRACE_FUNCTION_EXIT,
+							(SQLHANDLE) dbc,
+							SQL_ERROR, "p",
+							"OutputHandlePtr",
+							"NULL");
+				}
+				return SQL_ERROR;
+			}
+
+			desc = make_hDesc_T();
+			if (!desc) {
+				*OutputHandlePtr = SQL_NULL_HDBC;
+				ood_post_diag(parent, ERROR_ORIGIN_HY001, 0, "",
+					      ERROR_MESSAGE_HY001,
+					      __LINE__, 0, "",
+					      ERROR_STATE_HY001, __FILE__,
+					      __LINE__);
+				if (ENABLE_TRACE) {
+					ood_log_message(dbc, __FILE__, __LINE__,
+							TRACE_FUNCTION_EXIT,
+							(SQLHANDLE) dbc,
+							SQL_ERROR, "");
+				}
+				return (SQL_ERROR);
+			}
+			ood_mutex_init((hgeneric *) desc);
+
+			desc->prev = NULL;
+			desc->stmt = NULL;
+			desc->dbc = dbc;
+			ood_init_hgeneric(desc, SQL_HANDLE_DESC);
+			/* 
+			 * Drop the descriptor into the descriptor list
+			 */
+			THREAD_MUTEX_LOCK(dbc);
+			desc->next = dbc->desc_list;
+			dbc->desc_list = desc;
+			THREAD_MUTEX_UNLOCK(dbc);
+
+			*OutputHandlePtr = (SQLHANDLE) desc;
+			if (ENABLE_TRACE) {
+				ood_log_message(dbc, __FILE__, __LINE__,
+						TRACE_FUNCTION_EXIT,
+						(SQLHANDLE) dbc, SQL_SUCCESS,
+						"p", "Output Handle", desc);
+			}
+
+			return SQL_SUCCESS;
+		}
+		break;
+
+	default:
+		return SQL_ERROR;
+	}
+
+	return SQL_SUCCESS;
 }
-        }
-        break;
 
-        case SQL_HANDLE_DESC:
-        {
-            hDbc_T *dbc=(hDbc_T*)InputHandle;
-            hDesc_T *desc;
-       	    assert(IS_VALID(dbc));
-         
-            if(!dbc || HANDLE_TYPE(dbc)!=SQL_HANDLE_DBC)
-                return SQL_INVALID_HANDLE;
-if(ENABLE_TRACE){
-            ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-                    (SQLHANDLE)dbc,SQL_SUCCESS,
-                    "i","Handle Type",
-                    SQL_HANDLE_DESC);
-}
-
-
-            if(!OutputHandlePtr)
-            {
-                ood_post_diag(parent,ERROR_ORIGIN_HY009,0,"",
-                        ERROR_MESSAGE_HY009,
-                        __LINE__,0,"",ERROR_STATE_HY009,
-                        __FILE__,__LINE__);
-if(ENABLE_TRACE){
-            ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                    (SQLHANDLE)dbc,SQL_ERROR,
-                    "p","OutputHandlePtr","NULL");
-}
-                return SQL_ERROR;
-            }
-
-            
-	    desc=make_hDesc_T();
-            if(!desc)
-            {
-                *OutputHandlePtr = SQL_NULL_HDBC;
-                ood_post_diag(parent,ERROR_ORIGIN_HY001,0,"",
-                        ERROR_MESSAGE_HY001,
-                        __LINE__,0,"",ERROR_STATE_HY001,
-                        __FILE__,__LINE__);
-if(ENABLE_TRACE){
-            ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                    (SQLHANDLE)dbc,SQL_ERROR,
-                    "");
-}
-                return(SQL_ERROR);
-            }
-            ood_mutex_init((hgeneric*)desc);
-
-            desc->prev=NULL;
-            desc->stmt=NULL;
-            desc->dbc=dbc;
-            ood_init_hgeneric(desc,SQL_HANDLE_DESC);
-            /* 
-             * Drop the descriptor into the descriptor list
-             */
-            THREAD_MUTEX_LOCK(dbc);
-            desc->next=dbc->desc_list;
-            dbc->desc_list=desc;
-            THREAD_MUTEX_UNLOCK(dbc);
-
-            *OutputHandlePtr = (SQLHANDLE)desc;
-if(ENABLE_TRACE){
-            ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                    (SQLHANDLE)dbc,SQL_SUCCESS,
-                    "p","Output Handle",
-                    desc);
-}
-
-            return SQL_SUCCESS;
-        }
-        break;
-        
-        default:
-            return SQL_ERROR;
-    }
-   
-    return SQL_SUCCESS;
-}
-
-SQLRETURN SQL_API SQLAllocHandle( 
-    SQLSMALLINT     HandleType,
-    SQLHANDLE         InputHandle,
-    SQLHANDLE        *OutputHandlePtr )
+SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT HandleType,
+				 SQLHANDLE InputHandle,
+				 SQLHANDLE * OutputHandlePtr)
 {
-    setDebugLevel(0);
-    if(getenv("DEBUG"))	
-	setDebugLevel(atoi(getenv("DEBUG")));
-    return _SQLAllocHandle( HandleType, InputHandle, OutputHandlePtr );
+	setDebugLevel(0);
+	if (getenv("DEBUG"))
+		setDebugLevel(atoi(getenv("DEBUG")));
+	return _SQLAllocHandle(HandleType, InputHandle, OutputHandlePtr);
 }

@@ -61,28 +61,29 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetCursorName.c,v $ $Revision: 1.3 $";
+static char const rcsid[] = "$RCSfile: SQLGetCursorName.c,v $ $Revision: 1.3 $";
 
-SQLRETURN SQL_API SQLGetCursorName(
-    SQLHSTMT            StatementHandle,
-    SQLCHAR                *CursorName,
-    SQLSMALLINT            BufferLength,
-    SQLSMALLINT            *NameLengthPtr )
+SQLRETURN SQL_API SQLGetCursorName(SQLHSTMT StatementHandle,
+				   SQLCHAR * CursorName,
+				   SQLSMALLINT BufferLength,
+				   SQLSMALLINT * NameLengthPtr)
 {
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
-    SQLRETURN status=SQL_SUCCESS;
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"");
-}
-    ood_clear_diag((hgeneric*)stmt);
-    ood_mutex_lock_stmt(stmt);
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	SQLRETURN status = SQL_SUCCESS;
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
+	}
+	ood_clear_diag((hgeneric *) stmt);
+	ood_mutex_lock_stmt(stmt);
 
-    ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,status,"");
-}
-    fprintf(stderr,"called stubbed function line %d file %s\n",__LINE__,__FILE__);
-    return SQL_SUCCESS;
+	ood_mutex_unlock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL, status,
+				"");
+	}
+	fprintf(stderr, "called stubbed function line %d file %s\n", __LINE__,
+		__FILE__);
+	return SQL_SUCCESS;
 }

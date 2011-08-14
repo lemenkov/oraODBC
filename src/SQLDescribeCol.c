@@ -69,76 +69,75 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLDescribeCol.c,v $ $Revision: 1.3 $";
+static char const rcsid[] = "$RCSfile: SQLDescribeCol.c,v $ $Revision: 1.3 $";
 
-SQLRETURN SQL_API SQLDescribeCol(
-    SQLHSTMT            StatementHandle,
-    SQLUSMALLINT        ColumnNumber,
-    SQLCHAR                *ColumnName,
-    SQLSMALLINT            BufferLength,
-    SQLSMALLINT            *NameLengthPtr,
-    SQLSMALLINT            *DataTypePtr,
-    SQLUINTEGER            *ColumnSizePtr,
-    SQLSMALLINT            *DecimalDigitsPtr,
-    SQLSMALLINT            *NullablePtr )
+SQLRETURN SQL_API SQLDescribeCol(SQLHSTMT StatementHandle,
+				 SQLUSMALLINT ColumnNumber,
+				 SQLCHAR * ColumnName,
+				 SQLSMALLINT BufferLength,
+				 SQLSMALLINT * NameLengthPtr,
+				 SQLSMALLINT * DataTypePtr,
+				 SQLUINTEGER * ColumnSizePtr,
+				 SQLSMALLINT * DecimalDigitsPtr,
+				 SQLSMALLINT * NullablePtr)
 {
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
-    ar_T* ar;
-    SQLRETURN status=SQL_SUCCESS;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	ar_T *ar;
+	SQLRETURN status = SQL_SUCCESS;
 
-    if(!StatementHandle || HANDLE_TYPE(StatementHandle)!=SQL_HANDLE_STMT)
-    {
-        return SQL_INVALID_HANDLE;
-    }
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"i",
-			"ColumnNumber",ColumnNumber);
-}
-    ood_clear_diag((hgeneric*)stmt);
-    ood_mutex_lock_stmt(stmt);
+	if (!StatementHandle || HANDLE_TYPE(StatementHandle) != SQL_HANDLE_STMT) {
+		return SQL_INVALID_HANDLE;
+	}
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "i",
+				"ColumnNumber", ColumnNumber);
+	}
+	ood_clear_diag((hgeneric *) stmt);
+	ood_mutex_lock_stmt(stmt);
 
-    if(ColumnNumber>stmt->current_ir->num_recs)
-    {
-        ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_07009,ColumnNumber,
-                "",ERROR_MESSAGE_07009,
-                __LINE__,0,"",ERROR_STATE_07009,__FILE__,__LINE__);
-        ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-        ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-                (SQLHANDLE)NULL,SQL_ERROR,"");
-}
-        return SQL_ERROR;
-    }
-    ar=&stmt->current_ar->recs.ar[ColumnNumber];
+	if (ColumnNumber > stmt->current_ir->num_recs) {
+		ood_post_diag((hgeneric *) stmt, ERROR_ORIGIN_07009,
+			      ColumnNumber, "", ERROR_MESSAGE_07009, __LINE__,
+			      0, "", ERROR_STATE_07009, __FILE__, __LINE__);
+		ood_mutex_unlock_stmt(stmt);
+		if (ENABLE_TRACE) {
+			ood_log_message(stmt->dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+					SQL_ERROR, "");
+		}
+		return SQL_ERROR;
+	}
+	ar = &stmt->current_ar->recs.ar[ColumnNumber];
 
-    if(!ood_bounded_strcpy((char*)ColumnName,
-				(char*)ar->column_name,BufferLength))
-    {
-        ood_post_diag((hgeneric*)stmt,ERROR_ORIGIN_01004,ColumnNumber,
-                "",ERROR_MESSAGE_01004,
-                __LINE__,0,"",ERROR_STATE_01004,__FILE__,__LINE__);
-        status=SQL_SUCCESS_WITH_INFO;
-    }
-    if(NameLengthPtr)
-        *NameLengthPtr=(SQLSMALLINT)strlen((const char*)ar->column_name);
+	if (!ood_bounded_strcpy((char *)ColumnName,
+				(char *)ar->column_name, BufferLength)) {
+		ood_post_diag((hgeneric *) stmt, ERROR_ORIGIN_01004,
+			      ColumnNumber, "", ERROR_MESSAGE_01004, __LINE__,
+			      0, "", ERROR_STATE_01004, __FILE__, __LINE__);
+		status = SQL_SUCCESS_WITH_INFO;
+	}
+	if (NameLengthPtr)
+		*NameLengthPtr =
+		    (SQLSMALLINT) strlen((const char *)ar->column_name);
 
-    if(DataTypePtr)
-        *DataTypePtr=(SQLSMALLINT)ar->concise_type;
-    
-    if(ColumnSizePtr)
-        *ColumnSizePtr=(SQLUINTEGER)ar->length;
+	if (DataTypePtr)
+		*DataTypePtr = (SQLSMALLINT) ar->concise_type;
 
-    if(DecimalDigitsPtr)
-        *DecimalDigitsPtr=(SQLSMALLINT)ar->precision;
+	if (ColumnSizePtr)
+		*ColumnSizePtr = (SQLUINTEGER) ar->length;
 
-    if(NullablePtr)
-        *NullablePtr=(SQLSMALLINT)ar->nullable;
+	if (DecimalDigitsPtr)
+		*DecimalDigitsPtr = (SQLSMALLINT) ar->precision;
 
-    ood_mutex_unlock_stmt(stmt);
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-            (SQLHANDLE)NULL,SQL_SUCCESS,"");
-}
-    return status;
+	if (NullablePtr)
+		*NullablePtr = (SQLSMALLINT) ar->nullable;
+
+	ood_mutex_unlock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+				SQL_SUCCESS, "");
+	}
+	return status;
 }

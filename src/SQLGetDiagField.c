@@ -58,51 +58,51 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLGetDiagField.c,v $ $Revision: 1.3 $";
+static char const rcsid[] = "$RCSfile: SQLGetDiagField.c,v $ $Revision: 1.3 $";
 
 /*
  * Please note this in implemented in diagnostics.h
  */
 
-SQLRETURN SQL_API SQLGetDiagField(
-    SQLSMALLINT            HandleType,
-    SQLHANDLE            Handle,
-    SQLSMALLINT            RecNumber,
-    SQLSMALLINT            DiagIdentifier,
-    SQLPOINTER            DiagInfoPtr,
-    SQLSMALLINT            BufferLength,
-    SQLSMALLINT            *StringLengthPtr )
+SQLRETURN SQL_API SQLGetDiagField(SQLSMALLINT HandleType,
+				  SQLHANDLE Handle,
+				  SQLSMALLINT RecNumber,
+				  SQLSMALLINT DiagIdentifier,
+				  SQLPOINTER DiagInfoPtr,
+				  SQLSMALLINT BufferLength,
+				  SQLSMALLINT * StringLengthPtr)
 {
-    SQLRETURN status=SQL_SUCCESS;
-    hDbc_T* dbc=NULL;
-if(ENABLE_TRACE){
-    switch(HANDLE_TYPE(Handle))
-    {
-        case SQL_HANDLE_DBC:
-            dbc=(hDbc_T*)Handle;
-            break;
-        case SQL_HANDLE_STMT:
-            dbc=((hStmt_T*)Handle)->dbc;
-            break;
-        case SQL_HANDLE_DESC:
-            dbc=((hDesc_T*)Handle)->dbc;
-            break;
-    }
-    if(dbc){
-        ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)Handle,0,"");
-	assert(IS_VALID(dbc));
-    }
-}
-     status=_SQLGetDiagField( HandleType, Handle, RecNumber, DiagIdentifier, 
-            DiagInfoPtr, BufferLength, StringLengthPtr );
+	SQLRETURN status = SQL_SUCCESS;
+	hDbc_T *dbc = NULL;
+	if (ENABLE_TRACE) {
+		switch (HANDLE_TYPE(Handle)) {
+		case SQL_HANDLE_DBC:
+			dbc = (hDbc_T *) Handle;
+			break;
+		case SQL_HANDLE_STMT:
+			dbc = ((hStmt_T *) Handle)->dbc;
+			break;
+		case SQL_HANDLE_DESC:
+			dbc = ((hDesc_T *) Handle)->dbc;
+			break;
+		}
+		if (dbc) {
+			ood_log_message(dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_ENTRY,
+					(SQLHANDLE) Handle, 0, "");
+			assert(IS_VALID(dbc));
+		}
+	}
+	status = _SQLGetDiagField(HandleType, Handle, RecNumber, DiagIdentifier,
+				  DiagInfoPtr, BufferLength, StringLengthPtr);
 
-if(ENABLE_TRACE){
-     if(dbc){
-         ood_log_message(dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
-             (SQLHANDLE)NULL,status,"");
-	 assert(IS_VALID(dbc));
-     }
-}
-     return status;
+	if (ENABLE_TRACE) {
+		if (dbc) {
+			ood_log_message(dbc, __FILE__, __LINE__,
+					TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
+					status, "");
+			assert(IS_VALID(dbc));
+		}
+	}
+	return status;
 }

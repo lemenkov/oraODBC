@@ -72,119 +72,115 @@
 
 #include "common.h"
 
-static char const rcsid[]= "$RCSfile: SQLBindParameter.c,v $ $Revision: 1.6 $";
+static char const rcsid[] = "$RCSfile: SQLBindParameter.c,v $ $Revision: 1.6 $";
 
-
-SQLRETURN SQL_API SQLBindParameter(
-    SQLHSTMT            StatementHandle,
-    SQLUSMALLINT        ParameterNumber,
-    SQLSMALLINT            InputOutputType,
-    SQLSMALLINT            ValueType,
-    SQLSMALLINT            ParameterType,
-    SQLUINTEGER            ColumnSize,
-    SQLSMALLINT            DecimalDigits,
-    SQLPOINTER            ParameterValuePtr,
-    SQLINTEGER            BufferLength,
-    SQLINTEGER            *StrLen_or_IndPtr )
+SQLRETURN SQL_API SQLBindParameter(SQLHSTMT StatementHandle,
+				   SQLUSMALLINT ParameterNumber,
+				   SQLSMALLINT InputOutputType,
+				   SQLSMALLINT ValueType,
+				   SQLSMALLINT ParameterType,
+				   SQLUINTEGER ColumnSize,
+				   SQLSMALLINT DecimalDigits,
+				   SQLPOINTER ParameterValuePtr,
+				   SQLINTEGER BufferLength,
+				   SQLINTEGER * StrLen_or_IndPtr)
 {
-    hStmt_T* stmt=(hStmt_T*)StatementHandle;
-    SQLRETURN status=SQL_SUCCESS;
+	hStmt_T *stmt = (hStmt_T *) StatementHandle;
+	SQLRETURN status = SQL_SUCCESS;
 
-if(ENABLE_TRACE){
-    ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_ENTRY,
-            (SQLHANDLE)stmt,0,"iiiiiipip",
-			"ParameterNumber",ParameterNumber,
-			"InputOutputType",InputOutputType,
-			"ValueType",ValueType,
-			"ParameterType",ParameterType,
-		    "ColumnSize",ColumnSize,
-			"DecimalDigits",DecimalDigits,
-			"ParameterValuePtr",ParameterValuePtr,
-		    "BufferLength",BufferLength,
-			"StrLen_or_IndPtr",StrLen_or_IndPtr);
-}
-    ood_clear_diag((hgeneric*)stmt);
-    ood_mutex_lock_stmt(stmt);
+	if (ENABLE_TRACE) {
+		ood_log_message(stmt->dbc, __FILE__, __LINE__,
+				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0,
+				"iiiiiipip", "ParameterNumber", ParameterNumber,
+				"InputOutputType", InputOutputType, "ValueType",
+				ValueType, "ParameterType", ParameterType,
+				"ColumnSize", ColumnSize, "DecimalDigits",
+				DecimalDigits, "ParameterValuePtr",
+				ParameterValuePtr, "BufferLength", BufferLength,
+				"StrLen_or_IndPtr", StrLen_or_IndPtr);
+	}
+	ood_clear_diag((hgeneric *) stmt);
+	ood_mutex_lock_stmt(stmt);
 
-	switch(InputOutputType)
-	{
-		case SQL_PARAM_INPUT:
-        /*
-	     * We may not have allocated any param descriptors yet, 
-	     */
-	    if(SQL_SUCCESS!=ood_alloc_param_desc(stmt,ParameterNumber,
-					stmt->current_ip,stmt->current_ap))
-        {
-            status=SQL_ERROR;
+	switch (InputOutputType) {
+	case SQL_PARAM_INPUT:
+		/*
+		 * We may not have allocated any param descriptors yet, 
+		 */
+		if (SQL_SUCCESS != ood_alloc_param_desc(stmt, ParameterNumber,
+							stmt->current_ip,
+							stmt->current_ap)) {
+			status = SQL_ERROR;
 			break;
-        }
-        else
-        {
-			stmt->current_ap->recs.ap[ParameterNumber].concise_type=
-				stmt->current_ap->recs.ap[ParameterNumber].data_type=ValueType;
-            stmt->current_ap->recs.ap[ParameterNumber].bind_indicator=
-				StrLen_or_IndPtr;
-            stmt->current_ap->recs.ap[ParameterNumber].buffer_length=	BufferLength;
+		} else {
+			stmt->current_ap->recs.ap[ParameterNumber].
+			    concise_type =
+			    stmt->current_ap->recs.ap[ParameterNumber].
+			    data_type = ValueType;
+			stmt->current_ap->recs.ap[ParameterNumber].
+			    bind_indicator = StrLen_or_IndPtr;
+			stmt->current_ap->recs.ap[ParameterNumber].
+			    buffer_length = BufferLength;
 
-	    /* Column size is ignored for various data types.
-	       Reference: ODBC Programmer's Reference, Appendix D,
-	       Column Size
-	       http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/odbccolumn_size.asp.
-	    */
-	    
-	    stmt->current_ap->recs.ap[ParameterNumber].octet_length = BufferLength;
+			/* Column size is ignored for various data types.
+			   Reference: ODBC Programmer's Reference, Appendix D,
+			   Column Size
+			   http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/odbccolumn_size.asp.
+			 */
 
-	    switch (ParameterType)
-	      {
-	      case SQL_BIT:
-	      case SQL_TINYINT:
-	      case SQL_SMALLINT:
-	      case SQL_INTEGER:
-	      case SQL_BIGINT:
-	      case SQL_REAL:
-	      case SQL_FLOAT:
-	      case SQL_DOUBLE:
-	      case SQL_TYPE_DATE:
-	      case SQL_TYPE_TIME:
-		break;
+			stmt->current_ap->recs.ap[ParameterNumber].
+			    octet_length = BufferLength;
 
-	      default:
-		if(ColumnSize >= BufferLength)
-		  stmt->current_ap->recs.ap[ParameterNumber].octet_length
-		    = ColumnSize;
-	      }
+			switch (ParameterType) {
+			case SQL_BIT:
+			case SQL_TINYINT:
+			case SQL_SMALLINT:
+			case SQL_INTEGER:
+			case SQL_BIGINT:
+			case SQL_REAL:
+			case SQL_FLOAT:
+			case SQL_DOUBLE:
+			case SQL_TYPE_DATE:
+			case SQL_TYPE_TIME:
+				break;
 
-            stmt->current_ap->recs.ap[ParameterNumber].data_ptr=
-				ParameterValuePtr;
-			stmt->current_ap->recs.ap[ParameterNumber].bind_target_type=
-				ParameterType;
-			stmt->current_ap->recs.ap[ParameterNumber].precision=
-				DecimalDigits;
-            /*stmt->current_ap->recs.ar[ParameterNumber].*/
-            /*stmt->current_ap->recs.ar[ParameterNumber].*/
-            /*stmt->current_ap->recs.ar[ParameterNumber].*/
-            /*stmt->current_ap->recs.ar[ParameterNumber].*/
+			default:
+				if (ColumnSize >= BufferLength)
+					stmt->current_ap->recs.
+					    ap[ParameterNumber].octet_length =
+					    ColumnSize;
+			}
+
+			stmt->current_ap->recs.ap[ParameterNumber].data_ptr =
+			    ParameterValuePtr;
+			stmt->current_ap->recs.ap[ParameterNumber].
+			    bind_target_type = ParameterType;
+			stmt->current_ap->recs.ap[ParameterNumber].precision =
+			    DecimalDigits;
+			/*stmt->current_ap->recs.ar[ParameterNumber]. */
+			/*stmt->current_ap->recs.ar[ParameterNumber]. */
+			/*stmt->current_ap->recs.ar[ParameterNumber]. */
+			/*stmt->current_ap->recs.ar[ParameterNumber]. */
 
 			stmt->current_ap->bound_col_flag++;
 			stmt->current_ap->lob_col_flag++;
-	    }
+		}
 		break;
 
-		default:
-			ood_post_diag((hgeneric*)stmt->dbc,ERROR_ORIGIN_HYC00,0,"",
-					ERROR_MESSAGE_HYC00,
-                    __LINE__,0,"",ERROR_STATE_HYC00,
-                    __FILE__,__LINE__);
-            status=SQL_ERROR;
+	default:
+		ood_post_diag((hgeneric *) stmt->dbc, ERROR_ORIGIN_HYC00, 0, "",
+			      ERROR_MESSAGE_HYC00,
+			      __LINE__, 0, "", ERROR_STATE_HYC00,
+			      __FILE__, __LINE__);
+		status = SQL_ERROR;
 	}
 
-
-    ood_mutex_unlock_stmt(stmt);
+	ood_mutex_unlock_stmt(stmt);
 /*
 if(ENABLE_TRACE){
     ood_log_message(stmt->dbc,__FILE__,__LINE__,TRACE_FUNCTION_EXIT,
             (SQLHANDLE)NULL,status,"");
 }
 */
-    return status;
+	return status;
 }
