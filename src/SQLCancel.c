@@ -81,6 +81,7 @@ SQLRETURN SQL_API SQLCancel(SQLHSTMT StatementHandle)
 				TRACE_FUNCTION_ENTRY, (SQLHANDLE) stmt, 0, "");
 	}
 	ood_clear_diag((hgeneric *) stmt);
+	// FIXME is it intentional - to unlock mutex before lock?
 	ood_mutex_unlock_stmt(stmt);
 	OCIBreak(stmt->oci_stmt, stmt->dbc->oci_err);
 	ood_mutex_lock_stmt(stmt);
