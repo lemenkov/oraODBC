@@ -33,7 +33,7 @@ INCLUDES = -I${ODBCIDIR} -I../src \
 EXTRA_DIST = check_oracle_environment runtests 
 TESTS = check_oracle_environment $(check_PROGRAMS)
 
-LDFLAGS =     -L${ODBCLDIR} -lodbc -L../src/.libs -loraodbc ../src/mem_functions.o ../src/common.o ../src/common_functions.o
+AM_LDFLAGS =     -L${ODBCLDIR} -lodbc -L../src/.libs -loraodbc ../src/mem_functions.o ../src/common.o ../src/common_functions.o
 
 CLEANFILES=*.*~ .deps/*.P core core.*
 

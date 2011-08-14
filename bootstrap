@@ -1,4 +1,6 @@
 #!/bin/sh -x
+libtoolize --copy
 aclocal
+autoconf
+autoheader
 automake --gnu --add-missing --copy
-autoconf 
