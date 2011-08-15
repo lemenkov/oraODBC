@@ -88,11 +88,12 @@ SQLRETURN SQL_API SQLRowCount(SQLHSTMT StatementHandle,
 
 	*RowCountPtr = (SQLINTEGER) (stmt->num_result_rows);
 
+	ood_mutex_unlock_stmt(stmt);
+
 	if (RowCountPtr == NULL){
 		return SQL_ERROR;
 	}
 
-	ood_mutex_unlock_stmt(stmt);
 	if (ENABLE_TRACE) {
 		ood_log_message(stmt->dbc, __FILE__, __LINE__,
 				TRACE_FUNCTION_EXIT, (SQLHANDLE) NULL,
