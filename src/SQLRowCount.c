@@ -73,7 +73,7 @@
 static char const rcsid[] = "$RCSfile: SQLRowCount.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLRowCount(SQLHSTMT StatementHandle,
-			      SQLINTEGER * RowCountPtr)
+			      SQLLEN * RowCountPtr)
 {
 	hStmt_T *stmt = (hStmt_T *) StatementHandle;
 	if (!stmt || HANDLE_TYPE(stmt) != SQL_HANDLE_STMT) {

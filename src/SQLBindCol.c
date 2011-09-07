@@ -108,8 +108,8 @@ SQLRETURN SQL_API SQLBindCol(SQLHSTMT StatementHandle,
 			     SQLUSMALLINT ColumnNumber,
 			     SQLSMALLINT TargetType,
 			     SQLPOINTER TargetValuePtr,
-			     SQLINTEGER BufferLength,
-			     SQLINTEGER * StrLen_or_IndPtr)
+			     SQLLEN BufferLength,
+			     SQLLEN * StrLen_or_IndPtr)
 {
 	hStmt_T *stmt = (hStmt_T *) StatementHandle;
 	SQLRETURN status = SQL_SUCCESS;

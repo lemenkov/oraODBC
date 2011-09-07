@@ -70,7 +70,7 @@ static char const rcsid[] = "$RCSfile: SQLDescribeParam.c,v $ $Revision: 1.4 $";
 SQLRETURN SQL_API SQLDescribeParam(SQLHSTMT StatementHandle,
 				   SQLUSMALLINT ParameterNumber,
 				   SQLSMALLINT * DataTypePtr,
-				   SQLUINTEGER * ParameterSizePtr,
+				   SQLULEN * ParameterSizePtr,
 				   SQLSMALLINT * DecimalDigitsPtr,
 				   SQLSMALLINT * NullablePtr)
 {

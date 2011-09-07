@@ -77,7 +77,7 @@ SQLRETURN SQL_API SQLDescribeCol(SQLHSTMT StatementHandle,
 				 SQLSMALLINT BufferLength,
 				 SQLSMALLINT * NameLengthPtr,
 				 SQLSMALLINT * DataTypePtr,
-				 SQLUINTEGER * ColumnSizePtr,
+				 SQLULEN * ColumnSizePtr,
 				 SQLSMALLINT * DecimalDigitsPtr,
 				 SQLSMALLINT * NullablePtr)
 {

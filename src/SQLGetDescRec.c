@@ -66,7 +66,7 @@ SQLRETURN SQL_API SQLGetDescRec(SQLHDESC DescriptorHandle,
 				SQLSMALLINT * StringLengthPtr,
 				SQLSMALLINT * TypePtr,
 				SQLSMALLINT * SubTypePtr,
-				SQLINTEGER * LengthPtr,
+				SQLLEN * LengthPtr,
 				SQLSMALLINT * PrecisionPtr,
 				SQLSMALLINT * ScalePtr,
 				SQLSMALLINT * NullablePtr)

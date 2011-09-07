@@ -64,14 +64,14 @@ static char const rcsid[] = "$RCSfile: SQLFetchScroll.c,v $ $Revision: 1.2 $";
 
 SQLRETURN ood_SQLFetchScroll(hStmt_T * stmt,
 			     SQLSMALLINT FetchOrientation,
-			     SQLINTEGER FetchOffset)
+			     SQLLEN FetchOffset)
 {
 	return ood_SQLFetch(stmt);
 }
 
 SQLRETURN SQL_API SQLFetchScroll(SQLHSTMT StatementHandle,
 				 SQLSMALLINT FetchOrientation,
-				 SQLINTEGER FetchOffset)
+				 SQLLEN FetchOffset)
 {
 	hStmt_T *stmt = (hStmt_T *) StatementHandle;
 	SQLRETURN status = SQL_SUCCESS;

@@ -79,11 +79,11 @@ SQLRETURN SQL_API SQLBindParameter(SQLHSTMT StatementHandle,
 				   SQLSMALLINT InputOutputType,
 				   SQLSMALLINT ValueType,
 				   SQLSMALLINT ParameterType,
-				   SQLUINTEGER ColumnSize,
+				   SQLULEN ColumnSize,
 				   SQLSMALLINT DecimalDigits,
 				   SQLPOINTER ParameterValuePtr,
-				   SQLINTEGER BufferLength,
-				   SQLINTEGER * StrLen_or_IndPtr)
+				   SQLLEN BufferLength,
+				   SQLLEN * StrLen_or_IndPtr)
 {
 	hStmt_T *stmt = (hStmt_T *) StatementHandle;
 	SQLRETURN status = SQL_SUCCESS;

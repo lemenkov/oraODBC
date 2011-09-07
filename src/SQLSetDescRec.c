@@ -67,12 +67,12 @@ SQLRETURN SQL_API SQLSetDescRec(SQLHDESC DescriptorHandle,
 				SQLSMALLINT RecNumber,
 				SQLSMALLINT Type,
 				SQLSMALLINT SubType,
-				SQLINTEGER Length,
+				SQLLEN Length,
 				SQLSMALLINT Precision,
 				SQLSMALLINT Scale,
 				SQLPOINTER DataPtr,
-				SQLINTEGER * StringLengthPtr,
-				SQLINTEGER * IndicatorPtr)
+				SQLLEN * StringLengthPtr,
+				SQLLEN * IndicatorPtr)
 {
 	hDesc_T *desc = (hDesc_T *) DescriptorHandle;
 	SQLRETURN status = SQL_SUCCESS;

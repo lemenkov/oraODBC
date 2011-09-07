@@ -70,7 +70,7 @@
 static char const rcsid[] = "$RCSfile: SQLPutData.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLPutData(SQLHSTMT StatementHandle,
-			     SQLPOINTER DataPtr, SQLINTEGER StrLen_or_Ind)
+			     SQLPOINTER DataPtr, SQLLEN StrLen_or_Ind)
 {
 	hStmt_T *stmt = (hStmt_T *) StatementHandle;
 	SQLRETURN status = SQL_SUCCESS;

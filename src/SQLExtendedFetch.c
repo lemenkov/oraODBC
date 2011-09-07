@@ -64,8 +64,8 @@ static char const rcsid[] = "$RCSfile: SQLExtendedFetch.c,v $ $Revision: 1.2 $";
 
 SQLRETURN SQL_API SQLExtendedFetch(SQLHSTMT hstmt,
 				   SQLUSMALLINT fFetchType,
-				   SQLINTEGER irow,
-				   SQLUINTEGER * pcrow,
+				   SQLLEN irow,
+				   SQLULEN * pcrow,
 				   SQLUSMALLINT * rgfRowStatus)
 {
 	SQLRETURN status;

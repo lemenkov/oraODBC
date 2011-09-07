@@ -67,7 +67,7 @@
 static char const rcsid[] = "$RCSfile: SQLSetPos.c,v $ $Revision: 1.4 $";
 
 SQLRETURN SQL_API SQLSetPos(SQLHSTMT StatementHandle,
-			    SQLUSMALLINT RowNumber,
+			    SQLSETPOSIROW RowNumber,
 			    SQLUSMALLINT Operation, SQLUSMALLINT LockType)
 {
 	hStmt_T *stmt = (hStmt_T *) StatementHandle;

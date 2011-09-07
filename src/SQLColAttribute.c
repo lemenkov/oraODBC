@@ -66,7 +66,7 @@ SQLRETURN SQL_API SQLColAttribute(SQLHSTMT StatementHandle,
 				  SQLPOINTER CharacterAttributePtr,
 				  SQLSMALLINT BufferLength,
 				  SQLSMALLINT * StringLengthPtr,
-				  SQLPOINTER NumericAttributePtr)
+				  SQLLEN *NumericAttributePtr)
 {
 	hStmt_T *stmt = (hStmt_T *) StatementHandle;
 	struct ar_TAG *ar;

@@ -79,7 +79,7 @@ SQLRETURN _SQLGetData(SQLHSTMT StatementHandle,
 		      SQLUSMALLINT ColumnNumber,
 		      SQLSMALLINT TargetType,
 		      SQLPOINTER TargetValuePtr,
-		      SQLINTEGER BufferLength, SQLINTEGER * StrLen_or_indPtr)
+		      SQLLEN BufferLength, SQLLEN * StrLen_or_indPtr)
 {
 	hStmt_T *stmt = (hStmt_T *) StatementHandle;
 	hDesc_T *ir;
@@ -317,8 +317,8 @@ SQLRETURN SQL_API SQLGetData(SQLHSTMT StatementHandle,
 			     SQLUSMALLINT ColumnNumber,
 			     SQLSMALLINT TargetType,
 			     SQLPOINTER TargetValuePtr,
-			     SQLINTEGER BufferLength,
-			     SQLINTEGER * StrLen_or_indPtr)
+			     SQLLEN BufferLength,
+			     SQLLEN * StrLen_or_indPtr)
 {
 	return _SQLGetData(StatementHandle, ColumnNumber, TargetType,
 			   TargetValuePtr, BufferLength, StrLen_or_indPtr);
